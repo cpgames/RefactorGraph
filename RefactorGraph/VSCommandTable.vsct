@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable"
+              xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <Extern href="stdidcmd.h" />
+    <Extern href="vsshlids.h" />
+    <Include href="KnownImageIds.vsct" />
+    <Include href="VSGlobals.vsct" />
+
+    <Commands package="RefactorGraphGuid">
+        <Groups>
+            <Group guid="RefactorGraphGuid" id="MyMenuGroup" priority="0x0600">
+                <Parent guid="VSMainMenu" id="Tools" />
+            </Group>
+        </Groups>
+
+        <Buttons>
+            <Button guid="RefactorGraphGuid" id="ShowRefactorGraphCommand" priority="0x0100" type="Button">
+                <Parent guid="RefactorGraphGuid" id="MyMenuGroup" />
+                <Icon guid="GuidLogo" id="Logo" />
+                <Strings>
+                    <ButtonText>Show Refactor Graphs</ButtonText>
+                    <LocCanonicalName>.Tools.RefactorGraphGuid</LocCanonicalName>
+                </Strings>
+            </Button>
+        </Buttons>
+
+        <Bitmaps>
+            <Bitmap guid="GuidLogo" href="Resources\Icon.png" usedList="Logo" />
+        </Bitmaps>
+        <Bitmaps>
+            <Bitmap guid="GuidPreview" href="Resources\Preview.png" usedList="Preview" />
+        </Bitmaps>
+    </Commands>
+
+    <Symbols>
+        <GuidSymbol name="RefactorGraphGuid" value="{02177524-e6b6-4f79-ac09-eb3608cf2147}">
+            <IDSymbol name="MyMenuGroup" value="0x1020" />
+            <IDSymbol name="ShowRefactorGraphCommand" value="0x0100" />
+        </GuidSymbol>
+        <GuidSymbol name="GuidLogo" value="{4E1D4F06-7979-4D73-895F-C7847CBC4850}">
+            <IDSymbol name="Logo" value="1" />
+        </GuidSymbol>
+        <GuidSymbol name="GuidPreview" value="{EB4E66EB-3F9D-42F8-BE12-E77E394037BB}">
+            <IDSymbol name="Preview" value="1" />
+        </GuidSymbol>
+    </Symbols>
+</CommandTable>

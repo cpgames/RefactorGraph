@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="RefactorGraph.DesignerWindowControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ngv="clr-namespace:NodeGraph.View;assembly=NodeGraph"
+             xmlns:vsshell="clr-namespace:Microsoft.VisualStudio.Shell;assembly=Microsoft.VisualStudio.Shell.15.0"
+             xmlns:local="clr-namespace:RefactorGraph"
+             Background="{DynamicResource {x:Static vsshell:VsBrushes.WindowKey}}"
+             Foreground="{DynamicResource {x:Static vsshell:VsBrushes.WindowTextKey}}"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="600"
+             Name="MyToolWindow"
+             AllowDrop="True">
+    <Grid>
+        <Border Background="White" BorderThickness="2">
+            <ngv:FlowChartView
+                DataContext="{Binding Path=FlowChartViewModel, 
+                              RelativeSource={RelativeSource AncestorType={x:Type local:DesignerWindowControl}}}" />
+        </Border>
+    </Grid>
+</UserControl>

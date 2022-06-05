@@ -1,0 +1,30 @@
+﻿namespace RefactorGraph
+{
+    public enum RefactorNodeType
+    {
+        GetDocument,
+        SetDocument,
+        Pattern,
+        SplitRegex,
+        SplitIndex,
+        Replace,
+        Join,
+        Merge,
+        ForEach,
+        Chunk,
+        ChunkCollection,
+        OrderByChunkIndex,
+        GetElement,
+        GetCollectionSize,
+        Equals,
+        Int,
+        Add,
+        IntToChunk,
+        Set,
+        TwoBus,
+        ThreeBus,
+        Filter,
+        Clear,
+        OrderAlphabetical
+    }
+}

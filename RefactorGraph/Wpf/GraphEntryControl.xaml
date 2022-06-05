@@ -1,0 +1,63 @@
+﻿<UserControl x:Class="RefactorGraph.GraphEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="100" d:DesignWidth="200"
+             Name="MyGraphEntry">
+
+    <Border BorderBrush="White" BorderThickness="1" CornerRadius="8" x:Name="Border" Background="#FF1A1A1A" Margin="0,2,0,2">
+        <StackPanel Margin="5,5,5,5">
+            <Grid Margin="5,5,5,5">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="20" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label Content="Refactor Graph Name:" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="White"
+                       Grid.Column="0" FontSize="10" />
+
+                    <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Create new refactor graph" Click="Delete">
+                        <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Delete.png"
+                               Margin="2,0,2,0" />
+                    </Button>
+                </Grid>
+                <TextBox Grid.Row="2" HorizontalAlignment="Stretch" TextWrapping="Wrap"
+                         Text="{Binding ElementName=MyGraphEntry,Path=GraphName, Mode=TwoWay}"
+                         VerticalAlignment="Center" />
+                <Grid Grid.Row="3">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Save refactor file" Click="Save">
+                        <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Save.png"
+                               Margin="2,0,2,0" />
+                    </Button>
+                    <Button Grid.Column="2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Edit refactor file" Click="Edit">
+                        <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Search.png"
+                               Margin="2,0,2,0" />
+                    </Button>
+                    <Button Grid.Column="3" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                            ToolTip="Edit refactor file" Click="Refactor">
+                        <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Refactor.png"
+                               Margin="2,0,2,0" />
+                    </Button>
+                </Grid>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>
