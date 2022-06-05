@@ -7,10 +7,13 @@ Refactor graph works by capturing the active document (or selection) and splitti
 ## Usage:
 After installing the extension you can find it in Tools->Show Refactor Graphs
 ![](https://github.com/cpgames/RefactorGraph/blob/main/Documentation/1.png)
+
 Add new Refactor Graph by clicking '+'
 ![](https://github.com/cpgames/RefactorGraph/blob/main/Documentation/2.png)
+
 You can add nodes via toolbar by clicking the wrench icon:
 ![](https://github.com/cpgames/RefactorGraph/blob/main/Documentation/4.png)
+
 Or you can right-click on graph designer itself to bring up the context menu:
 ![](https://github.com/cpgames/RefactorGraph/blob/main/Documentation/5.png)
 
