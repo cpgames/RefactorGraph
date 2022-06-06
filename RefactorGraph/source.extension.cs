@@ -11,7 +11,7 @@ namespace RefactorGraph
         public const string Name = "RefactorGraph";
         public const string Description = @"Advanced code refactoring tool.";
         public const string Language = "en-US";
-        public const string Version = "1.2";
+        public const string Version = "1.3";
         public const string Author = "ChillPillGames";
         public const string Tags = "Refactoring, Editor, Graph";
     }
