@@ -177,5 +177,10 @@ namespace RefactorGraph
             base.OnDrop(e);
         }
         #endregion
+
+        private void Help(object sender, RoutedEventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/cpgames/RefactorGraph/wiki");
+        }
     }
 }
