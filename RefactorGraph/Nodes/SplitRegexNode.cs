@@ -15,13 +15,21 @@ namespace RefactorGraph
         #region Fields
         public const string INPUT_PORT_NAME = "Input";
         public const string OUTPUT_PORT_NAME = "Output";
+        public const string MATCH_NAME_PORT_NAME = "MatchName";
+        public const string MISMATCH_NAME_PORT_NAME = "MismatchName";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string IGNORE_WHITESPACE_PORT_NAME = "IgnoreWhitespace";
         public const string SOURCE_PORT_NAME = "Source";
         public const string RESULT_PORT_NAME = "Result";
 
-        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(Pattern), null, true, ViewModelType = typeof(PatternPropertyPortViewModel))]
-        public Pattern Pattern;
+        [NodePropertyPort(MATCH_NAME_PORT_NAME, true, typeof(string), "MyMatch", true)]
+        public string MatchName;
+
+        [NodePropertyPort(MATCH_NAME_PORT_NAME, true, typeof(string), "NotMyMatch", true)]
+        public string MismatchName;
+
+        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
+        public string Pattern;
 
         [NodePropertyPort(IGNORE_WHITESPACE_PORT_NAME, true, typeof(bool), true, true)]
         public bool IgnoreWhitespace;
@@ -34,7 +42,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public SplitRegexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.SplitRegex)
+        public SplitRegexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             HeaderBackgroundColor = Brushes.DarkMagenta;
             AllowEditingHeader = false;
@@ -42,22 +50,18 @@ namespace RefactorGraph
         #endregion
 
         #region Methods
-        public override void OnCreate()
-        {
-            base.OnCreate();
-            SetPortValue(PATTERN_PORT_NAME, new Pattern());
-        }
-
         public override void OnExecute(Connector prevConnector)
         {
             base.OnExecute(prevConnector);
 
+            MatchName = GetPortValue(MATCH_NAME_PORT_NAME, MatchName);
+            MismatchName = GetPortValue(MISMATCH_NAME_PORT_NAME, MismatchName);
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
-            var source = GetPortValue<Chunk>(SOURCE_PORT_NAME);
-            if (source != null && !string.IsNullOrEmpty(Pattern.content))
+            Source = GetPortValue<Chunk>(SOURCE_PORT_NAME);
+            if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
-                var capturedChunks = ProcessChunk(source, Pattern);
-                SetPortValue(RESULT_PORT_NAME, capturedChunks);
+                SplitChunk();
+                SetPortValue(RESULT_PORT_NAME, Result);
                 _success = true;
             }
             else
@@ -66,14 +70,14 @@ namespace RefactorGraph
             }
         }
 
-        private ChunkCollection ProcessChunk(Chunk chunk, Pattern pattern)
+        private void SplitChunk()
         {
-            var chunks = new ChunkCollection();
-            if (!string.IsNullOrEmpty(chunk.content))
+            Result = new ChunkCollection();
+            if (!string.IsNullOrEmpty(Source.content))
             {
-                var content = chunk.content;
+                var content = Source.content;
                 var ignoreWhitespace = GetPortValue(IGNORE_WHITESPACE_PORT_NAME, IgnoreWhitespace);
-                var matches = Regex.Matches(content, pattern.content, RegexOptions.Multiline);
+                var matches = Regex.Matches(content, Pattern, RegexOptions.Multiline);
                 if (matches.Count > 0)
                 {
                     for (var i = 0; i < matches.Count; i++)
@@ -84,25 +88,25 @@ namespace RefactorGraph
                         {
                             var subChunk = new Chunk
                             {
-                                name = $"!{pattern.name}",
+                                name = MismatchName,
                                 content = content.Substring(index, length),
                                 index = index,
                                 length = length
                             };
                             if (!ignoreWhitespace || !string.IsNullOrEmpty(subChunk.content.Trim()))
                             {
-                                chunks.Add(subChunk);
+                                Result.Add(subChunk);
                             }
                         }
                         {
                             var subChunk = new Chunk
                             {
-                                name = pattern.name,
+                                name = MatchName,
                                 content = matches[i].Value,
                                 index = matches[i].Index,
                                 length = matches[i].Length
                             };
-                            chunks.Add(subChunk);
+                            Result.Add(subChunk);
                         }
                     }
                 }
@@ -113,19 +117,18 @@ namespace RefactorGraph
                     {
                         var subChunk = new Chunk
                         {
-                            name = $"!{pattern.name}",
+                            name = MismatchName,
                             content = content.Substring(index, length),
                             index = index,
                             length = length - index
                         };
                         if (!ignoreWhitespace || !string.IsNullOrEmpty(subChunk.content.Trim()))
                         {
-                            chunks.Add(subChunk);
+                            Result.Add(subChunk);
                         }
                     }
                 }
             }
-            return chunks;
         }
 
         public override void OnPostExecute(Connector prevConnector)

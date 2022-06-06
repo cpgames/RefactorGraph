@@ -5,24 +5,26 @@ using NodeGraph.Model;
 namespace RefactorGraph
 {
     [Node]
-    [RefactorNode(group = RefactorNodeGroup.Logic, nodeType = RefactorNodeType.ThreeBus)]
+    [RefactorNode(group = RefactorNodeGroup.Logic, nodeType = RefactorNodeType.FourBus)]
     [NodeFlowPort(INPUT_PORT_NAME, "", true)]
     [NodeFlowPort(OUTPUT_1_PORT_NAME, "1", false)]
     [NodeFlowPort(OUTPUT_2_PORT_NAME, "2", false)]
     [NodeFlowPort(OUTPUT_3_PORT_NAME, "3", false)]
-    public class ThreeBusNode : RefactorNodeBase
+    [NodeFlowPort(OUTPUT_4_PORT_NAME, "4", false)]
+    public class FourBusNode : RefactorNodeBase
     {
         #region Fields
         public const string INPUT_PORT_NAME = "Input";
         public const string OUTPUT_1_PORT_NAME = "Output1";
         public const string OUTPUT_2_PORT_NAME = "Output2";
         public const string OUTPUT_3_PORT_NAME = "Output3";
+        public const string OUTPUT_4_PORT_NAME = "Output4";
         #endregion
 
         #region Constructors
-        public ThreeBusNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
+        public FourBusNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
-            Header = "3 Bus";
+            Header = "4 Bus";
             HeaderBackgroundColor = Brushes.DarkBlue;
             AllowEditingHeader = false;
         }
@@ -41,6 +43,7 @@ namespace RefactorGraph
             ExecutePort(OUTPUT_1_PORT_NAME);
             ExecutePort(OUTPUT_2_PORT_NAME);
             ExecutePort(OUTPUT_3_PORT_NAME);
+            ExecutePort(OUTPUT_4_PORT_NAME);
         }
         #endregion
     }

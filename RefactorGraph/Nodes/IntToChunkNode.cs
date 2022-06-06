@@ -29,7 +29,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public IntToChunkNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.IntToChunk)
+        public IntToChunkNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "IntToChunk";
             HeaderBackgroundColor = Brushes.DarkBlue;

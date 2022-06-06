@@ -20,7 +20,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public OrderByChunkIndexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.OrderByChunkIndex)
+        public OrderByChunkIndexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "OrderByChunkIndex";
             HeaderBackgroundColor = Brushes.DarkBlue;

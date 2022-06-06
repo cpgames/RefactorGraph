@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 using NodeGraph;
 using NodeGraph.Model;
 
@@ -27,9 +29,12 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public RefactorNodeBase(Guid guid, FlowChart flowChart, RefactorNodeType nodeType) : base(guid, flowChart)
+        public RefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
-            Header = nodeType.ToString();
+            var nodeType = GetType().GetAttribute<RefactorNodeAttribute>().nodeType;
+            var matches = Regex.Matches(nodeType.ToString(), "[A-Z][a-z]*");
+            var header = matches.Cast<Match>().Aggregate(string.Empty, (current, match) => current + (match.Value + " "));
+            Header = header.Trim();
             _nodeType = nodeType;
             var raiseEvent = NodeCreatedEvent;
             raiseEvent?.Invoke(this, null);
@@ -39,9 +44,6 @@ namespace RefactorGraph
 
         #region Methods
         public static event EventHandler NodeCreatedEvent;
-
-        public virtual void Reset() { }
-
         public override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);

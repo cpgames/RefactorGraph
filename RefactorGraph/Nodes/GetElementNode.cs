@@ -29,7 +29,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public GetElementNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.GetElement)
+        public GetElementNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "GetElement";
             HeaderBackgroundColor = Brushes.DarkBlue;

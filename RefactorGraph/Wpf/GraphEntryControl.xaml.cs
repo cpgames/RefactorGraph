@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
-using RefactorGraphdCore.Data;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
+using RefactorGraphdCore.Data;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Panel = System.Windows.Controls.Panel;
 using UserControl = System.Windows.Controls.UserControl;
@@ -27,7 +27,8 @@ namespace RefactorGraph
         };
         private string _graphName = "NewRefactorGraph";
         private DesignerWindowControl _flowChartWindow;
-        private bool _opened  ;
+        private bool _opened;
+        private bool _enabled = true;
         #endregion
 
         #region Properties
@@ -75,6 +76,18 @@ namespace RefactorGraph
                 }
             }
         }
+
+        public bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                HeaderLabel.Content = value ?
+                    "RefactorClick Graph Name:" :
+                    "[Disabled] RefactorClick Graph Name:";
+                _enabled = value;
+            }
+        }
         #endregion
 
         #region Constructors
@@ -105,13 +118,22 @@ namespace RefactorGraph
 
         public void SetFile(string fileName)
         {
-            if (!Utils.Load(fileName, out var flowChart))
+            try
             {
+                Utils.Load(fileName, out var flowChart);
+                _flowChartViewModel = flowChart.ViewModel;
+                _graphName = fileName;
+                RaisePropertyChanged("GraphName");
+            }
+            catch (Exception e)
+            {
+                var result = MessageBox.Show($"{e.Message}\n\n Delete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                if (result == DialogResult.Yes)
+                {
+                    Utils.Delete(fileName);
+                }
                 ((Panel)Parent).Children.Remove(this);
             }
-            _flowChartViewModel = flowChart.ViewModel;
-            _graphName = fileName;
-            RaisePropertyChanged("GraphName");
         }
 
         private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
@@ -241,7 +263,7 @@ namespace RefactorGraph
 
         private void Delete(object sender, RoutedEventArgs routedEventArgs)
         {
-            var result = MessageBox.Show($"Delete {GraphName}?", "Delete Refactor Graph", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            var result = MessageBox.Show($"Delete {GraphName}?", "Delete RefactorClick Graph", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes && Utils.Delete(GraphName))
             {
                 ((Panel)Parent).Children.Remove(this);
@@ -258,28 +280,20 @@ namespace RefactorGraph
             OpenGraphWindowAsync().Wait();
         }
 
-        private void Refactor(object sender, RoutedEventArgs e)
+        public void Refactor()
         {
             NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
-            var getDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "GetDocument");
+            var getDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "Get Document");
             if (getDocumentNodes.Count == 0)
             {
-                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a GetDocument node.");
+                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a 'Get Document' node.");
                 return;
             }
-            var setDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "SetDocument");
+            var setDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "Set Document");
             if (setDocumentNodes.Count == 0)
             {
-                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a SetDocument node.");
+                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a 'Set Document' node.");
                 return;
-            }
-
-            foreach (var pair in NodeGraphManager.Nodes)
-            {
-                if (pair.Value is RefactorNodeBase refactorNode)
-                {
-                    refactorNode.Reset();
-                }
             }
 
             foreach (var node in getDocumentNodes.OfType<GetDocumentNode>())
@@ -288,6 +302,11 @@ namespace RefactorGraph
                 node.OnExecute(null);
                 node.OnPostExecute(null);
             }
+        }
+
+        private void RefactorClick(object sender, RoutedEventArgs e)
+        {
+            Refactor();
         }
 
         private async Task OpenGraphWindowAsync()
@@ -316,6 +335,11 @@ namespace RefactorGraph
         private void SaveInternal()
         {
             Utils.Save(GraphName, _flowChartViewModel.Model);
+        }
+
+        private void Toggle(object sender, RoutedEventArgs e)
+        {
+            Enabled = !Enabled;
         }
         #endregion
     }

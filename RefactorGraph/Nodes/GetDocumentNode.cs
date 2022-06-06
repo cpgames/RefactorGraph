@@ -23,9 +23,8 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public GetDocumentNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.GetDocument)
+        public GetDocumentNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
-            Header = "GetDocument";
             HeaderBackgroundColor = Brushes.DarkMagenta;
             AllowEditingHeader = false;
         }

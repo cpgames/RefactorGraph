@@ -33,7 +33,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public SplitIndexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.SplitIndex)
+        public SplitIndexNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             HeaderBackgroundColor = Brushes.DarkMagenta;
             AllowEditingHeader = false;

@@ -21,9 +21,8 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public SetDocumentNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.SetDocument)
+        public SetDocumentNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
-            Header = "SetDocument";
             HeaderBackgroundColor = Brushes.DarkMagenta;
             AllowEditingHeader = false;
         }

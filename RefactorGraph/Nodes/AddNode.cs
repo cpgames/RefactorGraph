@@ -28,7 +28,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public AddNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Add)
+        public AddNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "A + B";
             HeaderBackgroundColor = Brushes.DarkBlue;

@@ -22,7 +22,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public ClearNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Clear)
+        public ClearNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "Clear";
             HeaderBackgroundColor = Brushes.DarkBlue;

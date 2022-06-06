@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -18,33 +19,6 @@ namespace RefactorGraph
         public static readonly DependencyProperty FlowChartViewModelProperty =
             DependencyProperty.Register("FlowChartViewModel", typeof(FlowChartViewModel), typeof(DesignerWindowControl), new PropertyMetadata(null));
         private Point _contextMenuLocation;
-        private readonly Type[] _nodeTypes =
-        {
-            typeof(GetDocumentNode),
-            typeof(SetDocumentNode),
-            typeof(PatternNode),
-            typeof(SplitRegexNode),
-            typeof(SplitIndexNode),
-            typeof(ReplaceNode),
-            typeof(JoinNode),
-            typeof(MergeNode),
-            typeof(ForEachNode),
-            typeof(ChunkNode),
-            typeof(ChunkCollectionNode),
-            typeof(OrderByChunkIndexNode),
-            typeof(GetElementNode),
-            typeof(GetCollectionSizeNode),
-            typeof(EqualsNode),
-            typeof(IntNode),
-            typeof(AddNode),
-            typeof(IntToChunkNode),
-            typeof(SetNode),
-            typeof(TwoBusNode),
-            typeof(ThreeBusNode),
-            typeof(FilterNode),
-            typeof(ClearNode),
-            typeof(OrderAlphabeticalNode)
-        };
         #endregion
 
         #region Properties
@@ -61,7 +35,9 @@ namespace RefactorGraph
             InitializeComponent();
 
             Loaded += MainWindow_Loaded;
+            Unloaded += MainWindow_Unloaded;
         }
+
         #endregion
 
         #region Methods
@@ -74,15 +50,26 @@ namespace RefactorGraph
             NodeGraphManager.BuildNodeContextMenu += NodeGraphManager_BuildNodeContextMenu;
             NodeGraphManager.BuildFlowPortContextMenu += NodeGraphManager_BuildFlowPortContextMenu;
             NodeGraphManager.BuildPropertyPortContextMenu += NodeGraphManager_BuildPropertyPortContextMenu;
-
             NodeGraphManager.NodeSelectionChanged += NodeGraphManager_NodeSelectionChanged;
-
             NodeGraphManager.DragEnter += NodeGraphManager_DragEnter;
             NodeGraphManager.DragLeave += NodeGraphManager_DragLeave;
             NodeGraphManager.DragOver += NodeGraphManager_DragOver;
             NodeGraphManager.Drop += NodeGraphManager_Drop;
-
             KeyDown += MainWindow_KeyDown;
+        }
+
+        private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
+        {
+            NodeGraphManager.BuildFlowChartContextMenu -= NodeGraphManager_BuildFlowChartContextMenu;
+            NodeGraphManager.BuildNodeContextMenu -= NodeGraphManager_BuildNodeContextMenu;
+            NodeGraphManager.BuildFlowPortContextMenu -= NodeGraphManager_BuildFlowPortContextMenu;
+            NodeGraphManager.BuildPropertyPortContextMenu -= NodeGraphManager_BuildPropertyPortContextMenu;
+            NodeGraphManager.NodeSelectionChanged -= NodeGraphManager_NodeSelectionChanged;
+            NodeGraphManager.DragEnter -= NodeGraphManager_DragEnter;
+            NodeGraphManager.DragLeave -= NodeGraphManager_DragLeave;
+            NodeGraphManager.DragOver -= NodeGraphManager_DragOver;
+            NodeGraphManager.Drop -= NodeGraphManager_Drop;
+            KeyDown -= MainWindow_KeyDown;
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
@@ -118,29 +105,52 @@ namespace RefactorGraph
 
         private bool NodeGraphManager_BuildFlowChartContextMenu(object sender, BuildContextMenuArgs args)
         {
+            SetDropDownMenuToBeRightAligned();
+
             var items = args.ContextMenu.Items;
-
             _contextMenuLocation = args.ModelSpaceMouseLocation;
-
             items.Clear();
 
-            foreach (var nodeType in _nodeTypes)
+            var typeGroups = typeof(RefactorNodeBase).FindAllDerivedTypes()
+                .Where(x => x.HasAttribute<RefactorNodeAttribute>())
+                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().group)
+                .OrderBy(x => x.Key);
+
+            foreach (var typeGroup in typeGroups)
             {
-                var menuItem = new MenuItem();
+                var menuGroupItem = new MenuItem();
+                menuGroupItem.Header = typeGroup.Key;
+                items.Add(menuGroupItem);
 
-                var NodeAttrs = nodeType.GetCustomAttributes(typeof(NodeAttribute), false) as NodeAttribute[];
-                if (1 != NodeAttrs.Length)
+                foreach (var nodeType in typeGroup.OrderBy(x => x.GetAttribute<RefactorNodeAttribute>().nodeType.ToString()))
                 {
-                    throw new ArgumentException(string.Format("{0} must have NodeAttribute", nodeType.Name));
+                    var menuItem = new MenuItem();
+                    menuItem.Header = nodeType.GetAttribute<RefactorNodeAttribute>().nodeType;
+                    menuItem.CommandParameter = nodeType;
+                    menuItem.Click += FlowChart_ContextMenuItem_Click;
+                    menuGroupItem.Items.Add(menuItem);
                 }
-
-                menuItem.Header = "Create " + nodeType.Name;
-                menuItem.CommandParameter = nodeType;
-                menuItem.Click += FlowChart_ContextMenuItem_Click;
-                items.Add(menuItem);
             }
-
             return 0 < items.Count;
+        }
+
+        private static void SetDropDownMenuToBeRightAligned()
+        {
+            var menuDropAlignmentField = typeof(SystemParameters).GetField("_menuDropAlignment", BindingFlags.NonPublic | BindingFlags.Static);
+            Action setAlignmentValue = () =>
+            {
+                if (SystemParameters.MenuDropAlignment && menuDropAlignmentField != null)
+                {
+                    menuDropAlignmentField.SetValue(null, false);
+                }
+            };
+
+            setAlignmentValue();
+
+            SystemParameters.StaticPropertyChanged += (sender, e) =>
+            {
+                setAlignmentValue();
+            };
         }
 
         private bool NodeGraphManager_BuildNodeContextMenu(object sender, BuildContextMenuArgs args)
@@ -204,10 +214,12 @@ namespace RefactorGraph
         private void NodeGraphManager_Drop(object sender, NodeGraphDragEventArgs args)
         {
             var flowChartView = FlowChartViewModel.View;
-
             var eType = (RefactorNodeType)args.DragEventArgs.Data.GetData(typeof(RefactorNodeType));
-            var nodeType = _nodeTypes[(int)eType];
-
+            var nodeType = Utils.GetNodeType(eType);
+            if (nodeType == null)
+            {
+                return;
+            }
             var flowChart = flowChartView.ViewModel.Model;
             flowChart.History.BeginTransaction("Creating node");
             {

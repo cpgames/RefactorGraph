@@ -1,6 +1,6 @@
 ﻿using System;
-using RefactorGraphdCore.Data;
 using NodeGraph.Model;
+using RefactorGraphdCore.Data;
 
 namespace RefactorGraph
 {
@@ -9,14 +9,7 @@ namespace RefactorGraph
     public class ChunkNode : VariableNode<Chunk>
     {
         #region Constructors
-        public ChunkNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Chunk) { }
-        #endregion
-
-        #region Methods
-        public override void Reset()
-        {
-            Value = new Chunk();
-        }
+        public ChunkNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
     }
 }

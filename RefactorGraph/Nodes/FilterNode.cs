@@ -31,7 +31,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public FilterNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Filter)
+        public FilterNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "Filter";
             HeaderBackgroundColor = Brushes.DarkBlue;

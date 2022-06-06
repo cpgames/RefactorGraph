@@ -28,7 +28,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public EqualsNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Equals)
+        public EqualsNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "A = B";
             HeaderBackgroundColor = Brushes.DarkBlue;

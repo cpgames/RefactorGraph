@@ -49,8 +49,12 @@
     <Compile Include="Data\Chunk.cs" />
     <Compile Include="Data\ChunkCollection.cs" />
     <Compile Include="Data\Pattern.cs" />
+    <Compile Include="Nodes\ReplaceRegexNode.cs" />
+    <Compile Include="Nodes\CreateChunkNode.cs" />
+    <Compile Include="Nodes\StringNode.cs" />
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
+    <Compile Include="Nodes\FourBusNode.cs" />
     <Compile Include="Nodes\ThreeBusNode.cs" />
     <Compile Include="Nodes\TwoBusNode.cs" />
     <Compile Include="Nodes\FilterNode.cs" />
@@ -72,14 +76,11 @@
     <Compile Include="Nodes\JoinNode.cs" />
     <Compile Include="Nodes\ForEachNode.cs" />
     <Compile Include="Nodes\ChunkNode.cs" />
-    <Compile Include="Nodes\ReplaceNode.cs" />
-    <Compile Include="Nodes\PatternPropertyPortView.cs" />
-    <Compile Include="Nodes\PatternPropertyPortViewModel.cs" />
+    <Compile Include="Nodes\SetChunkDataNode.cs" />
     <Compile Include="Nodes\GetDocumentNode.cs" />
     <Compile Include="Nodes\SplitRegexNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
-    <Compile Include="Nodes\PatternNode.cs" />
     <Compile Include="Wpf\NodeEntryControl.xaml.cs">
       <DependentUpon>NodeEntryControl.xaml</DependentUpon>
     </Compile>
@@ -90,9 +91,6 @@
       <DependentUpon>ToolbarWindowControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wpf\ToolbarWindow.cs" />
-    <Compile Include="Wpf\PatternEditor.xaml.cs">
-      <DependentUpon>PatternEditor.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\ShowRefactorGraphCommand.cs" />
     <Compile Include="RefactorGraphPackage.cs" />
@@ -121,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\load.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Power.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Content Include="Resources\Preview.png">
@@ -206,10 +207,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Wpf\ToolbarWindowControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Wpf\PatternEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

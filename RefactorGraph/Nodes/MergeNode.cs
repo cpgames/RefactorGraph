@@ -20,7 +20,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public MergeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Merge)
+        public MergeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "Merge";
             HeaderBackgroundColor = Brushes.DarkBlue;

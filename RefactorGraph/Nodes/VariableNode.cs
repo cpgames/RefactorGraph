@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Windows.Media;
-using RefactorGraphdCore.Data;
 using NodeGraph;
 using NodeGraph.Model;
+using RefactorGraphdCore.Data;
 
 namespace RefactorGraph
 {
@@ -27,7 +27,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        protected VariableNode(Guid guid, FlowChart flowChart, RefactorNodeType nodeType, string customHeader = null) : base(guid, flowChart,  nodeType)
+        protected VariableNode(Guid guid, FlowChart flowChart, string customHeader = null) : base(guid, flowChart)
         {
             if (customHeader == null)
             {
@@ -58,10 +58,15 @@ namespace RefactorGraph
         #endregion
 
         #region Methods
+        protected virtual T DefaultFactory()
+        {
+            return Activator.CreateInstance<T>();
+        }
+
         public override void OnCreate()
         {
             var type = typeof(T);
-            _value = Activator.CreateInstance(type);
+            _value = DefaultFactory();
 
             var port = NodeGraphManager.CreateNodePropertyPort(
                 false, Guid.NewGuid(), this, false, type, _value, "Value", HasEditor, ViewModelTypeOverride);

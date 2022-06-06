@@ -22,7 +22,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public ForEachNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.ForEach)
+        public ForEachNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "ForEach";
             HeaderBackgroundColor = Brushes.DarkBlue;

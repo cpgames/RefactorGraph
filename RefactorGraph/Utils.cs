@@ -92,43 +92,34 @@ namespace RefactorGraph
             return true;
         }
 
-        public static bool Load(string graphName, out FlowChart flowChart)
+        public static void Load(string graphName, out FlowChart flowChart)
         {
-            try
+            var filePath = CreateGraphFilePath(graphName);
+            if (!File.Exists(filePath))
             {
-                var filePath = CreateGraphFilePath(graphName);
-                if (!File.Exists(filePath))
-                {
-                    throw new FileNotFoundException("FlowGraph file not found.", filePath);
-                }
+                throw new FileNotFoundException("FlowGraph file not found.", filePath);
+            }
 
-                using (var reader = XmlReader.Create(filePath))
+            using (var reader = XmlReader.Create(filePath))
+            {
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    if (reader.NodeType == XmlNodeType.Element)
                     {
-                        if (reader.NodeType == XmlNodeType.Element)
+                        if (reader.Name == "FlowChart")
                         {
-                            if (reader.Name == "FlowChart")
-                            {
-                                var guid = Guid.Parse(reader.GetAttribute("Guid") ?? throw new InvalidOperationException());
-                                var type = Type.GetType(reader.GetAttribute("Type") ?? throw new InvalidOperationException());
+                            var guid = Guid.Parse(reader.GetAttribute("Guid") ?? throw new InvalidOperationException());
+                            var type = Type.GetType(reader.GetAttribute("Type") ?? throw new InvalidOperationException());
 
-                                flowChart = NodeGraphManager.CreateFlowChart(true, guid, type);
-                                flowChart.ReadXml(reader);
-                                flowChart.OnDeserialize();
-                                return true;
-                            }
+                            flowChart = NodeGraphManager.CreateFlowChart(true, guid, type);
+                            flowChart.ReadXml(reader);
+                            flowChart.OnDeserialize();
+                            return;
                         }
                     }
                 }
-                throw new Exception("Failed to read xml.");
             }
-            catch (Exception e)
-            {
-                flowChart = null;
-                MessageBox.Show(e.Message, "Load failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            throw new Exception("Failed to find FlowChart element.");
         }
 
         public static bool Delete(string graphName)
@@ -175,6 +166,14 @@ namespace RefactorGraph
         public static bool HasAttribute<T>(this Type type) where T : Attribute
         {
             return type.GetAttribute<T>() != null;
+        }
+
+        public static Type GetNodeType(RefactorNodeType nodeType)
+        {
+            var types = typeof(RefactorNodeBase)
+                .FindAllDerivedTypes()
+                .Where(x => x.HasAttribute<RefactorNodeAttribute>());
+            return types.FirstOrDefault(x => x.GetAttribute<RefactorNodeAttribute>().nodeType == nodeType);
         }
         #endregion
     }

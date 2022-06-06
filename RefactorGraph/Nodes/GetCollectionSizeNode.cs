@@ -20,7 +20,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public GetCollectionSizeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.GetCollectionSize)
+        public GetCollectionSizeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "GetCollectionSize";
             HeaderBackgroundColor = Brushes.DarkBlue;

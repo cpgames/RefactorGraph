@@ -18,7 +18,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public TwoBusNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.TwoBus)
+        public TwoBusNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "2 Bus";
             HeaderBackgroundColor = Brushes.DarkBlue;

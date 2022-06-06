@@ -29,7 +29,7 @@ namespace RefactorGraph
                 expander.Foreground = new SolidColorBrush(Colors.White);
                 var stackPanel = new StackPanel();
                 expander.Content = stackPanel;
-                foreach (var nodeType in nodeTypeGroup)
+                foreach (var nodeType in nodeTypeGroup.OrderBy(x => x.GetAttribute<RefactorNodeAttribute>().nodeType.ToString()))
                 {
                     var nodeEntry = new NodeEntryControl();
                     nodeEntry.NodeType = nodeType.GetAttribute<RefactorNodeAttribute>().nodeType;

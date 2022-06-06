@@ -21,6 +21,7 @@
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
@@ -38,9 +39,17 @@
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Tool.png"
                        Margin="2,0,2,0" />
             </Button>
+            <Button Grid.Column="4" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    ToolTip="Run all enabled refactor graphs" Click="RefactorAll">
+                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Refactor.png"
+                       Margin="2,0,2,0" />
+            </Button>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1">
-            <StackPanel Orientation="Vertical" Name="StackPatterns" />
+            <StackPanel Orientation="Vertical" Name="StackPatterns"
+                        PreviewMouseLeftButtonDown="PatternsMouseLeftButtonDown" PreviewMouseLeftButtonUp="PatternsMouseLeftButtonUp"
+                        PreviewMouseMove="PatternsMouseMove"
+                        DragEnter="PatternsDragEnter" Drop="PatternsDrop" />
         </ScrollViewer>
     </Grid>
 

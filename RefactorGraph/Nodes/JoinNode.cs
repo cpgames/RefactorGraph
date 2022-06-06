@@ -33,7 +33,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public JoinNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Join)
+        public JoinNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "Join";
             HeaderBackgroundColor = Brushes.DarkBlue;

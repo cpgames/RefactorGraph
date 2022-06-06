@@ -3,7 +3,7 @@
 
 Visual Studio extension for your craziest refactoring needs.
 ## Concept:
-Refactor graph works by capturing the active document (or selection) and splitting it into a chunk collection. Chunk collection is composed of text chunks that have a name, text, and index within the document. Chunks can then be ordered and merged back into a single chunk via Merge node. Processed chunk can then be set as output via SetDocument node, which would replace the current selection (or active document).
+Refactor graph works by capturing the active document (or selection) and splitting it into a chunk collection. Chunk collection is composed of text chunks that have a name, text, and index within the document. Chunks can then be ordered, modified (via Replace node), and merged back into a single chunk via Merge node. Processed chunk can then be set as output via SetDocument node, which would replace the current selection (or active document).
 ## Usage:
 After installing the extension you can find it in Tools->Show Refactor Graphs
 

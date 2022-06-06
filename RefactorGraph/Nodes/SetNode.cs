@@ -24,7 +24,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public SetNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Set)
+        public SetNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "Set";
             HeaderBackgroundColor = Brushes.DarkBlue;

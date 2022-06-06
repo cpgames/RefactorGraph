@@ -12,7 +12,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public IntNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.Int) { }
+        public IntNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
     }
 }

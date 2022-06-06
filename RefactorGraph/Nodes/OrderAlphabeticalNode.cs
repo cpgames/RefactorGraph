@@ -33,7 +33,7 @@ namespace RefactorGraph
         #endregion
 
         #region Constructors
-        public OrderAlphabeticalNode(Guid guid, FlowChart flowChart) : base(guid, flowChart, RefactorNodeType.OrderAlphabetical)
+        public OrderAlphabeticalNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             Header = "OrderAlphabetical";
             HeaderBackgroundColor = Brushes.DarkBlue;
