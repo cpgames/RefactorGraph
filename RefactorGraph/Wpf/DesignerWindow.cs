@@ -37,7 +37,7 @@ namespace RefactorGraph
         #region Methods
         public override string GetTitle(int toolWindowId)
         {
-            return "Refactor Graph";
+            return "Refactor Graph Designer";
         }
 
         public override Task<FrameworkElement> CreateAsync(int toolWindowId, CancellationToken cancellationToken)
