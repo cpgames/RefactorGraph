@@ -244,11 +244,11 @@ namespace RefactorGraph
         {
             var getDocumentNode = NodeGraphManager.CreateNode(
                 false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetDocumentNode),
-                200, 500, 0);
+                200, 200, 0);
 
             var setDocumentNode = NodeGraphManager.CreateNode(
                 false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(SetDocumentNode),
-                500, 500, 0);
+                500, 200, 0);
 
             var connector1 = NodeGraphManager.CreateConnector(
                 false, Guid.NewGuid(), _flowChartViewModel.Model);
