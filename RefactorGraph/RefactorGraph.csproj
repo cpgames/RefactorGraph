@@ -49,6 +49,7 @@
     <Compile Include="Data\Chunk.cs" />
     <Compile Include="Data\ChunkCollection.cs" />
     <Compile Include="Data\Pattern.cs" />
+    <Compile Include="Nodes\JoinCollectionsNode.cs" />
     <Compile Include="Nodes\ReplaceRegexNode.cs" />
     <Compile Include="Nodes\CreateChunkNode.cs" />
     <Compile Include="Nodes\StringNode.cs" />
@@ -73,7 +74,7 @@
     <Compile Include="Nodes\SetDocumentNode.cs" />
     <Compile Include="Nodes\SplitIndexNode.cs" />
     <Compile Include="Nodes\VariableNode.cs" />
-    <Compile Include="Nodes\JoinNode.cs" />
+    <Compile Include="Nodes\AddChunkToCollectionNode.cs" />
     <Compile Include="Nodes\ForEachNode.cs" />
     <Compile Include="Nodes\ChunkNode.cs" />
     <Compile Include="Nodes\SetChunkDataNode.cs" />

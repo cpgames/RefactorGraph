@@ -25,7 +25,7 @@ namespace RefactorGraph
         [NodePropertyPort(MATCH_NAME_PORT_NAME, true, typeof(string), "MyMatch", true)]
         public string MatchName;
 
-        [NodePropertyPort(MATCH_NAME_PORT_NAME, true, typeof(string), "NotMyMatch", true)]
+        [NodePropertyPort(MISMATCH_NAME_PORT_NAME, true, typeof(string), "NotMyMatch", true)]
         public string MismatchName;
 
         [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
