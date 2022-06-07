@@ -24,9 +24,7 @@
         Add,
         IntToChunk,
         Set,
-        TwoBus,
-        ThreeBus,
-        FourBus,
+        Bus,
         Filter,
         Clear,
         OrderAlphabetical

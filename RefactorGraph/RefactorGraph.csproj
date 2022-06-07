@@ -49,15 +49,15 @@
     <Compile Include="Data\Chunk.cs" />
     <Compile Include="Data\ChunkCollection.cs" />
     <Compile Include="Data\Pattern.cs" />
+    <Compile Include="Nodes\BusView.cs" />
+    <Compile Include="Nodes\BusViewModel.cs" />
     <Compile Include="Nodes\JoinCollectionsNode.cs" />
     <Compile Include="Nodes\ReplaceRegexNode.cs" />
     <Compile Include="Nodes\CreateChunkNode.cs" />
     <Compile Include="Nodes\StringNode.cs" />
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
-    <Compile Include="Nodes\FourBusNode.cs" />
-    <Compile Include="Nodes\ThreeBusNode.cs" />
-    <Compile Include="Nodes\TwoBusNode.cs" />
+    <Compile Include="Nodes\BusNode.cs" />
     <Compile Include="Nodes\FilterNode.cs" />
     <Compile Include="Nodes\ClearNode.cs" />
     <Compile Include="Nodes\OrderAlphabeticalNode.cs" />
@@ -119,6 +119,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\Remove.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\load.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>

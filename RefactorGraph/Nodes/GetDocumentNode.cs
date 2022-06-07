@@ -48,8 +48,8 @@ namespace RefactorGraph
                 return;
             }
 
-            _success = true;
             _documentChunk = GetDocumentCallback();
+            _success = _documentChunk != null;
             SetPortValue(DOCUMENT_PORT_NAME, _documentChunk);
         }
 
