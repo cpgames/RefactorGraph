@@ -11,6 +11,7 @@ using DragDropEffects = System.Windows.DragDropEffects;
 using DragEventArgs = System.Windows.DragEventArgs;
 using GiveFeedbackEventArgs = System.Windows.GiveFeedbackEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using TextBox = System.Windows.Forms.TextBox;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace RefactorGraph
@@ -87,6 +88,10 @@ namespace RefactorGraph
                     entry.SetFile(fileName);
                 }
             }
+            if (Utils.refreshAction != null)
+            {
+                Utils.refreshAction();
+            }
         }
 
         private void ShowToolbar(object sender, RoutedEventArgs e)
@@ -129,6 +134,10 @@ namespace RefactorGraph
                     (Math.Abs(e.GetPosition(StackPatterns).X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                         Math.Abs(e.GetPosition(StackPatterns).Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
+                    if (e.OriginalSource is System.Windows.Controls.TextBox)
+                    {
+                        return;
+                    }
                     _isDragging = true;
                     _realDragSource = e.Source as UIElement;
                     _realDragSource.CaptureMouse();

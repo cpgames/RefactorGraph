@@ -15,15 +15,13 @@ namespace RefactorGraph
     {
         #region Fields
         public static UserActivityHook actHook = new UserActivityHook(true, false);
+        public static Action refreshAction;
         #endregion
 
         #region Methods
-        public static string GetOrCreateDir(string dir = null)
+        public static string GetOrCreateDir()
         {
-            if (dir == null)
-            {
-                dir = Directory.GetCurrentDirectory();
-            }
+            var dir = Directory.GetCurrentDirectory();
             var dirSubs = Directory.GetDirectories(dir, "RefactorGraphs");
             DirectoryInfo dirInfo;
             if (dirSubs.Length == 0)
@@ -37,17 +35,17 @@ namespace RefactorGraph
             return dirInfo.FullName;
         }
 
-        public static IEnumerable<string> GetGraphFiles(string dir = null)
+        public static IEnumerable<string> GetGraphFiles()
         {
-            dir = GetOrCreateDir(dir);
+            var dir = GetOrCreateDir();
             var files = Directory.GetFiles(dir, "*.rgraph");
             return files.Select(Path.GetFileNameWithoutExtension);
         }
 
-        public static string CreateGraphFilePath(string graphName, string dir = null)
+        public static string CreateGraphFilePath(string graphName)
         {
             graphName = $"{graphName}.rgraph";
-            dir = GetOrCreateDir(dir);
+            var dir = GetOrCreateDir();
             return Path.Combine(dir, graphName);
         }
 
@@ -67,11 +65,11 @@ namespace RefactorGraph
             }
         }
 
-        public static bool Save(string graphName, FlowChart flowChart, string dir = null)
+        public static bool Save(FlowChart flowChart)
         {
             try
             {
-                var filePath = CreateGraphFilePath(graphName, dir);
+                var filePath = CreateGraphFilePath(flowChart.Name);
                 var settings = new XmlWriterSettings();
                 settings.Indent = true;
                 settings.IndentChars = "\t";
@@ -94,18 +92,18 @@ namespace RefactorGraph
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.Message, "Rename failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(e.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
             return true;
         }
 
-        public static void Load(string graphName, out FlowChart flowChart, string dir = null)
+        public static void Load(string graphName, out FlowChart flowChart)
         {
-            var filePath = CreateGraphFilePath(graphName, dir);
+            var filePath = CreateGraphFilePath(graphName);
             if (!File.Exists(filePath))
             {
-                throw new FileNotFoundException("FlowGraph file not found.", filePath);
+                throw new FileNotFoundException($"FlowGraph <{graphName}> not found.", filePath);
             }
 
             using (var reader = XmlReader.Create(filePath))
@@ -134,11 +132,11 @@ namespace RefactorGraph
             throw new Exception("Failed to find FlowChart element.");
         }
 
-        public static bool Delete(string graphName, string dir = null)
+        public static bool Delete(string graphName)
         {
             try
             {
-                var filePath = CreateGraphFilePath(graphName, dir);
+                var filePath = CreateGraphFilePath(graphName);
                 if (!File.Exists(filePath))
                 {
                     throw new FileNotFoundException("FlowGraph file not found.", filePath);
@@ -184,7 +182,7 @@ namespace RefactorGraph
 
             getDocumentNode = getDocumentNodes[0] as GetDocumentNode;
             setDocumentNode = setDocumentNodes[0] as SetDocumentNode;
-            return false;
+            return true;
         }
 
         public static IEnumerable<Type> FindAllDerivedTypes(this Type type, Assembly assembly)
@@ -249,13 +247,12 @@ namespace RefactorGraph
                 }
             }
 
-            var dir = GetCustomNodesPath();
-            var customNodes = GetGraphFiles(dir);
-            foreach (var customNode in customNodes)
+            var flowCharts = NodeGraphManager.FlowCharts.Values;
+            foreach (var flowChart in flowCharts.Where(x => x.IsReference))
             {
                 nodes[RefactorNodeGroup.Custom].Add(new NodeEntryModel
                 {
-                    nodeName = customNode,
+                    nodeName = flowChart.Name,
                     nodeType = RefactorNodeType.Reference
                 });
             }

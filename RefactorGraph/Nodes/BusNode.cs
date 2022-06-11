@@ -40,8 +40,11 @@ namespace RefactorGraph
         public override void OnPreDestroy()
         {
             var busView = ViewModel.View as BusView;
-            busView.nodeAdded -= AddOutputPort;
-            busView.nodeRemoved -= RemoveOutputPort;
+            if (busView != null)
+            {
+                busView.nodeAdded -= AddOutputPort;
+                busView.nodeRemoved -= RemoveOutputPort;
+            }
             base.OnPreDestroy();
         }
 
@@ -49,12 +52,9 @@ namespace RefactorGraph
         private void AddOutputPort(object sender, RoutedEventArgs routedEventArgs)
         {
             var name = outputPorts.Count.ToString();
-            
             var guid = Guid.NewGuid();
             NodeGraphManager.CreateNodeFlowPort(false, guid, this, false, null, name, name);
             outputPorts.Add(name, guid);
-            //var busView = ViewModel.View as BusView;
-            //busView.OnApplyTemplate();
         }
 
         private void RemoveOutputPort(object sender, RoutedEventArgs routedEventArgs)

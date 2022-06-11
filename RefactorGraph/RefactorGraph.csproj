@@ -94,7 +94,6 @@
       <DependentUpon>NodeListControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wpf\NodeEntryModel.cs" />
-    <Compile Include="Wpf\NodeListModel.cs" />
     <Compile Include="Wpf\ToolbarWindowControl.xaml.cs">
       <DependentUpon>ToolbarWindowControl.xaml</DependentUpon>
     </Compile>

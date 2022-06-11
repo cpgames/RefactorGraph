@@ -6,7 +6,8 @@
              xmlns:local="clr-namespace:RefactorGraph"
              mc:Ignorable="d"
              d:DesignHeight="30" d:DesignWidth="200"
-             Name="MyNodeEntryControl">
+             Name="MyNodeEntryControl"
+             PreviewMouseRightButtonUp="OnMouseRightButtonUp">
     <Grid Margin="20,0,0,0" >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10" />

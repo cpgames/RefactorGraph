@@ -26,7 +26,7 @@ namespace RefactorGraph
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Chunk), null, false)]
         public Chunk Source;
 
-        [NodePropertyPort(SOURCE_PORT_NAME, false, typeof(Chunk), null, false)]
+        [NodePropertyPort(FUNCTION_NAME_PORT_NAME, false, typeof(Chunk), null, false)]
         public Chunk FunctionName;
 
         [NodePropertyPort(FUNCTION_PARAMETERS_PORT_NAME, false, typeof(ChunkCollection), null, true)]

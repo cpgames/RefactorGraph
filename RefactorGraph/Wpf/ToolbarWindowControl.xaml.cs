@@ -10,11 +10,17 @@ namespace RefactorGraph
         public ToolbarWindowControl()
         {
             InitializeComponent();
-            PopulateNodes();
+            Utils.refreshAction += PopulateNodes;
+            Unloaded += OnUnloaded;
         }
         #endregion
 
         #region Methods
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            Utils.refreshAction -= PopulateNodes;
+        }
+
         private void PopulateNodes()
         {
             Nodes.Children.Clear();
@@ -64,7 +70,8 @@ namespace RefactorGraph
         {
             if (e.Data.GetData("GraphEntry") is GraphEntryControl graphEntry)
             {
-                graphEntry.Save(Utils.GetCustomNodesPath());
+                graphEntry.FlowChartViewModel.Model.IsReference = true;
+                graphEntry.Save();
                 PopulateNodes();
             }
         }

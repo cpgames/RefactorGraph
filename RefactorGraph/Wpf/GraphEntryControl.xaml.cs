@@ -21,10 +21,6 @@ namespace RefactorGraph
     {
         #region Fields
         private FlowChartViewModel _flowChartViewModel;
-        private Chunk _document = new Chunk
-        {
-            content = "This is a test"
-        };
         private string _graphName = "NewRefactorGraph";
         private DesignerWindowControl _flowChartWindow;
         private bool _opened;
@@ -39,6 +35,10 @@ namespace RefactorGraph
             {
                 if (_graphName != value)
                 {
+                    if (NodeGraphManager.FlowCharts.Values.Any(x => x.Name == value))
+                    {
+                        MessageBox.Show($"Graph <{value}> already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                     foreach (var file in Utils.GetGraphFiles())
                     {
                         if (file == _graphName)
@@ -47,6 +47,8 @@ namespace RefactorGraph
                             {
                                 return;
                             }
+                            _flowChartViewModel.Model.Name = value;
+                            Utils.Save(_flowChartViewModel.Model);
                         }
                     }
                     _graphName = value;
@@ -88,6 +90,7 @@ namespace RefactorGraph
                 _enabled = value;
             }
         }
+        public FlowChartViewModel FlowChartViewModel => _flowChartViewModel;
         #endregion
 
         #region Constructors
@@ -223,18 +226,19 @@ namespace RefactorGraph
         public void CreateNewGraph()
         {
             var flowChart = NodeGraphManager.CreateFlowChart(false, Guid.NewGuid(), typeof(FlowChart));
+            
             _flowChartViewModel = flowChart.ViewModel;
-
-            var pattern = "NewRefactorGraph";
+            var name = "NewRefactorGraph";
             var index = 0;
             var files = Utils.GetGraphFiles().ToList();
             string graphName;
             do
             {
-                graphName = $"{pattern}{index}";
+                graphName = $"{name}{index}";
                 index++;
             } while (files.Any(x => x == graphName));
             GraphName = graphName;
+            flowChart.Name = GraphName;
             BuildDefaultGraph();
             Save();
             OpenGraphWindowAsync().Wait();
@@ -332,9 +336,9 @@ namespace RefactorGraph
             Opened = true;
         }
 
-        public void Save(string dir = null)
+        public void Save()
         {
-            Utils.Save(GraphName, _flowChartViewModel.Model, dir);
+            Utils.Save(_flowChartViewModel.Model);
         }
 
         private void Toggle(object sender, RoutedEventArgs e)

@@ -15,15 +15,11 @@ namespace RefactorGraph
         #region Fields
         public const string INPUT_PORT_NAME = "Input";
         public const string OUTPUT_PORT_NAME = "Output";
-        public const string REFERENCE_PORT_NAME = "Reference";
         public const string SOURCE_PORT_NAME = "Source";
         public const string RESULT_PORT_NAME = "Result";
 
         private FlowChart _referencedFlowChart;
-
-        [NodePropertyPort(REFERENCE_PORT_NAME, true, typeof(string), "", true)]
-        public string Reference;
-
+        
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Chunk), null, true, DisplayName = "Source\n[Chunk]")]
         public Chunk Source;
 
@@ -53,15 +49,18 @@ namespace RefactorGraph
         public override void OnExecute(Connector prevConnector)
         {
             base.OnExecute(prevConnector);
-            
-            try
+
+            if (_referencedFlowChart == null)
             {
-                Utils.Load(Header, out _referencedFlowChart, Utils.GetCustomNodesPath());
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
+                try
+                {
+                    Utils.Load(Header, out _referencedFlowChart);
+                }
+                catch (Exception e)
+                {
+                    NodeGraphManager.AddScreenLog(Owner, e.Message);
+                    return;
+                }
             }
             Source = GetPortValue<Chunk>(SOURCE_PORT_NAME);
             Result = null;
