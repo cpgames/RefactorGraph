@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Windows.Media;
-using RefactorGraphdCore.Data;
-using NodeGraph;
 using NodeGraph.Model;
+using RefactorGraphdCore.Data;
 
 namespace RefactorGraph
 {
@@ -15,46 +14,43 @@ namespace RefactorGraph
         #region Fields
         public const string INPUT_PORT_NAME = "Input";
         public const string OUTPUT_PORT_NAME = "Output";
-        public const string COLLECTION_PORT_NAME = "Collection";
-        public const string RESULT_PORT_NAME = "Result";
+        public const string SOURCE_PORT_NAME = "Source";
+        public const string TARGET_PORT_NAME = "Target";
+
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Chunk), null, false, DisplayName = "Source\n[Chunk]")]
+        public Chunk Source;
+
+        [NodePropertyPort(TARGET_PORT_NAME, true, typeof(Chunk), null, false, DisplayName = "Target\n[Chunk]")]
+        public Chunk Target;
         #endregion
 
         #region Constructors
         public MergeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
-            Header = "Merge";
             HeaderBackgroundColor = Brushes.DarkBlue;
-            AllowEditingHeader = false;
         }
         #endregion
 
         #region Methods
-        public override void OnCreate()
-        {
-            NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, true, typeof(ChunkCollection), null,
-                COLLECTION_PORT_NAME, false, null, COLLECTION_PORT_NAME);
-
-            NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, false, typeof(Chunk), null,
-                RESULT_PORT_NAME, false, null, RESULT_PORT_NAME);
-
-            base.OnCreate();
-        }
-
         public override void OnExecute(Connector prevConnector)
         {
             base.OnExecute(prevConnector);
 
-            var collection = GetPortValue(COLLECTION_PORT_NAME, new ChunkCollection());
-            if (collection == null)
+            Source = GetPortValue<Chunk>(SOURCE_PORT_NAME);
+            Target = GetPortValue<Chunk>(TARGET_PORT_NAME);
+            if (Source == null || Target == null)
             {
                 return;
             }
-            var mergedChunk = new Chunk { content = string.Empty };
-            foreach (var chunk in collection)
+            if (Target.content.Length <= Source.index + Source.length)
             {
-                mergedChunk.content += chunk.content;
+                return;
             }
-            SetPortValue(RESULT_PORT_NAME, mergedChunk);
+            Target.content =
+                Target.content.Substring(0, Source.index) +
+                Source.content +
+                Target.content.Substring(Source.index);
+            SetPortValue(TARGET_PORT_NAME, Target);
             _success = true;
         }
 

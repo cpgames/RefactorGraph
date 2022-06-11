@@ -2,7 +2,6 @@
 using System.Windows.Media;
 using NodeGraph;
 using NodeGraph.Model;
-using RefactorGraphdCore.Data;
 
 namespace RefactorGraph
 {
@@ -68,10 +67,8 @@ namespace RefactorGraph
             var type = typeof(T);
             _value = DefaultFactory();
 
-            var port = NodeGraphManager.CreateNodePropertyPort(
+            NodeGraphManager.CreateNodePropertyPort(
                 false, Guid.NewGuid(), this, false, type, _value, "Value", HasEditor, ViewModelTypeOverride);
-
-            port.DynamicPropertyPortValueChanged += ValuePort_PropertyPortValueChanged;
 
             if (HasSetter)
             {
@@ -79,11 +76,6 @@ namespace RefactorGraph
                     false, Guid.NewGuid(), this, true, type, _value, "Value", false, null, string.Empty, true);
             }
             base.OnCreate();
-        }
-
-        private void ValuePort_PropertyPortValueChanged(NodePropertyPort port, object prevValue, object newValue)
-        {
-            Value = (Pattern)port.Value;
         }
         #endregion
     }

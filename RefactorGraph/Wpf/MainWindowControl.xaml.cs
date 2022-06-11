@@ -1,7 +1,17 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Effects;
+using System.Windows.Shapes;
+using DataObject = System.Windows.DataObject;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
+using GiveFeedbackEventArgs = System.Windows.GiveFeedbackEventArgs;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace RefactorGraph
 {
@@ -12,12 +22,13 @@ namespace RefactorGraph
         private bool _isDragging;
         private Point _startPoint;
         private UIElement _realDragSource;
-        private readonly UIElement _dummyDragSource = new UIElement();
+        private Window _dragDropWindow;
         #endregion
 
         #region Constructors
         public MainWindowControl()
         {
+            //var dir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             InitializeComponent();
             Loaded += OnLoaded;
         }
@@ -94,7 +105,7 @@ namespace RefactorGraph
             }
         }
 
-        private void PatternsMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void EntryMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!Equals(e.Source, StackPatterns))
             {
@@ -103,39 +114,42 @@ namespace RefactorGraph
             }
         }
 
-        private void PatternsMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void EntryMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             _isDown = false;
             _isDragging = false;
             _realDragSource?.ReleaseMouseCapture();
         }
 
-        private void PatternsMouseMove(object sender, MouseEventArgs e)
+        private void EntryMouseMove(object sender, MouseEventArgs e)
         {
             if (_isDown)
             {
-                if (_isDragging == false && (Math.Abs(e.GetPosition(StackPatterns).X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                if (_isDragging == false &&
+                    (Math.Abs(e.GetPosition(StackPatterns).X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
                         Math.Abs(e.GetPosition(StackPatterns).Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
                 {
                     _isDragging = true;
                     _realDragSource = e.Source as UIElement;
                     _realDragSource.CaptureMouse();
-                    DragDrop.DoDragDrop(_dummyDragSource, new DataObject("UIElement", e.Source, true), DragDropEffects.Move);
+                    CreateDragDropCursor();
+                    DragDrop.DoDragDrop(_realDragSource, new DataObject("GraphEntry", e.Source, true), DragDropEffects.Move);
                 }
             }
         }
 
-        private void PatternsDragEnter(object sender, DragEventArgs e)
+        private void EntryDragEnter(object sender, DragEventArgs e)
         {
-            if (e.Data.GetDataPresent("UIElement"))
+            if (e.Data.GetDataPresent("GraphEntry"))
             {
                 e.Effects = DragDropEffects.Move;
+                CreateDragDropCursor();
             }
         }
 
-        private void PatternsDrop(object sender, DragEventArgs e)
+        private void EntryDrop(object sender, DragEventArgs e)
         {
-            var data = e.Data.GetData("UIElement");
+            var data = e.Data.GetData("GraphEntry");
             if (data != null)
             {
                 var y = e.GetPosition(StackPatterns).Y;
@@ -152,35 +166,114 @@ namespace RefactorGraph
                 }
                 StackPatterns.Children.Remove(_realDragSource);
                 StackPatterns.Children.Insert(index, _realDragSource);
-
-                _isDown = false;
-                _isDragging = false;
-                _realDragSource.ReleaseMouseCapture();
             }
         }
 
         protected override void OnDragEnter(DragEventArgs e)
         {
-            e.Handled = e.Data.GetDataPresent("UIElement");
+            e.Handled = e.Data.GetDataPresent("GraphEntry");
             base.OnDragEnter(e);
         }
 
         protected override void OnDragOver(DragEventArgs e)
         {
-            e.Handled = e.Data.GetDataPresent("UIElement");
+            e.Handled = e.Data.GetDataPresent("GraphEntry");
             base.OnDragOver(e);
         }
 
         protected override void OnDrop(DragEventArgs e)
         {
-            e.Handled = e.Data.GetDataPresent("UIElement");
+            e.Handled = e.Data.GetDataPresent("GraphEntry");
             base.OnDrop(e);
         }
-        #endregion
 
         private void Help(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start("https://github.com/cpgames/RefactorGraph/wiki");
+            Process.Start("https://github.com/cpgames/RefactorGraph/wiki");
         }
+
+        private void EntryGiveFeedback(object sender, GiveFeedbackEventArgs e)
+        {
+            if (_dragDropWindow != null)
+            {
+                _dragDropWindow.Left = Utils.actHook.mouseX;
+                _dragDropWindow.Top = Utils.actHook.mouseY;
+            }
+        }
+
+        private void CreateDragDropCursor()
+        {
+            if (_dragDropWindow != null)
+            {
+                return;
+            }
+            _realDragSource.Effect = new DropShadowEffect
+            {
+                Color = new Color { A = 50, R = 0, G = 0, B = 0 },
+                Direction = 320,
+                ShadowDepth = 0,
+                Opacity = .75
+            };
+            _realDragSource.Opacity = 0.5;
+            CreateDragDropWindow(_realDragSource);
+
+            Utils.actHook.OnMouseActivity += ActHookOnOnMouseActivity;
+        }
+
+        private void ActHookOnOnMouseActivity(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                DestroyDragDropCursor();
+            }
+        }
+
+        private void DestroyDragDropCursor()
+        {
+            if (_dragDropWindow != null)
+            {
+                _dragDropWindow.Close();
+                _dragDropWindow = null;
+            }
+            if (_realDragSource != null)
+            {
+                _realDragSource.Effect = null;
+                _realDragSource.Opacity = 1;
+                _realDragSource.ReleaseMouseCapture();
+            }
+            _isDown = false;
+            _isDragging = false;
+            Utils.actHook.OnMouseActivity -= ActHookOnOnMouseActivity;
+        }
+
+        private void CreateDragDropWindow(Visual dragElement)
+        {
+            _dragDropWindow = new Window();
+            _dragDropWindow.WindowStyle = WindowStyle.None;
+            _dragDropWindow.AllowsTransparency = true;
+            _dragDropWindow.AllowDrop = false;
+            _dragDropWindow.Background = null;
+            _dragDropWindow.IsHitTestVisible = false;
+            _dragDropWindow.SizeToContent = SizeToContent.WidthAndHeight;
+            _dragDropWindow.Topmost = true;
+            _dragDropWindow.ShowInTaskbar = false;
+
+            var r = new Rectangle();
+            r.Width = ((FrameworkElement)dragElement).ActualWidth;
+            r.Height = ((FrameworkElement)dragElement).ActualHeight;
+            r.Fill = new VisualBrush(dragElement);
+            _dragDropWindow.Content = r;
+
+            _dragDropWindow.Left = Utils.actHook.mouseX;
+            _dragDropWindow.Top = Utils.actHook.mouseY;
+            _dragDropWindow.MouseUp += DragDropWindowMouseUp;
+            _dragDropWindow.Show();
+        }
+
+        private void DragDropWindowMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            DestroyDragDropCursor();
+        }
+        #endregion
     }
 }

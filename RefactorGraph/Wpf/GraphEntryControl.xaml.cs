@@ -236,7 +236,7 @@ namespace RefactorGraph
             } while (files.Any(x => x == graphName));
             GraphName = graphName;
             BuildDefaultGraph();
-            SaveInternal();
+            Save();
             OpenGraphWindowAsync().Wait();
         }
 
@@ -272,7 +272,7 @@ namespace RefactorGraph
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            SaveInternal();
+            Save();
         }
 
         private void Edit(object sender, RoutedEventArgs e)
@@ -332,9 +332,9 @@ namespace RefactorGraph
             Opened = true;
         }
 
-        private void SaveInternal()
+        public void Save(string dir = null)
         {
-            Utils.Save(GraphName, _flowChartViewModel.Model);
+            Utils.Save(GraphName, _flowChartViewModel.Model, dir);
         }
 
         private void Toggle(object sender, RoutedEventArgs e)

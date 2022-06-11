@@ -48,12 +48,16 @@
   <ItemGroup>
     <Compile Include="Data\Chunk.cs" />
     <Compile Include="Data\ChunkCollection.cs" />
-    <Compile Include="Data\Pattern.cs" />
     <Compile Include="Nodes\BusView.cs" />
     <Compile Include="Nodes\BusViewModel.cs" />
+    <Compile Include="Nodes\GetLastElementNode.cs" />
+    <Compile Include="Nodes\GetFirstElementNode.cs" />
     <Compile Include="Nodes\JoinCollectionsNode.cs" />
+    <Compile Include="Nodes\FindFunctionCallsNode.cs" />
     <Compile Include="Nodes\ReplaceRegexNode.cs" />
     <Compile Include="Nodes\CreateChunkNode.cs" />
+    <Compile Include="Nodes\ParseFunctionNode.cs" />
+    <Compile Include="Nodes\ReferenceNode.cs" />
     <Compile Include="Nodes\StringNode.cs" />
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
@@ -82,12 +86,15 @@
     <Compile Include="Nodes\SplitRegexNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
-    <Compile Include="Wpf\NodeEntryControl.xaml.cs">
-      <DependentUpon>NodeEntryControl.xaml</DependentUpon>
+    <Compile Include="UserActivityHook.cs" />
+    <Compile Include="Wpf\ToolbarNodeEntryControl.xaml.cs">
+      <DependentUpon>ToolbarNodeEntryControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wpf\NodeListControl.xaml.cs">
       <DependentUpon>NodeListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Wpf\NodeEntryModel.cs" />
+    <Compile Include="Wpf\NodeListModel.cs" />
     <Compile Include="Wpf\ToolbarWindowControl.xaml.cs">
       <DependentUpon>ToolbarWindowControl.xaml</DependentUpon>
     </Compile>
@@ -129,6 +136,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Help.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Point.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Content Include="Resources\Preview.png">
@@ -205,7 +215,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Wpf\NodeEntryControl.xaml">
+    <Page Include="Wpf\ToolbarNodeEntryControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

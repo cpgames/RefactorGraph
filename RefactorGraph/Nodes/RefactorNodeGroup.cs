@@ -6,6 +6,7 @@
         Math,
         Logic,
         Property,
-        Processing
+        Processing,
+        Custom
     }
 }

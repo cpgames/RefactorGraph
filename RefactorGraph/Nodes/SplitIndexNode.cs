@@ -25,10 +25,10 @@ namespace RefactorGraph
         [NodePropertyPort(IGNORE_WHITESPACE_PORT_NAME, true, typeof(bool), true, true)]
         public bool IgnoreWhitespace;
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Chunk), null, false)]
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Chunk), null, false, DisplayName = "Source\n[Chunk]")]
         public Chunk Source;
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(ChunkCollection), null, true)]
+        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(ChunkCollection), null, true, DisplayName = "Result\n[ChunkCollection]")]
         public ChunkCollection Result;
         #endregion
 

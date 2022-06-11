@@ -17,6 +17,8 @@
         ChunkCollection,
         OrderByChunkIndex,
         GetElement,
+        GetFirstElement,
+        GetLastElement,
         GetCollectionSize,
         Equals,
         Int,
@@ -27,6 +29,10 @@
         Bus,
         Filter,
         Clear,
-        OrderAlphabetical
+        OrderAlphabetical,
+
+        FindFunctionCalls,
+        ParseFunction,
+        Reference
     }
 }

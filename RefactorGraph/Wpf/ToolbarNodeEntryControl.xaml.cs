@@ -5,26 +5,36 @@ using System.Windows.Input;
 
 namespace RefactorGraph
 {
-    public partial class NodeEntryControl : UserControl
+    public partial class ToolbarNodeEntryControl : UserControl
     {
         #region Fields
-        private RefactorNodeType _nodeType;
+        private NodeEntryModel _nodeEntry;
         #endregion
 
         #region Properties
-        public RefactorNodeType NodeType
+        public string NodeName
         {
-            get => _nodeType;
+            get => _nodeEntry.nodeName;
             set
             {
-                _nodeType = value;
-                RaisePropertyChanged("NodeType");
+                _nodeEntry.nodeName = value;
+                RaisePropertyChanged("NodeName");
+            }
+        }
+
+        public NodeEntryModel NodeEntry
+        {
+            get => _nodeEntry;
+            set
+            {
+                _nodeEntry = value;
+                NodeName = value.nodeName;
             }
         }
         #endregion
 
         #region Constructors
-        public NodeEntryControl()
+        public ToolbarNodeEntryControl()
         {
             InitializeComponent();
         }
@@ -49,7 +59,7 @@ namespace RefactorGraph
 
             if (MouseButtonState.Pressed == e.LeftButton)
             {
-                DragDrop.DoDragDrop(this, NodeType, DragDropEffects.All);
+                DragDrop.DoDragDrop(this, new DataObject("NodeEntry", _nodeEntry, true), DragDropEffects.All);
             }
         }
         #endregion

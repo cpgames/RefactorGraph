@@ -53,9 +53,12 @@
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1">
             <StackPanel Orientation="Vertical" Name="StackPatterns"
-                        PreviewMouseLeftButtonDown="PatternsMouseLeftButtonDown" PreviewMouseLeftButtonUp="PatternsMouseLeftButtonUp"
-                        PreviewMouseMove="PatternsMouseMove"
-                        DragEnter="PatternsDragEnter" Drop="PatternsDrop" />
+                        PreviewMouseLeftButtonDown="EntryMouseLeftButtonDown" 
+                        PreviewMouseLeftButtonUp="EntryMouseLeftButtonUp"
+                        PreviewMouseMove="EntryMouseMove"
+                        DragEnter="EntryDragEnter" 
+                        Drop="EntryDrop"
+                        GiveFeedback="EntryGiveFeedback" />
         </ScrollViewer>
     </Grid>
 

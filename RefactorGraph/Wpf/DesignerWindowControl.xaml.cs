@@ -195,37 +195,42 @@ namespace RefactorGraph
         #region Drag & Drop Events
         protected override void OnDragEnter(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled = e.Data.GetDataPresent("NodeEntry");
             base.OnDragEnter(e);
         }
 
         protected override void OnDragOver(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled = e.Data.GetDataPresent("NodeEntry");
             base.OnDragOver(e);
         }
 
         protected override void OnDrop(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled = e.Data.GetDataPresent("NodeEntry");
             base.OnDrop(e);
         }
 
         private void NodeGraphManager_Drop(object sender, NodeGraphDragEventArgs args)
         {
-            var flowChartView = FlowChartViewModel.View;
-            var eType = (RefactorNodeType)args.DragEventArgs.Data.GetData(typeof(RefactorNodeType));
-            var nodeType = Utils.GetNodeType(eType);
+            NodeEntryModel nodeEntry = args.DragEventArgs.Data.GetData("NodeEntry") as NodeEntryModel;
+            
+            if (nodeEntry == null)
+            {
+                return;
+            }
+            var nodeType = Utils.GetNodeType(nodeEntry.nodeType);
             if (nodeType == null)
             {
                 return;
             }
-            var flowChart = flowChartView.ViewModel.Model;
+            var flowChart = FlowChartViewModel.Model;
             flowChart.History.BeginTransaction("Creating node");
             {
-                NodeGraphManager.CreateNode(
+                var node = NodeGraphManager.CreateNode(
                     false, Guid.NewGuid(), FlowChartViewModel.Model, nodeType,
                     args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y, 0);
+                node.Header = nodeEntry.nodeName;
             }
             flowChart.History.EndTransaction(false);
         }

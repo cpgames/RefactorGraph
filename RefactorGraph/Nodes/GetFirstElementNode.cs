@@ -1,35 +1,31 @@
 ﻿using System;
 using System.Windows.Media;
-using RefactorGraphdCore.Data;
 using NodeGraph.Model;
+using RefactorGraphdCore.Data;
 
 namespace RefactorGraph
 {
     [Node]
-    [RefactorNode(group = RefactorNodeGroup.Logic, nodeType = RefactorNodeType.GetElement)]
+    [RefactorNode(group = RefactorNodeGroup.Logic, nodeType = RefactorNodeType.GetFirstElement)]
     [NodeFlowPort(INPUT_PORT_NAME, "", true)]
     [NodeFlowPort(OUTPUT_PORT_NAME, "", false)]
-    public class GetElementNode : RefactorNodeBase
+    public class GetFirstElementNode : RefactorNodeBase
     {
         #region Fields
         public const string INPUT_PORT_NAME = "Input";
         public const string OUTPUT_PORT_NAME = "Output";
         public const string CHUNK_PORT_NAME = "Chunk";
-        public const string INDEX_PORT_NAME = "Index";
         public const string COLLECTION_PORT_NAME = "Collection";
 
         [NodePropertyPort(COLLECTION_PORT_NAME, true, typeof(ChunkCollection), null, false)]
         public ChunkCollection Collection;
-
-        [NodePropertyPort(INDEX_PORT_NAME, true, typeof(int), 0, true)]
-        public int Index;
 
         [NodePropertyPort(CHUNK_PORT_NAME, false, typeof(Chunk), null, false)]
         public Chunk Chunk;
         #endregion
 
         #region Constructors
-        public GetElementNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
+        public GetFirstElementNode(Guid guid, FlowChart flowChart) : base(guid, flowChart)
         {
             HeaderBackgroundColor = Brushes.DarkBlue;
             AllowEditingHeader = false;
@@ -42,10 +38,9 @@ namespace RefactorGraph
             base.OnExecute(prevConnector);
 
             var collection = GetPortValue<ChunkCollection>(COLLECTION_PORT_NAME);
-            var index = GetPortValue(INDEX_PORT_NAME, Index);
-            if (collection != null && collection.Count > index && index >= 0)
+            if (collection != null && collection.Count > 0)
             {
-                SetPortValue(CHUNK_PORT_NAME, collection[index]);
+                SetPortValue(CHUNK_PORT_NAME, collection[0]);
                 _success = true;
             }
         }
