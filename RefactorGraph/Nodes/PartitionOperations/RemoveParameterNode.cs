@@ -4,8 +4,8 @@ using NodeGraph.Model;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.RemoveFunctionParameter)]
-    public class RemoveFunctionParameterNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.RemoveParameter)]
+    public class RemoveParameterNode : RefactorNodeBase
     {
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
@@ -15,7 +15,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Constructors
-        public RemoveFunctionParameterNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public RemoveParameterNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
