@@ -11,7 +11,6 @@ using DragDropEffects = System.Windows.DragDropEffects;
 using DragEventArgs = System.Windows.DragEventArgs;
 using GiveFeedbackEventArgs = System.Windows.GiveFeedbackEventArgs;
 using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using TextBox = System.Windows.Forms.TextBox;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace RefactorGraph

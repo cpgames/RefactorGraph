@@ -1,38 +1,55 @@
-﻿namespace RefactorGraph
+﻿namespace RefactorGraph.Nodes
 {
     public enum RefactorNodeType
     {
-        GetDocument,
-        SetDocument,
-        SplitRegex,
-        SplitIndex,
-        SetChunkData,
-        CreateChunk,
-        ReplaceRegex,
-        AddChunkToCollection,
-        JoinCollections,
-        Merge,
+        // CollectionOperations
+        AppendToCollection,
+        ClearCollection,
         ForEach,
-        Chunk,
-        ChunkCollection,
-        OrderByChunkIndex,
+        GetCollectionSize,
         GetElement,
         GetFirstElement,
         GetLastElement,
-        GetCollectionSize,
-        Equals,
-        Int,
-        String,
+        // LogicOperations
         Add,
-        IntToChunk,
-        Set,
+        Compare,
+        Equals,
+        Multiply,
+        Subtract,
+        // Other
         Bus,
-        Filter,
-        Clear,
-        OrderAlphabetical,
-
-        FindFunctionCalls,
-        ParseFunction,
-        Reference
+        ConvertToString,
+        Print,
+        Start,
+        // PartitionOperations
+        GetPartitionData,
+        InsertAfter,
+        InsertBefore,
+        PartitionByFunctionCall,
+        PartitionByFunction,
+        PartitionIsValid,
+        PartitionByAllRegexMatches,
+        PartitionByFirstRegexMatch,
+        PartitionByClasses,
+        Reference,
+        RemoveFunctionParameter,
+        RemovePartition,
+        RegexMatchPresentInPartition,
+        SetPartitionData,
+        SwapPartitions,
+        // StringOperations
+        RegexMatchPresentInString,
+        StringFormat,
+        StringRemove,
+        StringReplace,
+        Substring,
+        // Variables
+        IntCollection,
+        Int,
+        PartitionCollection,
+        Partition,
+        SetVariable,
+        StringCollection,
+        String
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using RefactorGraph.Nodes;
 
 namespace RefactorGraph
 {
@@ -38,6 +39,10 @@ namespace RefactorGraph
                 expander.Content = stackPanel;
                 foreach (var nodeEntry in nodeGroup.Value)
                 {
+                    if (nodeEntry.nodeType == RefactorNodeType.Reference)
+                    {
+                        continue;
+                    }
                     var nodeEntryControl = new ToolbarNodeEntryControl
                     {
                         NodeEntry = nodeEntry
@@ -45,34 +50,6 @@ namespace RefactorGraph
                     stackPanel.Children.Add(nodeEntryControl);
                 }
                 Nodes.Children.Add(expander);
-            }
-        }
-
-        protected override void OnDragEnter(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDragEnter(e);
-        }
-
-        protected override void OnDragOver(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDragOver(e);
-        }
-
-        protected override void OnDrop(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDrop(e);
-        }
-
-        private void EntryDrop(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetData("GraphEntry") is GraphEntryControl graphEntry)
-            {
-                graphEntry.FlowChartViewModel.Model.IsReference = true;
-                graphEntry.Save();
-                PopulateNodes();
             }
         }
         #endregion

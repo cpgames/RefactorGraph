@@ -1,52 +1,61 @@
 ﻿using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 using NodeGraph;
 using NodeGraph.Model;
+using RefactorGraph.Nodes.Variables;
 
-namespace RefactorGraph
+namespace RefactorGraph.Nodes
 {
-    public class RefactorNodeBase : Node
+    public abstract class RefactorNodeBase : Node
     {
         #region Fields
-        private RefactorNodeType _nodeType;
+        public const string INPUT_PORT_NAME = "Input";
+        public const string OUTPUT_PORT_NAME = "Output";
+
         protected bool _success = true;
         #endregion
 
         #region Properties
-        public RefactorNodeType NodeType
-        {
-            get => _nodeType;
-            set
-            {
-                if (value != _nodeType)
-                {
-                    _nodeType = value;
-                    RaisePropertyChanged("NodeType");
-                }
-            }
-        }
+        protected virtual bool AllowEditingHeaderOverride => false;
+
+        protected virtual bool HasInput => true;
+        protected virtual bool HasOutput => true;
         #endregion
 
         #region Constructors
-        public RefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart)
-        {
-            var nodeType = GetType().GetAttribute<RefactorNodeAttribute>().nodeType;
-            var matches = Regex.Matches(nodeType.ToString(), "[A-Z][a-z]*");
-            var header = matches.Cast<Match>().Aggregate(string.Empty, (current, match) => current + (match.Value + " "));
-            Header = header.Trim();
-            _nodeType = nodeType;
-            var raiseEvent = NodeCreatedEvent;
-            raiseEvent?.Invoke(this, null);
-            AllowCircularConnection = true;
-        }
+        protected RefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
-        public static event EventHandler NodeCreatedEvent;
-        public override void OnPreExecute(Connector prevConnector)
+        public override void OnCreate()
         {
-            base.OnPreExecute(prevConnector);
+            base.OnCreate();
+
+            var refactorNodeAtt = GetType().GetAttribute<RefactorNodeAttribute>();
+            var nodeType = refactorNodeAtt.nodeType;
+            var matches = Regex.Matches(nodeType.ToString(), "[A-Z][a-z]*");
+            var header = matches.Cast<Match>().Aggregate(string.Empty, (current, match) => current + match.Value + " ");
+            Header = header.Trim();
+            HeaderBackgroundColor = NodeColors.brushes[refactorNodeAtt.nodeGroup];
+            HeaderFontColor = Brushes.White;
+            AllowEditingHeader = AllowEditingHeaderOverride;
+            AllowCircularConnection = true;
+
+            if (HasInput)
+            {
+                NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, true, name: INPUT_PORT_NAME, displayName: "In");
+            }
+            if (HasOutput)
+            {
+                NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, false, name: OUTPUT_PORT_NAME, displayName: "Out");
+            }
+        }
+
+        public override void OnPreExecute(Connector connector)
+        {
+            base.OnPreExecute(connector);
             _success = false;
         }
 

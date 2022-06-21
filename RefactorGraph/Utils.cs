@@ -8,6 +8,9 @@ using System.Xml;
 using gma.System.Windows;
 using NodeGraph;
 using NodeGraph.Model;
+using RefactorGraph.Nodes;
+using RefactorGraph.Nodes.Other;
+using RefactorGraph.Nodes.PartitionOperations;
 
 namespace RefactorGraph
 {
@@ -136,6 +139,11 @@ namespace RefactorGraph
         {
             try
             {
+                var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+                if (flowChart != null)
+                {
+                    NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+                }
                 var filePath = CreateGraphFilePath(graphName);
                 if (!File.Exists(filePath))
                 {
@@ -152,36 +160,28 @@ namespace RefactorGraph
             }
         }
 
-        public static bool ValidateGraph(FlowChart flowChart, out GetDocumentNode getDocumentNode, out SetDocumentNode setDocumentNode)
+        public static bool ValidateGraph(FlowChart flowChart, out StartNode startNode)
         {
-            getDocumentNode = null;
-            setDocumentNode = null;
+            startNode = null;
 
-            var getDocumentNodes = NodeGraphManager.FindNode(flowChart, "Get Document");
+            var getDocumentNodes = NodeGraphManager.FindNode(flowChart, "Start");
             if (getDocumentNodes.Count == 0)
             {
-                NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Get Document' node.");
+                NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Start' node.");
                 return false;
             }
             if (getDocumentNodes.Count > 1)
             {
-                NodeGraphManager.AddScreenLog(flowChart, "Only single 'Get Document' must exist.");
-                return false;
-            }
-            var setDocumentNodes = NodeGraphManager.FindNode(flowChart, "Set Document");
-            if (setDocumentNodes.Count == 0)
-            {
-                NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Set Document' node.");
-                return false;
-            }
-            if (setDocumentNodes.Count > 1)
-            {
-                NodeGraphManager.AddScreenLog(flowChart, "Only single 'Set Document' must exist.");
+                NodeGraphManager.AddScreenLog(flowChart, "Only single 'Start' must exist.");
                 return false;
             }
 
-            getDocumentNode = getDocumentNodes[0] as GetDocumentNode;
-            setDocumentNode = setDocumentNodes[0] as SetDocumentNode;
+            startNode = getDocumentNodes[0] as StartNode;
+            if (startNode == null)
+            {
+                NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Start' node.");
+                return false;
+            }
             return true;
         }
 
@@ -224,7 +224,7 @@ namespace RefactorGraph
             var nodes = new Dictionary<RefactorNodeGroup, List<NodeEntryModel>>();
             var nodeTypeGroups = typeof(RefactorNodeBase).FindAllDerivedTypes()
                 .Where(x => x.HasAttribute<RefactorNodeAttribute>())
-                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().group);
+                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().nodeGroup);
 
             foreach (var nodeTypeGroup in nodeTypeGroups.OrderBy(x => x.Key))
             {
@@ -241,7 +241,8 @@ namespace RefactorGraph
                     var nodeEntry = new NodeEntryModel
                     {
                         nodeName = att.nodeType.ToString(),
-                        nodeType = att.nodeType
+                        nodeType = att.nodeType,
+                        nodeGroup = att.nodeGroup
                     };
                     nodeList.Add(nodeEntry);
                 }
@@ -250,10 +251,11 @@ namespace RefactorGraph
             var flowCharts = NodeGraphManager.FlowCharts.Values;
             foreach (var flowChart in flowCharts.Where(x => x.IsReference))
             {
-                nodes[RefactorNodeGroup.Custom].Add(new NodeEntryModel
+                nodes[RefactorNodeGroup.PartitionOperations].Add(new NodeEntryModel
                 {
                     nodeName = flowChart.Name,
-                    nodeType = RefactorNodeType.Reference
+                    nodeType = RefactorNodeType.Reference,
+                    nodeGroup = RefactorNodeGroup.PartitionOperations
                 });
             }
             return nodes;
@@ -262,7 +264,7 @@ namespace RefactorGraph
         public static string GetCustomNodesPath()
         {
             var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            dir = Path.Combine(dir, "Resources");
+            dir = Path.Combine(dir ?? throw new InvalidOperationException(), "Resources");
             return dir;
         }
         #endregion

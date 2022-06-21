@@ -13,7 +13,14 @@
             <ColumnDefinition Width="10" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <Image Grid.Column="0" Source="pack://application:,,,/RefactorGraph;component/Resources/Point.png" />
+        <Rectangle Grid.Column="0" Height="10">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="White" x:Name="PointColor"/>
+            </Rectangle.Fill>
+            <Rectangle.OpacityMask>
+                <ImageBrush ImageSource="pack://application:,,,/RefactorGraph;component/Resources/Point.png"/>
+            </Rectangle.OpacityMask>
+        </Rectangle>
         <Label Name="Label"
                Content="{Binding  Path=NodeName, RelativeSource={RelativeSource AncestorType={x:Type local:ToolbarNodeEntryControl}}}"
                Grid.Column="1">

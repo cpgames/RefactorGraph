@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.VisualStudio.PlatformUI;
 using NodeGraph;
+using RefactorGraph.Nodes;
 
 namespace RefactorGraph
 {
@@ -30,6 +31,7 @@ namespace RefactorGraph
             set
             {
                 _nodeEntry = value;
+                PointColor.Color = NodeColors.brushes[_nodeEntry.nodeGroup].Color;
                 NodeName = value.nodeName;
             }
         }
