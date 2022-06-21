@@ -19,6 +19,7 @@ namespace RefactorGraph
             public Pane()
             {
                 BitmapImageMoniker = KnownMonikers.ToolWindow;
+                
             }
             #endregion
         }

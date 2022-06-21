@@ -46,48 +46,67 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Data\Chunk.cs" />
-    <Compile Include="Data\ChunkCollection.cs" />
-    <Compile Include="Data\Pattern.cs" />
-    <Compile Include="Nodes\BusView.cs" />
-    <Compile Include="Nodes\BusViewModel.cs" />
-    <Compile Include="Nodes\JoinCollectionsNode.cs" />
-    <Compile Include="Nodes\ReplaceRegexNode.cs" />
-    <Compile Include="Nodes\CreateChunkNode.cs" />
-    <Compile Include="Nodes\StringNode.cs" />
+    <Compile Include="Data\Qualifier.cs" />
+    <Compile Include="Data\Scope.cs" />
+    <Compile Include="Nodes\CollectionOperations\ClearCollectionNode.cs" />
+    <Compile Include="Nodes\CollectionOperations\AppendToCollectionNode.cs" />
+    <Compile Include="Nodes\LogicOperations\CompareNode.cs" />
+    <Compile Include="Nodes\LogicOperations\MultiplyNode.cs" />
+    <Compile Include="Nodes\LogicOperations\SubtractNode.cs" />
+    <Compile Include="Nodes\Other\BusView.cs" />
+    <Compile Include="Nodes\Other\BusViewModel.cs" />
+    <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionIsValidNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\InsertAfterNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\InsertBeforeNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByFunctionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByClassesNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RemoveFunctionParameterNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
+    <Compile Include="Nodes\DynamicRefactorNodeBase.cs" />
+    <Compile Include="Nodes\CollectionOperations\GetLastElementNode.cs" />
+    <Compile Include="Nodes\CollectionOperations\GetFirstElementNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByFunctionCallsNode.cs" />
+    <Compile Include="Nodes\StringOperations\RegexMatchPresentInStringNode.cs" />
+    <Compile Include="Nodes\Other\StartNode.cs" />
+    <Compile Include="Nodes\StringOperations\StringReplaceNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\ReferenceNode.cs" />
+    <Compile Include="Nodes\StringOperations\StringRemoveNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\SetPartitionDataNode.cs" />
+    <Compile Include="Data\Partition.cs" />
+    <Compile Include="Nodes\Variables\StringCollectionNode.cs" />
+    <Compile Include="Nodes\Variables\PartitionCollectionNode.cs" />
+    <Compile Include="Nodes\Variables\IntCollectionNode.cs" />
+    <Compile Include="Nodes\Variables\PartitionNode.cs" />
+    <Compile Include="Nodes\Variables\StringNode.cs" />
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
-    <Compile Include="Nodes\BusNode.cs" />
-    <Compile Include="Nodes\FilterNode.cs" />
-    <Compile Include="Nodes\ClearNode.cs" />
-    <Compile Include="Nodes\OrderAlphabeticalNode.cs" />
-    <Compile Include="Nodes\SetNode.cs" />
-    <Compile Include="Nodes\IntToChunkNode.cs" />
-    <Compile Include="Nodes\ChunkCollectionNode.cs" />
-    <Compile Include="Nodes\AddNode.cs" />
-    <Compile Include="Nodes\IntNode.cs" />
-    <Compile Include="Nodes\GetCollectionSizeNode.cs" />
-    <Compile Include="Nodes\EqualsNode.cs" />
-    <Compile Include="Nodes\GetElementNode.cs" />
-    <Compile Include="Nodes\OrderByChunkIndexNode.cs" />
-    <Compile Include="Nodes\MergeNode.cs" />
-    <Compile Include="Nodes\SetDocumentNode.cs" />
-    <Compile Include="Nodes\SplitIndexNode.cs" />
-    <Compile Include="Nodes\VariableNode.cs" />
-    <Compile Include="Nodes\AddChunkToCollectionNode.cs" />
-    <Compile Include="Nodes\ForEachNode.cs" />
-    <Compile Include="Nodes\ChunkNode.cs" />
-    <Compile Include="Nodes\SetChunkDataNode.cs" />
-    <Compile Include="Nodes\GetDocumentNode.cs" />
-    <Compile Include="Nodes\SplitRegexNode.cs" />
+    <Compile Include="Nodes\Other\BusNode.cs" />
+    <Compile Include="Nodes\Variables\SetVariableNode.cs" />
+    <Compile Include="Nodes\Other\ConvertToStringNode.cs" />
+    <Compile Include="Nodes\LogicOperations\AddNode.cs" />
+    <Compile Include="Nodes\Variables\IntNode.cs" />
+    <Compile Include="Nodes\CollectionOperations\GetCollectionSizeNode.cs" />
+    <Compile Include="Nodes\CollectionOperations\GetElementNode.cs" />
+    <Compile Include="Nodes\StringOperations\StringFormatNode.cs" />
+    <Compile Include="Nodes\StringOperations\SubstringNode.cs" />
+    <Compile Include="Nodes\Variables\VariableNode.cs" />
+    <Compile Include="Nodes\CollectionOperations\ForEachNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByAllRegexMatchesNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
-    <Compile Include="Wpf\NodeEntryControl.xaml.cs">
-      <DependentUpon>NodeEntryControl.xaml</DependentUpon>
+    <Compile Include="UserActivityHook.cs" />
+    <Compile Include="Wpf\ToolbarNodeEntryControl.xaml.cs">
+      <DependentUpon>ToolbarNodeEntryControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Wpf\NodeListControl.xaml.cs">
       <DependentUpon>NodeListControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Wpf\NodeEntryModel.cs" />
     <Compile Include="Wpf\ToolbarWindowControl.xaml.cs">
       <DependentUpon>ToolbarWindowControl.xaml</DependentUpon>
     </Compile>
@@ -129,6 +148,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Help.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Point.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Content Include="Resources\Preview.png">
@@ -205,7 +227,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Wpf\NodeEntryControl.xaml">
+    <Page Include="Wpf\ToolbarNodeEntryControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -231,6 +253,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\PCRE\src\PCRE.NET.Native\PCRE.NET.Native.vcxproj">
+      <Project>{cb0ec78a-b7fb-423f-8abb-0984a9d7b3ba}</Project>
+      <Name>PCRE.NET.Native</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\PCRE\src\PCRE.NET\PCRE.NET.csproj">
+      <Project>{31afb263-1b8c-48fb-812c-6bfa3496d5b3}</Project>
+      <Name>PCRE.NET</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NodeGraph\NodeGraph.csproj">
       <Project>{b650df81-3a89-4807-987b-aeee0e9ae242}</Project>
       <Name>NodeGraph</Name>

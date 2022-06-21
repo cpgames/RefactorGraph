@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell;
 using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
-using RefactorGraphdCore.Data;
+using RefactorGraph.Nodes.Other;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Panel = System.Windows.Controls.Panel;
 using UserControl = System.Windows.Controls.UserControl;
@@ -21,10 +21,6 @@ namespace RefactorGraph
     {
         #region Fields
         private FlowChartViewModel _flowChartViewModel;
-        private Chunk _document = new Chunk
-        {
-            content = "This is a test"
-        };
         private string _graphName = "NewRefactorGraph";
         private DesignerWindowControl _flowChartWindow;
         private bool _opened;
@@ -39,6 +35,10 @@ namespace RefactorGraph
             {
                 if (_graphName != value)
                 {
+                    if (NodeGraphManager.FlowCharts.Values.Any(x => x.Name == value))
+                    {
+                        MessageBox.Show($"Graph <{value}> already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                     foreach (var file in Utils.GetGraphFiles())
                     {
                         if (file == _graphName)
@@ -47,6 +47,8 @@ namespace RefactorGraph
                             {
                                 return;
                             }
+                            _flowChartViewModel.Model.Name = value;
+                            Utils.Save(_flowChartViewModel.Model);
                         }
                     }
                     _graphName = value;
@@ -88,6 +90,7 @@ namespace RefactorGraph
                 _enabled = value;
             }
         }
+        public FlowChartViewModel FlowChartViewModel => _flowChartViewModel;
         #endregion
 
         #region Constructors
@@ -95,8 +98,6 @@ namespace RefactorGraph
         {
             InitializeComponent();
             DataContext = this;
-
-            RefactorNodeBase.NodeCreatedEvent += RefactorNodeBase_NodeCreatedEvent;
             Unloaded += MainWindow_Unloaded;
         }
         #endregion
@@ -143,7 +144,6 @@ namespace RefactorGraph
 
         public void Unload()
         {
-            RefactorNodeBase.NodeCreatedEvent -= RefactorNodeBase_NodeCreatedEvent;
             if (_flowChartViewModel != null)
             {
                 if (_flowChartWindow != null && _flowChartWindow.FlowChartViewModel == _flowChartViewModel)
@@ -154,18 +154,6 @@ namespace RefactorGraph
                 var flowChartGuid = _flowChartViewModel.Model.Guid;
                 NodeGraphManager.DestroyFlowChart(flowChartGuid);
                 _flowChartViewModel = null;
-            }
-        }
-
-        private void RefactorNodeBase_NodeCreatedEvent(object sender, EventArgs e)
-        {
-            if (sender is GetDocumentNode getDocumentNode)
-            {
-                getDocumentNode.GetDocumentCallback = GetDocument;
-            }
-            else if (sender is SetDocumentNode setDocumentNode)
-            {
-                setDocumentNode.SetDocumentCallback = SetDocument;
             }
         }
 
@@ -187,7 +175,7 @@ namespace RefactorGraph
             return textDocument;
         }
 
-        private Chunk GetDocument()
+        private Partition GetDocument()
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var document = GetActiveDocument();
@@ -195,21 +183,20 @@ namespace RefactorGraph
             {
                 return null;
             }
-            var chunk = new Chunk();
+            var chunk = new Partition();
             if (!document.Selection.IsEmpty)
             {
-                chunk.content = document.Selection.Text;
+                chunk.Data = document.Selection.Text;
             }
             else
             {
                 var editPoint = document.StartPoint.CreateEditPoint();
-                var docText = editPoint.GetText(document.EndPoint);
-                chunk.content = docText;
+                chunk.Data = editPoint.GetText(document.EndPoint);
             }
             return chunk;
         }
 
-        private void SetDocument(Chunk chunk)
+        private void SetDocument(Partition documentPartition)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var document = GetActiveDocument();
@@ -217,48 +204,35 @@ namespace RefactorGraph
             {
                 document.Selection.SelectAll();
             }
-            document.Selection.Insert(chunk.content);
+            document.Selection.Insert(documentPartition.Data);
         }
 
         public void CreateNewGraph()
         {
             var flowChart = NodeGraphManager.CreateFlowChart(false, Guid.NewGuid(), typeof(FlowChart));
-            _flowChartViewModel = flowChart.ViewModel;
 
-            var pattern = "NewRefactorGraph";
+            _flowChartViewModel = flowChart.ViewModel;
+            var name = "NewRefactorGraph";
             var index = 0;
             var files = Utils.GetGraphFiles().ToList();
             string graphName;
             do
             {
-                graphName = $"{pattern}{index}";
+                graphName = $"{name}{index}";
                 index++;
             } while (files.Any(x => x == graphName));
             GraphName = graphName;
+            flowChart.Name = GraphName;
             BuildDefaultGraph();
-            SaveInternal();
+            Save();
             OpenGraphWindowAsync().Wait();
         }
 
         private void BuildDefaultGraph()
         {
-            var getDocumentNode = NodeGraphManager.CreateNode(
-                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetDocumentNode),
+            NodeGraphManager.CreateNode(
+                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(StartNode),
                 200, 200, 0);
-
-            var setDocumentNode = NodeGraphManager.CreateNode(
-                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(SetDocumentNode),
-                500, 200, 0);
-
-            var connector1 = NodeGraphManager.CreateConnector(
-                false, Guid.NewGuid(), _flowChartViewModel.Model);
-            NodeGraphManager.ConnectTo(getDocumentNode.OutputFlowPorts[0], connector1);
-            NodeGraphManager.ConnectTo(setDocumentNode.InputFlowPorts[0], connector1);
-
-            var connector2 = NodeGraphManager.CreateConnector(
-                false, Guid.NewGuid(), _flowChartViewModel.Model);
-            NodeGraphManager.ConnectTo(getDocumentNode.OutputPropertyPorts[0], connector2);
-            NodeGraphManager.ConnectTo(setDocumentNode.InputPropertyPorts[0], connector2);
         }
 
         private void Delete(object sender, RoutedEventArgs routedEventArgs)
@@ -272,7 +246,7 @@ namespace RefactorGraph
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            SaveInternal();
+            Save();
         }
 
         private void Edit(object sender, RoutedEventArgs e)
@@ -283,25 +257,12 @@ namespace RefactorGraph
         public void Refactor()
         {
             NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
-            var getDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "Get Document");
-            if (getDocumentNodes.Count == 0)
-            {
-                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a 'Get Document' node.");
-                return;
-            }
-            var setDocumentNodes = NodeGraphManager.FindNode(_flowChartViewModel.Model, "Set Document");
-            if (setDocumentNodes.Count == 0)
-            {
-                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, "You need to place a 'Set Document' node.");
-                return;
-            }
-
-            foreach (var node in getDocumentNodes.OfType<GetDocumentNode>())
-            {
-                node.OnPreExecute(null);
-                node.OnExecute(null);
-                node.OnPostExecute(null);
-            }
+            Utils.ValidateGraph(_flowChartViewModel.Model, out var startNode);
+            startNode.Result = GetDocument();
+            startNode.OnPreExecute(null);
+            startNode.OnExecute(null);
+            startNode.OnPostExecute(null);
+            SetDocument(startNode.Result);
         }
 
         private void RefactorClick(object sender, RoutedEventArgs e)
@@ -332,9 +293,9 @@ namespace RefactorGraph
             Opened = true;
         }
 
-        private void SaveInternal()
+        public void Save()
         {
-            Utils.Save(GraphName, _flowChartViewModel.Model);
+            Utils.Save(_flowChartViewModel.Model);
         }
 
         private void Toggle(object sender, RoutedEventArgs e)

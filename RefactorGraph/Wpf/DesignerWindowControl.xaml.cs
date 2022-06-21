@@ -9,6 +9,8 @@ using System.Windows.Input;
 using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
+using RefactorGraph.Nodes;
+using RefactorGraph.Nodes.PartitionOperations;
 using SelectionMode = NodeGraph.SelectionMode;
 
 namespace RefactorGraph
@@ -37,7 +39,6 @@ namespace RefactorGraph
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
         }
-
         #endregion
 
         #region Methods
@@ -113,7 +114,7 @@ namespace RefactorGraph
 
             var typeGroups = typeof(RefactorNodeBase).FindAllDerivedTypes()
                 .Where(x => x.HasAttribute<RefactorNodeAttribute>())
-                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().group)
+                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().nodeGroup)
                 .OrderBy(x => x.Key);
 
             foreach (var typeGroup in typeGroups)
@@ -187,47 +188,65 @@ namespace RefactorGraph
             flowChart.History.EndTransaction(false);
         }
 
-        #region Selection Events
         private void NodeGraphManager_NodeSelectionChanged(FlowChart flowChart, ObservableCollection<Guid> nodes, NotifyCollectionChangedEventArgs args) { }
-        #endregion // Selection Events
         #endregion
 
         #region Drag & Drop Events
         protected override void OnDragEnter(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled =
+                e.Data.GetDataPresent("NodeEntry") ||
+                e.Data.GetDataPresent("GraphEntry");
             base.OnDragEnter(e);
         }
 
         protected override void OnDragOver(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled =
+                e.Data.GetDataPresent("NodeEntry") ||
+                e.Data.GetDataPresent("GraphEntry");
             base.OnDragOver(e);
         }
 
         protected override void OnDrop(DragEventArgs e)
         {
-            e.Handled = e.Data.GetData(typeof(RefactorNodeType)) != null;
+            e.Handled =
+                e.Data.GetDataPresent("NodeEntry") ||
+                e.Data.GetDataPresent("GraphEntry");
             base.OnDrop(e);
         }
 
         private void NodeGraphManager_Drop(object sender, NodeGraphDragEventArgs args)
         {
-            var flowChartView = FlowChartViewModel.View;
-            var eType = (RefactorNodeType)args.DragEventArgs.Data.GetData(typeof(RefactorNodeType));
-            var nodeType = Utils.GetNodeType(eType);
-            if (nodeType == null)
+            if (args.DragEventArgs.Data.GetData("NodeEntry") is NodeEntryModel nodeEntry)
             {
-                return;
+                var nodeType = Utils.GetNodeType(nodeEntry.nodeType);
+                if (nodeType == null)
+                {
+                    return;
+                }
+                CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y);
             }
-            var flowChart = flowChartView.ViewModel.Model;
+            if (args.DragEventArgs.Data.GetData("GraphEntry") is GraphEntryControl graphEntry)
+            {
+                var nodeType = typeof(ReferenceNode);
+                var node = CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y);
+                node.Header = graphEntry.GraphName;
+            }
+        }
+
+        private Node CreateNode(Type nodeType, double x, double y)
+        {
+            Node node;
+            var flowChart = FlowChartViewModel.Model;
             flowChart.History.BeginTransaction("Creating node");
             {
-                NodeGraphManager.CreateNode(
+                node = NodeGraphManager.CreateNode(
                     false, Guid.NewGuid(), FlowChartViewModel.Model, nodeType,
-                    args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y, 0);
+                    x, y, 0);
             }
             flowChart.History.EndTransaction(false);
+            return node;
         }
 
         private void NodeGraphManager_DragOver(object sender, NodeGraphDragEventArgs args) { }

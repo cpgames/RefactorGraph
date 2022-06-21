@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="RefactorGraph.ToolbarNodeEntryControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:RefactorGraph"
+             mc:Ignorable="d"
+             d:DesignHeight="30" d:DesignWidth="200"
+             Name="MyNodeEntryControl"
+             PreviewMouseRightButtonUp="OnMouseRightButtonUp">
+    <Grid Margin="20,0,0,0" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <Rectangle Grid.Column="0" Height="10">
+            <Rectangle.Fill>
+                <SolidColorBrush Color="White" x:Name="PointColor"/>
+            </Rectangle.Fill>
+            <Rectangle.OpacityMask>
+                <ImageBrush ImageSource="pack://application:,,,/RefactorGraph;component/Resources/Point.png"/>
+            </Rectangle.OpacityMask>
+        </Rectangle>
+        <Label Name="Label"
+               Content="{Binding  Path=NodeName, RelativeSource={RelativeSource AncestorType={x:Type local:ToolbarNodeEntryControl}}}"
+               Grid.Column="1">
+            <Label.Style>
+                <Style TargetType="Label">
+                    <Setter Property="Foreground" Value="White" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="Orange" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Label.Style>
+        </Label>
+    </Grid>
+</UserControl>

@@ -1,6 +1,7 @@
-﻿using System.Linq;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using RefactorGraph.Nodes;
 
 namespace RefactorGraph
 {
@@ -10,30 +11,43 @@ namespace RefactorGraph
         public ToolbarWindowControl()
         {
             InitializeComponent();
-            PopulateNodes();
+            Utils.refreshAction += PopulateNodes;
+            Unloaded += OnUnloaded;
         }
         #endregion
 
         #region Methods
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            Utils.refreshAction -= PopulateNodes;
+        }
+
         private void PopulateNodes()
         {
-            var nodeTypeGroups = typeof(RefactorNodeBase).FindAllDerivedTypes()
-                .Where(x => x.HasAttribute<RefactorNodeAttribute>())
-                .GroupBy(x => x.GetAttribute<RefactorNodeAttribute>().group);
-
-            foreach (var nodeTypeGroup in nodeTypeGroups.OrderBy(x => x.Key))
+            Nodes.Children.Clear();
+            var nodes = Utils.GetNodeEntries();
+            foreach (var nodeGroup in nodes)
             {
-                var group = nodeTypeGroup.Key;
-                var expander = new Expander();
-                expander.Header = group;
-                expander.Foreground = new SolidColorBrush(Colors.White);
+                var group = nodeGroup.Key;
+                var expander = new Expander
+                {
+                    Header = group,
+                    Foreground = new SolidColorBrush(Colors.White),
+                    IsExpanded = true
+                };
                 var stackPanel = new StackPanel();
                 expander.Content = stackPanel;
-                foreach (var nodeType in nodeTypeGroup.OrderBy(x => x.GetAttribute<RefactorNodeAttribute>().nodeType.ToString()))
+                foreach (var nodeEntry in nodeGroup.Value)
                 {
-                    var nodeEntry = new NodeEntryControl();
-                    nodeEntry.NodeType = nodeType.GetAttribute<RefactorNodeAttribute>().nodeType;
-                    stackPanel.Children.Add(nodeEntry);
+                    if (nodeEntry.nodeType == RefactorNodeType.Reference)
+                    {
+                        continue;
+                    }
+                    var nodeEntryControl = new ToolbarNodeEntryControl
+                    {
+                        NodeEntry = nodeEntry
+                    };
+                    stackPanel.Children.Add(nodeEntryControl);
                 }
                 Nodes.Children.Add(expander);
             }
