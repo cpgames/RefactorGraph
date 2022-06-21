@@ -11,6 +11,7 @@ namespace RefactorGraph
         public ToolbarWindowControl()
         {
             InitializeComponent();
+            PopulateNodes();
             Utils.refreshAction += PopulateNodes;
             Unloaded += OnUnloaded;
         }

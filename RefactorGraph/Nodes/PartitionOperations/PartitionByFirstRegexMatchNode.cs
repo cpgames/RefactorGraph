@@ -5,7 +5,7 @@ using PCRE;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.PartitionByAllRegexMatches)]
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.PartitionByFirstRegexMatch)]
     public class PartitionByFirstRegexMatchNode : RefactorNodeBase
     {
         #region Fields
