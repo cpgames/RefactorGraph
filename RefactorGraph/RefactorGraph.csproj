@@ -62,8 +62,10 @@
     <Compile Include="Nodes\PartitionOperations\PartitionByFunctionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByClassesNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionCollectionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\RemoveFunctionParameterNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RemoveFunctionCallNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RemoveParameterNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
