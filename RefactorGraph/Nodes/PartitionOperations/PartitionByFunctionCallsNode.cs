@@ -18,10 +18,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string FUNCTION_NAME_PORT_NAME = "FunctionName";
         public const string FUNCTION_PARAMETERS_PORT_NAME = "FunctionParameters";
 
-        private const string FUNCTION_CALL_REGEX = @"(?<!\w\s)\b[a-zA-Z][^()\s]*\((?:((?R))|[^()])*\)|(?<=return\s)\b[a-zA-Z][^()\s]*\((?:((?R))|[^()])*\)";
+        private const string FUNCTION_CALL_REGEX = "(?<!\\[)\\s*[\\s.!]\\K\\b[^();=\\s?]+\\b(?:<[\\w\\s]*>)*\\((?:((?R))|[^()])*\\)(?!\\s*[{:\"])";
         private const string FUNCTION_NAME_REGEX = @"[^\s]*(?=\()";
-        private const string FUNCTION_BODY_REGEX = @"(?<=\().*(?=\))";
-        private const string FUNCTION_PARAMS_REGEX = @"[^,\s*][a-zA-Z\s_<>.()0-9]*";
+        private const string FUNCTION_PARAMS_BLOCK_REGEX = @"(?<=\().*(?=\))";
+        private const string FUNCTION_PARAMS_REGEX = @"[^,\s*][\w\s_<>.()]*";
 
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Source;
@@ -71,14 +71,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
             SetPortValue(FUNCTION_NAME_PORT_NAME, FunctionName);
             var functionCallBody = FunctionName?.next;
             var functionCallBodyContent = functionCallBody?
-                .PartitionByFirstRegexMatch(FUNCTION_BODY_REGEX, PcreOptions.MultiLine);
+                .PartitionByFirstRegexMatch(FUNCTION_PARAMS_BLOCK_REGEX, PcreOptions.MultiLine);
             if (functionCallBodyContent == null)
             {
                 return false;
             }
             FunctionParameters = functionCallBodyContent
                 .PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
-            SetPortValue(FUNCTION_PARAMS_REGEX, FunctionParameters);
+            SetPortValue(FUNCTION_PARAMETERS_PORT_NAME, FunctionParameters);
             return true;
         }
 
