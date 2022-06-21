@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NodeGraph.Model;
 using PCRE;
 
@@ -21,6 +22,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string RETURN_TYPE_FILTER_PORT_NAME = "ReturnTypeFilterRegex";
         public const string IS_CONSTRUCTOR_FILTER_PORT_NAME = "IsConstructorFilter";
         public const string FUNCTION_NAME_FILTER_PORT_NAME = "FunctionNameFilterRegex";
+        public const string PARAMETER_NAME_FILTER_PORT_NAME = "ParameterNameFilterRegex";
 
         public const string SCOPE_PORT_NAME = "Scope";
         public const string QUALIFIER_PORT_NAME = "Qualifier";
@@ -59,6 +61,9 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(FUNCTION_NAME_FILTER_PORT_NAME, true, typeof(string), FUNCTION_NAME_REGEX, true)]
         public string FunctionNameFilterRegex;
+
+        [NodePropertyPort(PARAMETER_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
+        public string ParameterNameFilterRegex;
 
         [NodePropertyPort(SCOPE_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Scope;
@@ -290,6 +295,19 @@ namespace RefactorGraph.Nodes.FunctionOperations
             if (!string.IsNullOrEmpty(FunctionNameFilterRegex))
             {
                 if (!PcreRegex.IsMatch(FunctionName.Data, FunctionNameFilterRegex))
+                {
+                    return false;
+                }
+            }
+
+            ParameterNameFilterRegex = GetPortValue(PARAMETER_NAME_FILTER_PORT_NAME, ParameterNameFilterRegex);
+            if (!string.IsNullOrEmpty(ParameterNameFilterRegex))
+            {
+                if (FunctionParameters.Count == 0)
+                {
+                    return false;
+                }
+                if (FunctionParameters.All(x => !PcreRegex.IsMatch(x.Data, ParameterNameFilterRegex)))
                 {
                     return false;
                 }
