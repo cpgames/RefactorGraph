@@ -26,9 +26,6 @@ namespace RefactorGraph.Nodes.StringOperations
 
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
-
-        [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, false, typeof(bool), false, false)]
-        public bool Result;
         #endregion
 
         #region Constructors
@@ -45,16 +42,9 @@ namespace RefactorGraph.Nodes.StringOperations
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
             if (!string.IsNullOrEmpty(Pattern))
             {
-                Result = PcreRegex.IsMatch(Source, Pattern, RegexOptions);
-                SetPortValue(RESULT_PORT_NAME, Result);
-                _success = true;
+                var result = PcreRegex.IsMatch(Source, Pattern, RegexOptions);
+                ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(Result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using RefactorGraph.Nodes;
@@ -38,7 +39,7 @@ namespace RefactorGraph
                 };
                 var stackPanel = new StackPanel();
                 expander.Content = stackPanel;
-                foreach (var nodeEntry in nodeGroup.Value)
+                foreach (var nodeEntry in nodeGroup.Value.OrderBy(x => x.nodeName))
                 {
                     if (nodeEntry.nodeType == RefactorNodeType.Reference)
                     {

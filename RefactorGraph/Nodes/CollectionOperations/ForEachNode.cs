@@ -15,10 +15,12 @@ namespace RefactorGraph.Nodes.Collections
         public const string COMPLETED_PORT_NAME = "Completed";
         public const string COLLECTION_PORT_NAME = "CollectionOperations";
         public const string ELEMENT_PORT_NAME = "Element";
+        private bool _success;
         #endregion
 
         #region Properties
         protected override bool HasOutput => false;
+        public override bool Success => _success;
         #endregion
 
         #region Constructors
@@ -32,6 +34,12 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
         }
 
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _success = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -39,19 +47,22 @@ namespace RefactorGraph.Nodes.Collections
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
             if (collection != null)
             {
-                _success = true;
                 foreach (var item in collection)
                 {
                     SetPortValue(ELEMENT_PORT_NAME, item);
                     ExecutePort(LOOP_PORT_NAME);
                 }
+                _success = true;
             }
         }
 
         public override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
-            ExecutePort(COMPLETED_PORT_NAME);
+            if (Success)
+            {
+                ExecutePort(COMPLETED_PORT_NAME);
+            }
         }
         #endregion
     }

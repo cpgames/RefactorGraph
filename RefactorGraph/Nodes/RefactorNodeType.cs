@@ -22,6 +22,7 @@
         Print,
         Start,
         // PartitionOperations
+        FindPartitionInCollection,
         GetPartitionData,
         InsertAfter,
         InsertBefore,

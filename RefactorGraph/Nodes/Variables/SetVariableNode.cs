@@ -29,13 +29,6 @@ namespace RefactorGraph.Nodes.Variables
 
             var value = GetPortValue<object>(VALUE_PORT_NAME);
             SetPortValue(VARIABLE_PORT_NAME, value);
-            _success = true;
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

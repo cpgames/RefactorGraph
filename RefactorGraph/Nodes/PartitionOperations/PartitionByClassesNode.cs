@@ -42,8 +42,8 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(QUALIFIER_FILTER_PORT_NAME, true, typeof(Qualifier), RefactorGraph.Qualifier.Any, true)]
         public Qualifier QualifierFilter;
-        
-        [NodePropertyPort(ClASS_NAME_FILTER_PORT_NAME, true, typeof(string), CLASS_NAME_WITH_GENERICS_REGEX, true)]
+
+        [NodePropertyPort(ClASS_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ClassNameFilterRegex;
 
         [NodePropertyPort(SCOPE_PORT_NAME, false, typeof(Partition), null, false)]
@@ -51,7 +51,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(QUALIFIER_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Qualifier;
-        
+
         [NodePropertyPort(ClASS_NAME_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition ClassName;
 
@@ -76,7 +76,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             if (Source != null && !Source.IsPartitioned)
             {
                 PartitionClass();
-                _success = true;
             }
         }
 
@@ -101,8 +100,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 {
                     continue;
                 }
-                _success = ApplyFilter();
-                ExecutePort(LOOP_PORT_NAME);
+                if (ApplyFilter())
+                {
+                    ExecutePort(LOOP_PORT_NAME);
+                }
             }
         }
 
@@ -194,7 +195,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
                     }
                     break;
             }
-            
+
             ClassNameFilterRegex = GetPortValue(ClASS_NAME_FILTER_PORT_NAME, ClassNameFilterRegex);
             if (!string.IsNullOrEmpty(ClassNameFilterRegex))
             {

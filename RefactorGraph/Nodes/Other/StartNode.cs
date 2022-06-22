@@ -16,6 +16,7 @@ namespace RefactorGraph.Nodes.Other
 
         #region Properties
         protected override bool HasInput => false;
+        public override bool Success => Result != null;
         #endregion
 
         #region Constructors
@@ -30,15 +31,13 @@ namespace RefactorGraph.Nodes.Other
             if (Result != null)
             {
                 SetPortValue(RESULT_PORT_NAME, Result);
-                _success = Result != null;
             }
         }
 
         public override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
-            if (_success)
+            if (Success)
             {
                 Result.Rasterize();
             }

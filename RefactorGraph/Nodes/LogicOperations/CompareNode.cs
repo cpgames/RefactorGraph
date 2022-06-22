@@ -22,13 +22,13 @@ namespace RefactorGraph.Nodes.LogicOperations
         public const string B_PORT_NAME = "B";
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
-        public const string RESULT_PORT_NAME = "Result";
 
         [NodePropertyPort(ALGORITHM_PORT_NAME, false, typeof(CompareAlgorithm), CompareAlgorithm.Equals, true)]
         public CompareAlgorithm Algorithm;
+        #endregion
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(bool), false, false)]
-        public bool Result;
+        #region Properties
+        protected override bool HasOutput => false;
         #endregion
 
         #region Constructors
@@ -48,27 +48,26 @@ namespace RefactorGraph.Nodes.LogicOperations
 
             ElementType = GetPortValue(ELEMENT_TYPE_PORT_NAME, ElementType);
             Algorithm = GetPortValue(ALGORITHM_PORT_NAME, Algorithm);
+            var result = false;
             switch (ElementType)
             {
                 case CollectionType.String:
-                    CompareStrings();
+                    result = CompareStrings();
                     break;
                 case CollectionType.Int:
-                    CompareInts();
+                    result = CompareInts();
                     break;
                 case CollectionType.Partition:
-                    ComparePartitions();
+                    result = ComparePartitions();
                     break;
                 case CollectionType.Bool:
-                    CompareBools();
+                    result = CompareBools();
                     break;
             }
-
-            SetPortValue(RESULT_PORT_NAME, Result);
-            _success = true;
+            ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
 
-        private void CompareStrings()
+        private bool CompareStrings()
         {
             var a = GetPortValue<string>(A_PORT_NAME);
             var b = GetPortValue<string>(B_PORT_NAME);
@@ -76,48 +75,40 @@ namespace RefactorGraph.Nodes.LogicOperations
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:
-                    Result = r == 0;
-                    break;
+                    return r == 0;
                 case CompareAlgorithm.LessThan:
-                    Result = r < 0;
-                    break;
+                    return r < 0;
                 case CompareAlgorithm.LessThanOrEquals:
-                    Result = r <= 0;
-                    break;
+                    return r <= 0;
                 case CompareAlgorithm.GreaterThan:
-                    Result = r > 0;
-                    break;
+                    return r > 0;
                 case CompareAlgorithm.GreaterThanOrEquals:
-                    Result = r >= 0;
-                    break;
+                    return r >= 0;
             }
+            return false;
         }
 
-        private void CompareInts()
+        private bool CompareInts()
         {
             var a = GetPortValue<int>(A_PORT_NAME);
             var b = GetPortValue<int>(B_PORT_NAME);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:
-                    Result = a == b;
-                    break;
+                    return a == b;
                 case CompareAlgorithm.LessThan:
-                    Result = a < b;
-                    break;
+                    return a < b;
                 case CompareAlgorithm.LessThanOrEquals:
-                    Result = a <= b;
-                    break;
+                    return a <= b;
                 case CompareAlgorithm.GreaterThan:
-                    Result = a > b;
-                    break;
+                    return a > b;
                 case CompareAlgorithm.GreaterThanOrEquals:
-                    Result = a >= b;
-                    break;
+                    return a >= b;
             }
+            return false;
         }
 
-        private void ComparePartitions()
+        private bool ComparePartitions()
         {
             var a = GetPortValue<Partition>(A_PORT_NAME);
             var b = GetPortValue<Partition>(B_PORT_NAME);
@@ -125,51 +116,37 @@ namespace RefactorGraph.Nodes.LogicOperations
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:
-                    Result = r == 0;
-                    break;
+                    return r == 0;
                 case CompareAlgorithm.LessThan:
-                    Result = r < 0;
-                    break;
+                    return r < 0;
                 case CompareAlgorithm.LessThanOrEquals:
-                    Result = r <= 0;
-                    break;
+                    return r <= 0;
                 case CompareAlgorithm.GreaterThan:
-                    Result = r > 0;
-                    break;
+                    return r > 0;
                 case CompareAlgorithm.GreaterThanOrEquals:
-                    Result = r >= 0;
-                    break;
+                    return r >= 0;
             }
+            return false;
         }
 
-        private void CompareBools()
+        private bool CompareBools()
         {
             var a = GetPortValue<bool>(A_PORT_NAME);
             var b = GetPortValue<bool>(B_PORT_NAME);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:
-                    Result = a == b;
-                    break;
+                    return a == b;
                 case CompareAlgorithm.LessThan:
-                    Result = !a && b;
-                    break;
+                    return !a && b;
                 case CompareAlgorithm.LessThanOrEquals:
-                    Result = (!a && b) || a == b;
-                    break;
+                    return (!a && b) || a == b;
                 case CompareAlgorithm.GreaterThan:
-                    Result = a && !b;
-                    break;
+                    return a && !b;
                 case CompareAlgorithm.GreaterThanOrEquals:
-                    Result = (a && !b) || a == b;
-                    break;
+                    return (a && !b) || a == b;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
+            return false;
         }
         #endregion
     }

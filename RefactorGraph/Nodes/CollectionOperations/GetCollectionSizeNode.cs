@@ -11,9 +11,14 @@ namespace RefactorGraph.Nodes.Collections
         #region Fields
         public const string SIZE_PORT_NAME = "Size";
         public const string COLLECTION_PORT_NAME = "CollectionOperations";
+        private bool _success;
 
         [NodePropertyPort(SIZE_PORT_NAME, false, typeof(int), 0, false)]
         public int Size;
+        #endregion
+
+        #region Properties
+        public override bool Success => _success;
         #endregion
 
         #region Constructors
@@ -26,6 +31,12 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
         }
 
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _success = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -36,12 +47,6 @@ namespace RefactorGraph.Nodes.Collections
                 SetPortValue(SIZE_PORT_NAME, collection.Count);
                 _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

@@ -234,7 +234,7 @@ namespace RefactorGraph
                 {
                     if (nodeType == typeof(ReferenceNode))
                     {
-                        break;
+                        continue;
                     }
 
                     var att = nodeType.GetAttribute<RefactorNodeAttribute>();

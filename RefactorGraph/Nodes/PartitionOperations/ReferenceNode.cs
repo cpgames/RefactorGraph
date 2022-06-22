@@ -46,14 +46,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 startNode.OnPreExecute(null);
                 startNode.OnExecute(null);
                 startNode.OnPostExecute(null);
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

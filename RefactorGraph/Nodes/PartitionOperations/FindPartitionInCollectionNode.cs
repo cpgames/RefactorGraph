@@ -1,34 +1,32 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NodeGraph.Model;
 using PCRE;
 
-namespace RefactorGraph.Nodes.StringOperations
+namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.StringOperations, RefactorNodeType.StringReplace)]
-    public class StringReplaceNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.FindPartitionInCollection)]
+    public class FindPartitionInCollectionNode : RefactorNodeBase
     {
         #region Fields
-        public const string SOURCE_PORT_NAME = "Source";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
-        public const string REPLACEMENT_PORT_NAME = "Replacement";
+        public const string SOURCE_PORT_NAME = "Source";
         public const string RESULT_PORT_NAME = "Result";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(string), "", true)]
-        public string Source;
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false)]
+        public List<Partition> Source;
 
-        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "pattern", true)]
+        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
-
-        [NodePropertyPort(REPLACEMENT_PORT_NAME, true, typeof(string), "replacement", true)]
-        public string Replacement;
 
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(string), "", false)]
-        public string Result;
+        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition Result;
         #endregion
 
         #region Properties
@@ -36,7 +34,7 @@ namespace RefactorGraph.Nodes.StringOperations
         #endregion
 
         #region Constructors
-        public StringReplaceNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public FindPartitionInCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
@@ -50,15 +48,12 @@ namespace RefactorGraph.Nodes.StringOperations
         {
             base.OnExecute(connector);
 
-            Source = GetPortValue(SOURCE_PORT_NAME, Source);
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
-            Replacement = GetPortValue(REPLACEMENT_PORT_NAME, Replacement);
+            Source = GetPortValue<List<Partition>>(SOURCE_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (!string.IsNullOrEmpty(Source) &&
-                !string.IsNullOrEmpty(Pattern) &&
-                Replacement != null)
+            if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
-                Result = PcreRegex.Replace(Source, Pattern, Replacement, RegexOptions);
+                Result = Source.FirstOrDefault(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
                 SetPortValue(RESULT_PORT_NAME, Result);
             }
         }

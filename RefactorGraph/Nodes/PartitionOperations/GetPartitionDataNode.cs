@@ -18,11 +18,21 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public string Data;
         #endregion
 
+        #region Properties
+        public override bool Success => Data != null;
+        #endregion
+
         #region Constructors
         public GetPartitionDataNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Data = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -32,14 +42,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
             {
                 Data = Partition.Data;
                 SetPortValue(DATA_PORT_NAME, Data);
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

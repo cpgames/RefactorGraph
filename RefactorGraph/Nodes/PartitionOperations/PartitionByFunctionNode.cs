@@ -53,13 +53,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(QUALIFIER_FILTER_PORT_NAME, true, typeof(Qualifier), RefactorGraph.Qualifier.Any, true)]
         public Qualifier QualifierFilter;
 
-        [NodePropertyPort(RETURN_TYPE_FILTER_PORT_NAME, true, typeof(string), FUNCTION_NAME_REGEX, true)]
+        [NodePropertyPort(RETURN_TYPE_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ReturnTypeFilterRegex;
 
         [NodePropertyPort(IS_CONSTRUCTOR_FILTER_PORT_NAME, true, typeof(bool), false, true)]
         public bool IsConstructorFilter;
 
-        [NodePropertyPort(FUNCTION_NAME_FILTER_PORT_NAME, true, typeof(string), FUNCTION_NAME_REGEX, true)]
+        [NodePropertyPort(FUNCTION_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string FunctionNameFilterRegex;
 
         [NodePropertyPort(PARAMETER_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
@@ -103,49 +103,51 @@ namespace RefactorGraph.Nodes.FunctionOperations
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             if (Source != null && !Source.IsPartitioned)
             {
-                _success = PartitionFunctions(Source);
+                PartitionFunctions(Source);
             }
         }
 
-        private bool PartitionFunctions(Partition cur)
+        private void PartitionFunctions(Partition cur)
         {
             var classDefinition = cur.PartitionByFirstRegexMatch(FUNCTION_DEFINITION_REGEX, PcreOptions.MultiLine);
             if (classDefinition == null)
             {
-                return true;
+                return;
             }
             if (!PartitionFunctionDefinition(classDefinition))
             {
-                return false;
+                return;
             }
             cur = classDefinition.next;
             if (!PartitionFunctionParameters(cur, out cur))
             {
-                return false;
+                return;
             }
             if (cur == null)
             {
-                return false;
+                return;
             }
             var functionBodyBlock = cur.PartitionByFirstRegexMatch(FUNCTION_BODY_BLOCK_REGEX, PcreOptions.MultiLine);
             if (functionBodyBlock == null)
             {
-                return false;
+                return;
             }
             FunctionBody = functionBodyBlock.PartitionByFirstRegexMatch(FUNCTION_BODY_REGEX, PcreOptions.MultiLine);
             SetPortValue(FUNCTION_BODY_PORT_NAME, FunctionBody);
             if (FunctionBody == null)
             {
-                return false;
+                return;
             }
-            _success = ApplyFilter();
-            ExecutePort(LOOP_PORT_NAME);
+            if (ApplyFilter())
+            {
+                ExecutePort(LOOP_PORT_NAME);
+            }
             cur = functionBodyBlock.next;
             if (cur == null)
             {
-                return true;
+                return;
             }
-            return PartitionFunctions(cur);
+            PartitionFunctions(cur);
         }
 
         private bool PartitionFunctionDefinition(Partition classDefinition)

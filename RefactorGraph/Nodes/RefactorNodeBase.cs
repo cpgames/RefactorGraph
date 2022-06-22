@@ -11,10 +11,8 @@ namespace RefactorGraph.Nodes
     public abstract class RefactorNodeBase : Node
     {
         #region Fields
-        public const string INPUT_PORT_NAME = "Input";
-        public const string OUTPUT_PORT_NAME = "Output";
-
-        protected bool _success = true;
+        private const string INPUT_PORT_NAME = "Input";
+        private const string OUTPUT_PORT_NAME = "Output";
         #endregion
 
         #region Properties
@@ -22,6 +20,7 @@ namespace RefactorGraph.Nodes
 
         protected virtual bool HasInput => true;
         protected virtual bool HasOutput => true;
+        public virtual bool Success => true;
         #endregion
 
         #region Constructors
@@ -53,10 +52,17 @@ namespace RefactorGraph.Nodes
             }
         }
 
-        public override void OnPreExecute(Connector connector)
+        public override void OnPostExecute(Connector connector)
         {
-            base.OnPreExecute(connector);
-            _success = false;
+            base.OnPostExecute(connector);
+            if (HasOutput && Success)
+            {
+                ExecutePort(OUTPUT_PORT_NAME);
+            }
+            if (!Success)
+            {
+                ExecutionState = NodeExecutionState.Failed;
+            }
         }
 
         protected TValue GetPortValue<TValue>(string portName, TValue defaultValue = default)
@@ -83,19 +89,12 @@ namespace RefactorGraph.Nodes
 
         protected void ExecutePort(string portName)
         {
-            if (_success)
+            var port = NodeGraphManager.FindNodeFlowPort(this, portName);
+            foreach (var connector in port.Connectors)
             {
-                var port = NodeGraphManager.FindNodeFlowPort(this, portName);
-                foreach (var connector in port.Connectors)
-                {
-                    connector.OnPreExecute();
-                    connector.OnExecute();
-                    connector.OnPostExecute();
-                }
-            }
-            else
-            {
-                ExecutionState = NodeExecutionState.Failed;
+                connector.OnPreExecute();
+                connector.OnExecute();
+                connector.OnPostExecute();
             }
         }
         #endregion
