@@ -90,7 +90,7 @@ namespace RefactorGraph
             _data = GetInnerData();
             inner = null;
         }
-
+        
         public override string ToString()
         {
             return Data;

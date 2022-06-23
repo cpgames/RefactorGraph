@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Data\VariableDefinition.cs" />
     <Compile Include="Data\Qualifier.cs" />
     <Compile Include="Data\Scope.cs" />
     <Compile Include="Nodes\CollectionOperations\ClearCollectionNode.cs" />
@@ -56,6 +57,9 @@
     <Compile Include="Nodes\Other\BusView.cs" />
     <Compile Include="Nodes\Other\BusViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\GetNextPartitionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByVariableAssignmentNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionIsValidNode.cs" />
     <Compile Include="Nodes\PartitionOperations\InsertAfterNode.cs" />
     <Compile Include="Nodes\PartitionOperations\InsertBeforeNode.cs" />
