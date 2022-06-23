@@ -38,13 +38,6 @@ namespace RefactorGraph.Nodes.LogicOperations
             var b = GetPortValue(B_PORT_NAME, B);
             Result = a * b;
             SetPortValue(RESULT_PORT_NAME, Result);
-            _success = true;
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

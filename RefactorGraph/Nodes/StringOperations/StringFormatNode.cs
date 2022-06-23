@@ -24,11 +24,21 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
+        #region Properties
+        public override bool Success => Result != null;
+        #endregion
+
         #region Constructors
         public StringFormatNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Result = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -53,20 +63,12 @@ namespace RefactorGraph.Nodes.StringOperations
                         Result = string.Format(Format, Args);
                     }
                     SetPortValue(RESULT_PORT_NAME, Result);
-                    _success = true;
                 }
                 catch (Exception e)
                 {
                     NodeGraphManager.AddScreenLog(Owner, e.Message);
-                    _success = false;
                 }
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

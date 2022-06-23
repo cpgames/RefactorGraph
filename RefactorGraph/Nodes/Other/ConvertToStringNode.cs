@@ -19,11 +19,21 @@ namespace RefactorGraph.Nodes.Other
         public string Result;
         #endregion
 
+        #region Properties
+        public override bool Success => Result != null;
+        #endregion
+
         #region Constructors
         public ConvertToStringNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Result = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -49,13 +59,6 @@ namespace RefactorGraph.Nodes.Other
                 }
             }
             SetPortValue(RESULT_PORT_NAME, Result);
-            _success = true;
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

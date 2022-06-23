@@ -27,11 +27,21 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public Partition Result;
         #endregion
 
+        #region Properties
+        public override bool Success => Result != null;
+        #endregion
+
         #region Constructors
         public PartitionByFirstRegexMatchNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Result = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
@@ -43,14 +53,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
             {
                 Result = Source.PartitionByFirstRegexMatch(Pattern, RegexOptions);
                 SetPortValue(RESULT_PORT_NAME, Result);
-                _success = Result != null;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

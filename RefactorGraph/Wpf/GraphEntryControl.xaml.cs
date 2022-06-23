@@ -259,10 +259,15 @@ namespace RefactorGraph
             NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
             Utils.ValidateGraph(_flowChartViewModel.Model, out var startNode);
             startNode.Result = GetDocument();
+            var originalData = startNode.Result.Data;
             startNode.OnPreExecute(null);
             startNode.OnExecute(null);
             startNode.OnPostExecute(null);
-            SetDocument(startNode.Result);
+            if (startNode.Success &&
+                startNode.Result.Data != originalData)
+            {
+                SetDocument(startNode.Result);
+            }
         }
 
         private void RefactorClick(object sender, RoutedEventArgs e)

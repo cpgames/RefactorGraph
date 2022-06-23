@@ -36,16 +36,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 {
                     Partition.next?.Remove();
                 }
-
                 Partition.Remove();
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

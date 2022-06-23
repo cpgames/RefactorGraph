@@ -18,7 +18,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string SOURCE_PORT_NAME = "Source";
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
-        public const string RESULT_PORT_NAME = "Result";
 
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false)]
         public List<Partition> Source;
@@ -28,9 +27,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
 
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
+        #endregion
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(bool), false, false)]
-        public bool Result;
+        #region Properties
+        protected override bool HasOutput => false;
         #endregion
 
         #region Constructors
@@ -47,16 +47,9 @@ namespace RefactorGraph.Nodes.PartitionOperations
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
             if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
-                Result = Source.Any(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
-                SetPortValue(RESULT_PORT_NAME, Result);
-                _success = true;
+                var result = Source.Any(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
+                ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(Result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
         #endregion
     }

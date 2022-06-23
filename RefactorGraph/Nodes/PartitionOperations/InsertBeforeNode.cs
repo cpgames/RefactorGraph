@@ -4,7 +4,7 @@ using NodeGraph.Model;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.Variables, RefactorNodeType.InsertBefore)]
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.InsertBefore)]
     public class InsertBeforeNode : RefactorNodeBase
     {
         #region Fields
@@ -22,18 +22,28 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public Partition Result;
         #endregion
 
+        #region Properties
+        public override bool Success => Result != null;
+        #endregion
+
         #region Constructors
         public InsertBeforeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Result = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             Data = GetPortValue(DATA_PORT_NAME, Data);
-            if (Partition != null && 
+            if (Partition != null &&
                 Partition.prev != null /* can't insert before root */)
             {
                 Result = new Partition
@@ -45,14 +55,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 Partition.prev.next = Result;
                 Partition.prev = Result;
                 SetPortValue(RESULT_PORT_NAME, Result);
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

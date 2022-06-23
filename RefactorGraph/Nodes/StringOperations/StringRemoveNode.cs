@@ -26,33 +26,34 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
+        #region Properties
+        public override bool Success => Result != null;
+        #endregion
+
         #region Constructors
         public StringRemoveNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Result = null;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
-
             Source = GetPortValue(SOURCE_PORT_NAME, SOURCE_PORT_NAME);
             Index = GetPortValue(INDEX_PORT_NAME, Index);
             Length = GetPortValue(LENGTH_PORT_NAME, Length);
-
             if (Index + Length < Source.Length)
             {
                 Result = Length > 0 ?
                     Source.Remove(Index, Length) :
                     Source.Remove(Index);
                 SetPortValue(RESULT_PORT_NAME, Result);
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }

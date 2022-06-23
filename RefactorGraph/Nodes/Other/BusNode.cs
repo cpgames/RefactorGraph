@@ -53,15 +53,8 @@ namespace RefactorGraph.Nodes.Other
             {
                 return;
             }
-
             var lastOutputPort = OutputFlowPorts.Last();
             NodeGraphManager.DestroyNodePort(lastOutputPort.Guid);
-        }
-
-        public override void OnExecute(Connector connector)
-        {
-            base.OnExecute(connector);
-            _success = true;
         }
 
         public override void OnPostExecute(Connector connector)

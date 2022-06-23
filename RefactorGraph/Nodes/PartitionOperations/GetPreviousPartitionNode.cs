@@ -4,33 +4,33 @@ using NodeGraph.Model;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.GetPartitionData)]
-    public class GetPartitionDataNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.GetPreviousPartition)]
+    public class GetPreviousPartitionNode : RefactorNodeBase
     {
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
-        public const string DATA_PORT_NAME = "Data";
+        public const string PREVIOUS_PORT_NAME = "Previous";
 
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Partition;
 
-        [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false)]
-        public string Data;
+        [NodePropertyPort(PREVIOUS_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition Previous;
         #endregion
 
         #region Properties
-        public override bool Success => Data != null;
+        public override bool Success => Previous != null;
         #endregion
 
         #region Constructors
-        public GetPartitionDataNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public GetPreviousPartitionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
         public override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
-            Data = null;
+            Previous = null;
         }
 
         public override void OnExecute(Connector connector)
@@ -40,8 +40,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             if (Partition != null)
             {
-                Data = Partition.Data;
-                SetPortValue(DATA_PORT_NAME, Data);
+                Previous = Partition.prev;
+                SetPortValue(PREVIOUS_PORT_NAME, Previous);
             }
         }
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using NodeGraph;
 using NodeGraph.Model;
 
@@ -11,10 +12,10 @@ namespace RefactorGraph.Nodes.Other
         #region Fields
         public const string SOURCE_PORT_NAME = "Source";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(string), "", false)]
-        public string Source;
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(object), null, false)]
+        public object Source;
         #endregion
-        
+
         #region Constructors
         public PrintNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
@@ -23,10 +24,28 @@ namespace RefactorGraph.Nodes.Other
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
-
-            Source = GetPortValue(SOURCE_PORT_NAME, Source);
-            NodeGraphManager.AddScreenLog(Owner, Source);
-            _success = true;
+            Source = GetPortValue<object>(SOURCE_PORT_NAME);
+            var result = string.Empty;
+            if (Source != null)
+            {
+                if (Source is IList list)
+                {
+                    result = string.Empty;
+                    for (var i = 0; i < list.Count; i++)
+                    {
+                        result += list[i].ToString();
+                        if (i < list.Count - 1)
+                        {
+                            result += ", ";
+                        }
+                    }
+                }
+                else
+                {
+                    result = Source.ToString();
+                }
+                NodeGraphManager.AddScreenLog(Owner, result);
+            }
         }
         #endregion
     }

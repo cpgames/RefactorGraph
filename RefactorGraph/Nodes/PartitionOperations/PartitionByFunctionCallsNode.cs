@@ -63,7 +63,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             if (Source != null && !Source.IsPartitioned)
             {
                 PartitionFunction();
-                _success = true;
             }
         }
 
@@ -73,8 +72,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
             foreach (var functionCall in functionCalls)
             {
                 SetPortValue(FUNCTION_CALL_PORT_NAME, functionCall);
-                _success = PartitionFunctionContent(functionCall) && ApplyFilter();
-                ExecutePort(LOOP_PORT_NAME);
+                if (PartitionFunctionContent(functionCall) && ApplyFilter())
+                {
+                    ExecutePort(LOOP_PORT_NAME);
+                }
             }
         }
 

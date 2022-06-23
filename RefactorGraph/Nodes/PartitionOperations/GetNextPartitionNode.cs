@@ -4,33 +4,33 @@ using NodeGraph.Model;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.GetPartitionData)]
-    public class GetPartitionDataNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.GetNextPartition)]
+    public class GetNextPartitionNode : RefactorNodeBase
     {
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
-        public const string DATA_PORT_NAME = "Data";
+        public const string NEXT_PORT_NAME = "Next";
 
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Partition;
 
-        [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false)]
-        public string Data;
+        [NodePropertyPort(NEXT_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition Next;
         #endregion
 
         #region Properties
-        public override bool Success => Data != null;
+        public override bool Success => Next != null;
         #endregion
 
         #region Constructors
-        public GetPartitionDataNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public GetNextPartitionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
         public override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
-            Data = null;
+            Next = null;
         }
 
         public override void OnExecute(Connector connector)
@@ -40,8 +40,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             if (Partition != null)
             {
-                Data = Partition.Data;
-                SetPortValue(DATA_PORT_NAME, Data);
+                Next = Partition.next;
+                SetPortValue(NEXT_PORT_NAME, Next);
             }
         }
         #endregion

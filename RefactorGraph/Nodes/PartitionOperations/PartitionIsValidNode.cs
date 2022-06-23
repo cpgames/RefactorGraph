@@ -13,13 +13,13 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string SOURCE_PORT_NAME = "Source";
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
-        public const string RESULT_PORT_NAME = "Result";
 
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Source;
+        #endregion
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(bool), false, false)]
-        public bool Result;
+        #region Properties
+        protected override bool HasOutput => false;
         #endregion
 
         #region Constructors
@@ -30,17 +30,9 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
-
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            Result = Source != null && !string.IsNullOrEmpty(Source.Data);
-            SetPortValue(RESULT_PORT_NAME, Result);
-            _success = true;
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(Result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
+            var result = Source != null && !string.IsNullOrEmpty(Source.Data);
+            ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
         #endregion
     }

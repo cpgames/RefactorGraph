@@ -32,14 +32,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
             if (Partition != null && !Partition.IsPartitioned)
             {
                 Partition.Data = Data;
-                _success = true;
             }
-        }
-
-        public override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            ExecutePort(OUTPUT_PORT_NAME);
         }
         #endregion
     }
