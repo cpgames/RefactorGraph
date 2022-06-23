@@ -256,17 +256,31 @@ namespace RefactorGraph
 
         public void Refactor()
         {
-            NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
-            Utils.ValidateGraph(_flowChartViewModel.Model, out var startNode);
-            startNode.Result = GetDocument();
-            var originalData = startNode.Result.Data;
-            startNode.OnPreExecute(null);
-            startNode.OnExecute(null);
-            startNode.OnPostExecute(null);
-            if (startNode.Success &&
-                startNode.Result.Data != originalData)
+            if (_flowChartViewModel == null)
             {
-                SetDocument(startNode.Result);
+                return;
+            }
+            NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
+            if (!Utils.ValidateGraph(_flowChartViewModel.Model, out var startNode))
+            {
+                return;
+            }
+            try
+            {
+                startNode.Result = GetDocument();
+                var originalData = startNode.Result.Data;
+                startNode.OnPreExecute(null);
+                startNode.OnExecute(null);
+                startNode.OnPostExecute(null);
+                if (startNode.Success &&
+                    startNode.Result.Data != originalData)
+                {
+                    SetDocument(startNode.Result);
+                }
+            }
+            catch (Exception e)
+            {
+                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, e.Message);
             }
         }
 

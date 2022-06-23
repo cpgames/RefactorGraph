@@ -12,8 +12,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string FUNCTION_CALL_PORT_NAME = "FunctionCall";
 
         public const string ASSIGNMENT_OPERATOR_REGEX = @"\s*=\s*\Z";
-        public const string ASSIGNMENT_REGEX = @"^.*[\/].*\R(*SKIP)(*F)|\s*\w[\w\s*\[\]]*\Z";
-        public const string SUFFIX_REGEX = @"\s*[;,+-].*|\s*&&.*|\s*\|\|.*";
+        public const string PREFIX_REGEX = @"[^\S\r\n]*\Z|[^\S\r\n]*\w[\w.\[\]\s]*\s*=\s*\Z";
+        public const string SUFFIX_REGEX = @"\s*[;,+-].*\R*|\s*&&.*\R*|\s*\|\|.*\R*|\s*\R*";
 
         [NodePropertyPort(FUNCTION_CALL_PORT_NAME, true, typeof(Partition), null, true)]
         public Partition FunctionCall;
@@ -32,42 +32,30 @@ namespace RefactorGraph.Nodes.PartitionOperations
             if (FunctionCall != null &&
                 !FunctionCall.IsRoot /* can't remove root */)
             {
-                if (RemovePrefix(FunctionCall.prev))
-                {
-                    RemoveSuffix(FunctionCall.next);
-                }
-
+                RemoveEmptyLines();
                 FunctionCall.Remove();
             }
         }
-
-        private bool RemovePrefix(Partition cur)
+        
+        private void RemoveEmptyLines()
         {
-            if (cur.IsRoot || cur.IsPartitioned)
+            var cur = FunctionCall.prev;
+            if (cur != null && !cur.IsPartitioned)
             {
-                return true;
+                cur = cur.PartitionByFirstRegexMatch(PREFIX_REGEX, PcreOptions.MultiLine);
+                if (cur != null)
+                {
+                    cur.Remove();
+                }
             }
-            var assignmentOperator = cur.PartitionByFirstRegexMatch(ASSIGNMENT_OPERATOR_REGEX, PcreOptions.MultiLine);
-            if (assignmentOperator != null && !assignmentOperator.prev.IsRoot)
+            cur = FunctionCall.next;
+            if (cur != null && !cur.IsPartitioned)
             {
-                var assignment = assignmentOperator.prev.PartitionByFirstRegexMatch(ASSIGNMENT_REGEX, PcreOptions.MultiLine);
-                assignment.Remove();
-                assignmentOperator.Remove();
-                return true;
-            }
-            return true;
-        }
-
-        private void RemoveSuffix(Partition cur)
-        {
-            if (cur == null)
-            {
-                return;
-            }
-            var suffix = cur.PartitionByFirstRegexMatch(SUFFIX_REGEX, PcreOptions.MultiLine);
-            if (suffix != null)
-            {
-                suffix.Remove();
+                cur = cur.PartitionByFirstRegexMatch(SUFFIX_REGEX, PcreOptions.MultiLine);
+                if (cur != null)
+                {
+                    cur.Remove();
+                }
             }
         }
         #endregion

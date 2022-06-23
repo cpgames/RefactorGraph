@@ -25,7 +25,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
 
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             if (Partition != null &&
-                Partition.prev != null /* can't remove root */)
+                !Partition.IsRoot /* can't remove root */)
             {
                 Partition.Remove();
             }
