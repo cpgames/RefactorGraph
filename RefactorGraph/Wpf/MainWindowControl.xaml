@@ -57,8 +57,7 @@
                         PreviewMouseLeftButtonUp="EntryMouseLeftButtonUp"
                         PreviewMouseMove="EntryMouseMove"
                         DragEnter="EntryDragEnter" 
-                        Drop="EntryDrop"
-                        GiveFeedback="EntryGiveFeedback" />
+                        Drop="EntryDrop" />
         </ScrollViewer>
     </Grid>
 
