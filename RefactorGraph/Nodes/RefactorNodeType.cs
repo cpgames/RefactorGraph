@@ -35,6 +35,7 @@
         PartitionByAllRegexMatches,
         PartitionByFirstRegexMatch,
         PartitionByClasses,
+        RasterizePartition,
         Reference,
         RemoveFunctionCall,
         RemoveParameter,

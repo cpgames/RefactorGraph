@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Xml;
-using gma.System.Windows;
 using NodeGraph;
 using NodeGraph.Model;
 using RefactorGraph.Nodes;
@@ -17,7 +16,6 @@ namespace RefactorGraph
     public static class Utils
     {
         #region Fields
-        public static UserActivityHook actHook = new UserActivityHook(true, false);
         public static Action refreshAction;
         #endregion
 

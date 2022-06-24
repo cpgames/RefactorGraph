@@ -10,7 +10,7 @@ namespace RefactorGraph.Nodes.Collections
     {
         #region Fields
         public const string INDEX_PORT_NAME = "Index";
-        public const string COLLECTION_PORT_NAME = "CollectionOperations";
+        public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
         private bool _success;
 

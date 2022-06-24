@@ -57,6 +57,7 @@
     <Compile Include="Nodes\Other\BusView.cs" />
     <Compile Include="Nodes\Other\BusViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\RasterizePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetNextPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByVariableAssignmentNode.cs" />
@@ -106,7 +107,6 @@
     <Compile Include="Nodes\PartitionOperations\PartitionByAllRegexMatchesNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
-    <Compile Include="UserActivityHook.cs" />
     <Compile Include="Wpf\ToolbarNodeEntryControl.xaml.cs">
       <DependentUpon>ToolbarNodeEntryControl.xaml</DependentUpon>
     </Compile>
