@@ -13,7 +13,7 @@ namespace RefactorGraph.Nodes.Collections
         #region Fields
         public const string LOOP_PORT_NAME = "Loop";
         public const string COMPLETED_PORT_NAME = "Completed";
-        public const string COLLECTION_PORT_NAME = "CollectionOperations";
+        public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
         private bool _success;
         #endregion

@@ -9,7 +9,7 @@ namespace RefactorGraph.Nodes.Collections
     public class AppendToCollectionNode : DynamicRefactorNodeBase
     {
         #region Fields
-        public const string COLLECTION_PORT_NAME = "CollectionOperations";
+        public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
         private bool _success;
         #endregion

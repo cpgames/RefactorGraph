@@ -10,7 +10,7 @@ namespace RefactorGraph.Nodes.Collections
     {
         #region Fields
         public const string SIZE_PORT_NAME = "Size";
-        public const string COLLECTION_PORT_NAME = "CollectionOperations";
+        public const string COLLECTION_PORT_NAME = "Collection";
         private bool _success;
 
         [NodePropertyPort(SIZE_PORT_NAME, false, typeof(int), 0, false)]
