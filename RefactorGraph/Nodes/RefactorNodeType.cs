@@ -30,6 +30,7 @@
         InsertBefore,
         PartitionByFunctionCall,
         PartitionByFunction,
+        PartitionByIfElse,
         PartitionByVariableAssignment,
         PartitionIsValid,
         PartitionByAllRegexMatches,

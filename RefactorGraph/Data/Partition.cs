@@ -260,6 +260,16 @@ namespace RefactorGraph
                 .ToList();
             return PartitionByIndexAndLength(indexLengths);
         }
+
+        public static bool IsValid(Partition partition)
+        {
+            return partition != null && !string.IsNullOrEmpty(partition.Data);
+        }
+
+        public static bool IsValidAndNotPartitioned(Partition partition)
+        {
+            return IsValid(partition) && !partition.IsPartitioned;
+        }
         #endregion
     }
 }
