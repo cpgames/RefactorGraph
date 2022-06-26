@@ -56,7 +56,6 @@
         Int,
         PartitionCollection,
         Partition,
-        SetVariable,
         StringCollection,
         String
     }

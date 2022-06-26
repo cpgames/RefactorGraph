@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.Collections
@@ -42,7 +43,7 @@ namespace RefactorGraph.Nodes.Collections
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
             if (collection != null && collection.Count >  0)
             {
-                SetPortValue(ELEMENT_PORT_NAME, collection[0]);
+                OutputPropertyPorts.First(x => x.Name == ELEMENT_PORT_NAME).Value = collection[0];
                 _success = true;
             }
         }

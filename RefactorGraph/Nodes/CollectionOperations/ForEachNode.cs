@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.Collections
@@ -49,7 +50,7 @@ namespace RefactorGraph.Nodes.Collections
             {
                 foreach (var item in collection)
                 {
-                    SetPortValue(ELEMENT_PORT_NAME, item);
+                    OutputPropertyPorts.First(x => x.Name == ELEMENT_PORT_NAME).Value = item;
                     ExecutePort(LOOP_PORT_NAME);
                 }
                 _success = true;

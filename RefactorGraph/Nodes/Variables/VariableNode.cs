@@ -1,25 +1,18 @@
 ﻿using System;
+using System.Linq;
 using NodeGraph;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.Variables
 {
-    public interface IVariableNode
-    {
-        #region Properties
-        object Value { get; set; }
-        #endregion
-    }
-
     [Node]
-    public abstract class VariableNode<T> : RefactorNodeBase, IVariableNode
+    public abstract class VariableNode<T> : RefactorNodeBase
     {
         #region Fields
-        private object _value;
+        private T _value;
         #endregion
 
         #region Properties
-        protected virtual bool HasSetter => true;
         protected virtual bool HasEditor => false;
         protected virtual Type ViewModelTypeOverride => null;
         protected virtual string DisplayNameOut => string.Empty;
@@ -36,12 +29,21 @@ namespace RefactorGraph.Nodes.Variables
         #endregion
 
         #region IVariableNode Members
-        public object Value
+        public T Value
         {
-            get => _value;
+            get
+            {
+                var port = InputPropertyPorts.FirstOrDefault(p => p.Name == "Value");
+                NodeGraphManager.FindConnectedPorts(port, out var connectedPorts);
+                if (!IsDeserializedFromXml && connectedPorts.Count > 0)
+                {
+                    return (T)(connectedPorts[0] as NodePropertyPort).Value;
+                }
+                return _value;
+            }
             set
             {
-                if (_value != value)
+                if (!Equals(_value, value))
                 {
                     _value = value;
                     RaisePropertyChanged("Value");
@@ -62,13 +64,9 @@ namespace RefactorGraph.Nodes.Variables
             _value = DefaultFactory();
 
             NodeGraphManager.CreateNodePropertyPort(
-                false, Guid.NewGuid(), this, false, type, _value, "Value", HasEditor, ViewModelTypeOverride, DisplayNameOut);
-
-            if (HasSetter)
-            {
-                NodeGraphManager.CreateNodePropertyPort(
-                    false, Guid.NewGuid(), this, true, type, _value, "Value", false, null, string.Empty, true);
-            }
+                false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut);
+            NodeGraphManager.CreateNodePropertyPort(
+                false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty, true);
             base.OnCreate();
         }
         #endregion

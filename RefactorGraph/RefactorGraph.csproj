@@ -95,7 +95,6 @@
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
     <Compile Include="Nodes\Other\BusNode.cs" />
-    <Compile Include="Nodes\Variables\SetVariableNode.cs" />
     <Compile Include="Nodes\Other\ConvertToStringNode.cs" />
     <Compile Include="Nodes\LogicOperations\AddNode.cs" />
     <Compile Include="Nodes\Variables\IntNode.cs" />

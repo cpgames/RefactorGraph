@@ -58,7 +58,6 @@ namespace RefactorGraph.Nodes.Other
                     Result = Source.ToString();
                 }
             }
-            SetPortValue(RESULT_PORT_NAME, Result);
         }
         #endregion
     }

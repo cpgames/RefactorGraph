@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 using System.Windows.Media;
 using NodeGraph;
 using NodeGraph.Model;
-using RefactorGraph.Nodes.Variables;
 
 namespace RefactorGraph.Nodes
 {
@@ -71,20 +70,6 @@ namespace RefactorGraph.Nodes
             NodeGraphManager.FindConnectedPorts(port, out var connectedPorts);
             var otherPort = connectedPorts.Count > 0 ? connectedPorts[0] as NodePropertyPort : null;
             return otherPort != null ? (TValue)otherPort.Value : defaultValue;
-        }
-
-        protected void SetPortValue(string portName, object value)
-        {
-            var port = NodeGraphManager.FindNodePropertyPort(this, portName);
-            NodeGraphManager.FindConnectedPorts(port, out var connectedPorts);
-            foreach (var connectedPort in connectedPorts)
-            {
-                if (connectedPort.Owner is IVariableNode variableNode)
-                {
-                    variableNode.Value = value;
-                }
-            }
-            port.Value = value;
         }
 
         protected void ExecutePort(string portName)

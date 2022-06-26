@@ -54,7 +54,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
             if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
                 Result = Source.FirstOrDefault(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
-                SetPortValue(RESULT_PORT_NAME, Result);
             }
         }
         #endregion

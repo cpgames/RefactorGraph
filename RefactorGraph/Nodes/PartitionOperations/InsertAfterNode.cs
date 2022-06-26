@@ -56,7 +56,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
                     Partition.next.prev = Result;
                 }
                 Partition.next = Result;
-                SetPortValue(RESULT_PORT_NAME, Result);
             }
         }
         #endregion

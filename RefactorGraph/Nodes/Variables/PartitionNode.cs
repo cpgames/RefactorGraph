@@ -17,17 +17,16 @@ namespace RefactorGraph.Nodes.Variables
         #region Properties
         protected override bool HasEditor => true;
         protected override string DisplayNameOut => "PartitionOperations";
-        public Partition Partition => Value as Partition;
 
         [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false)]
         public string Data
         {
-            get => Partition != null ? Partition.Data : string.Empty;
+            get => Value != null ? Value.Data : string.Empty;
             set
             {
-                if (Partition != null)
+                if (Value != null)
                 {
-                    Partition.Data = value;
+                    Value.Data = value;
                 }
             }
         }
@@ -35,20 +34,20 @@ namespace RefactorGraph.Nodes.Variables
         [NodePropertyPort(PREV_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Prev
         {
-            get => Partition.prev;
-            set => Partition.prev = value;
+            get => Value.prev;
+            set => Value.prev = value;
         }
         [NodePropertyPort(NEXT_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Next
         {
-            get => Partition.next;
-            set => Partition.next = value;
+            get => Value.next;
+            set => Value.next = value;
         }
         [NodePropertyPort(INNER_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Inner
         {
-            get => Partition.inner;
-            set => Partition.inner = value;
+            get => Value.inner;
+            set => Value.inner = value;
         }
         #endregion
 

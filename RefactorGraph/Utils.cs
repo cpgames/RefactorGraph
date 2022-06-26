@@ -4,19 +4,37 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Forms;
 using System.Xml;
+using EnvDTE;
+using Microsoft.VisualStudio.Shell;
 using NodeGraph;
 using NodeGraph.Model;
 using RefactorGraph.Nodes;
 using RefactorGraph.Nodes.Other;
 using RefactorGraph.Nodes.PartitionOperations;
+using MessageBox = System.Windows.MessageBox;
 
 namespace RefactorGraph
 {
     public static class Utils
     {
         #region Fields
+        private static DesignerWindowControl _flowChartWindow;
         public static Action refreshAction;
+        public static Action flowChartChanged;
+        #endregion
+
+        #region Properties
+        public static DesignerWindowControl FlowChartWindow
+        {
+            get => _flowChartWindow;
+            set
+            {
+                _flowChartWindow = value;
+                flowChartChanged?.Invoke();
+            }
+        }
         #endregion
 
         #region Methods
@@ -259,11 +277,88 @@ namespace RefactorGraph
             return nodes;
         }
 
-        public static string GetCustomNodesPath()
+        private static TextDocument GetActiveDocument()
         {
-            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            dir = Path.Combine(dir ?? throw new InvalidOperationException(), "Resources");
-            return dir;
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var doc = (Package.GetGlobalService(typeof(DTE)) as DTE).ActiveDocument;
+            if (doc == null)
+            {
+                System.Windows.Forms.MessageBox.Show("No file opened", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            var textDocument = doc.Object() as TextDocument;
+            if (textDocument == null)
+            {
+                System.Windows.Forms.MessageBox.Show("Only text documents can be refactored", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            return textDocument;
+        }
+
+        private static Partition GetDocument()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var document = GetActiveDocument();
+            if (document == null)
+            {
+                return null;
+            }
+            var chunk = new Partition();
+            if (!document.Selection.IsEmpty)
+            {
+                chunk.Data = document.Selection.Text;
+            }
+            else
+            {
+                var editPoint = document.StartPoint.CreateEditPoint();
+                chunk.Data = editPoint.GetText(document.EndPoint);
+            }
+            return chunk;
+        }
+
+        private static void SetDocument(Partition documentPartition)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var document = GetActiveDocument();
+            if (document.Selection.IsEmpty)
+            {
+                document.Selection.SelectAll();
+            }
+            document.Selection.Insert(documentPartition.Data);
+        }
+
+        public static void Refactor(FlowChart flowChart)
+        {
+            if (flowChart == null)
+            {
+                return;
+            }
+            NodeGraphManager.ClearScreenLogs(flowChart);
+            if (!ValidateGraph(flowChart, out var startNode))
+            {
+                return;
+            }
+            try
+            {
+                startNode.Result = GetDocument();
+                if (startNode.Result == null)
+                {
+                    return;
+                }
+                var originalData = startNode.Result.Data;
+                startNode.OnPreExecute(null);
+                startNode.OnExecute(null);
+                startNode.OnPostExecute(null);
+                if (startNode.Success &&
+                    startNode.Result.Data != originalData)
+                {
+                    SetDocument(startNode.Result);
+                }
+            }
+            catch (Exception e)
+            {
+                NodeGraphManager.AddScreenLog(flowChart, e.Message);
+            }
         }
         #endregion
     }

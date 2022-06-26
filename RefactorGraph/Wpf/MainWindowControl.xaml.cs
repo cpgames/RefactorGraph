@@ -1,8 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Input;
+using DataObject = System.Windows.DataObject;
+using DragDropEffects = System.Windows.DragDropEffects;
+using DragEventArgs = System.Windows.DragEventArgs;
+using MessageBox = System.Windows.Forms.MessageBox;
+using MouseEventArgs = System.Windows.Input.MouseEventArgs;
+using TextBox = System.Windows.Controls.TextBox;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace RefactorGraph
 {
@@ -18,7 +25,6 @@ namespace RefactorGraph
         #region Constructors
         public MainWindowControl()
         {
-            //var dir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             InitializeComponent();
             Loaded += OnLoaded;
         }
@@ -36,25 +42,20 @@ namespace RefactorGraph
             StackPatterns.Children.Add(entry);
             entry.CreateNewGraph();
         }
-
-        private void Load(object sender, RoutedEventArgs e) { }
-
+        
         private void Refresh(object sender, RoutedEventArgs e)
         {
-            RefreshInternal();
+            var result = MessageBox.Show("Refreshing will delete any unsaved graphs. Are you sure?", "Refresh", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                DesignerWindow.HideAsync().Wait();
+                RefreshInternal();
+            }
         }
 
         private void RefreshInternal()
         {
-            foreach (UIElement element in StackPatterns.Children)
-            {
-                if (element is GraphEntryControl refactorGraphEntry)
-                {
-                    refactorGraphEntry.Unload();
-                }
-            }
             StackPatterns.Children.Clear();
-
             var files = Utils.GetGraphFiles();
             foreach (var fileName in files)
             {

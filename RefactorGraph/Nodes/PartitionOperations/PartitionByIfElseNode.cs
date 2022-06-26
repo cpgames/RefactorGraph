@@ -93,7 +93,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return;
             }
             IfElseBlock = ifElseBlock;
-            SetPortValue(IF_ELSE_BLOCK, IfElseBlock);
             if (_somethingReturned)
             {
                 ExecutePort(LOOP_IF_ELSE_BLOCK_PORT_NAME);
@@ -124,7 +123,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return false;
             }
             Condition = cur.PartitionByFirstRegexMatch(CONDITION_REGEX, PcreOptions.MultiLine);
-            SetPortValue(CONDITION_PORT_NAME, Condition);
             if (Condition == null)
             {
                 return false;
@@ -136,7 +134,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return false;
             }
             Statement = cur.PartitionByFirstRegexMatch(STATEMENT_REGEX, PcreOptions.MultiLine);
-            SetPortValue(STATEMENT_PORT_NAME, Statement);
             if (Statement == null)
             {
                 return false;

@@ -27,7 +27,11 @@ namespace RefactorGraph
         public FlowChartViewModel FlowChartViewModel
         {
             get => (FlowChartViewModel)GetValue(FlowChartViewModelProperty);
-            set => SetValue(FlowChartViewModelProperty, value);
+            set
+            {
+                SetValue(FlowChartViewModelProperty, value);
+                Utils.FlowChartWindow = this;
+            }
         }
         #endregion
 
@@ -71,6 +75,7 @@ namespace RefactorGraph
             NodeGraphManager.DragOver -= NodeGraphManager_DragOver;
             NodeGraphManager.Drop -= NodeGraphManager_Drop;
             KeyDown -= MainWindow_KeyDown;
+            Utils.FlowChartWindow = null;
         }
 
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)

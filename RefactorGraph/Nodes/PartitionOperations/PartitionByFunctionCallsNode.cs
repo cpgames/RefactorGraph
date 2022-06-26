@@ -22,10 +22,19 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string FUNCTION_NAME_PORT_NAME = "FunctionName";
         public const string FUNCTION_PARAMETERS_PORT_NAME = "FunctionParameters";
 
-        private const string FUNCTION_CALL_REGEX = "(?<![\\[\\/])(?:new\\s*)*\\b\\w[\\w.=<>]+\\s*\\((?:((?R))|[^()])*\\)(?!\\s*[{:\"])";
-        private const string FUNCTION_NAME_REGEX = @"[^\s]*(?=\()";
-        private const string FUNCTION_PARAMS_BLOCK_REGEX = @"(?<=\().*(?=\))";
-        private const string FUNCTION_PARAMS_REGEX = @"[^,\s*][\w\s_<>.()]*";
+        private const string FUNCTION_CALL_REGEX = @"(?:new\s*)*" + // new keyword is optional
+            @"\w[.\w]*\b" + // function name
+            @"(<(?:[^<>]++|(?-1))*>)*\s*" + // generic parameters
+            @"(\((?:[^()]++|(?-1))*\))" + // function parameters
+            @"(?!\s*[{:\w])"; // exclude non function call statements
+        private const string FUNCTION_NAME_REGEX = @"[^\s(]+";
+        private const string FUNCTION_PARAMS_BLOCK_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
+        private const string FUNCTION_PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
+            "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
+            "(\\((?:[^()]++|(?-1))*\\))|" + // () brackets
+            "(\"(?:[^\"\"]++|(?-1))*\")|" + // quotes
+            "\\s*=>\\s*|" + // lambda
+            "({(?:[^{}]++|(?-1))*}))+"; // {} brackets
 
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Source;
@@ -44,10 +53,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(FUNCTION_PARAMETERS_PORT_NAME, false, typeof(List<Partition>), null, true)]
         public List<Partition> FunctionParameters;
+
+        private bool _somethingReturned;
         #endregion
 
         #region Properties
         protected override bool HasOutput => false;
+        public override bool Success => _somethingReturned;
         #endregion
 
         #region Constructors
@@ -62,47 +74,51 @@ namespace RefactorGraph.Nodes.FunctionOperations
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             if (Source != null && !Source.IsPartitioned)
             {
-                PartitionFunction();
+                PartitionFunctionCall(Source);
             }
         }
 
-        private void PartitionFunction()
+        private bool PartitionFunctionCall(Partition cur)
         {
-            var functionCalls = Source.PartitionByAllRegexMatches(FUNCTION_CALL_REGEX, PcreOptions.MultiLine);
-            foreach (var functionCall in functionCalls)
-            {
-                SetPortValue(FUNCTION_CALL_PORT_NAME, functionCall);
-                if (PartitionFunctionContent(functionCall) && ApplyFilter())
-                {
-                    ExecutePort(LOOP_PORT_NAME);
-                }
-            }
-        }
-
-        private bool PartitionFunctionContent(Partition functionCall)
-        {
-            FunctionName = functionCall
-                .PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
-            SetPortValue(FUNCTION_NAME_PORT_NAME, FunctionName);
-            var functionCallBody = FunctionName?.next;
-            var functionCallBodyContent = functionCallBody?
-                .PartitionByIndexAndLength(1, functionCallBody.Data.Length - 2);
-            if (functionCallBodyContent == null)
+            var functionCall = cur.PartitionByFirstRegexMatch(FUNCTION_CALL_REGEX, PcreOptions.MultiLine);
+            if (!Partition.IsValid(functionCall))
             {
                 return false;
             }
-            FunctionParameters = functionCallBodyContent
-                .PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
-            SetPortValue(FUNCTION_PARAMETERS_PORT_NAME, FunctionParameters);
-            return true;
+            var functionName = functionCall.PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
+            var paramsBlock = functionName.next;
+            var paramsContent = paramsBlock.PartitionByFirstRegexMatch(FUNCTION_PARAMS_BLOCK_REGEX, PcreOptions.MultiLine);
+            List<Partition> functionParameters = null;
+            if (Partition.IsValid(paramsContent))
+            {
+                functionParameters = paramsContent.PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
+                foreach (var functionParameter in functionParameters)
+                {
+                    _somethingReturned |= PartitionFunctionCall(functionParameter);
+                }
+            }
+            if (ApplyFilter(functionName, functionParameters))
+            {
+                FunctionCall = functionCall;
+                FunctionName = functionName;
+                FunctionParameters = functionParameters;
+                ExecutePort(LOOP_PORT_NAME);
+                _somethingReturned = true;
+            }
+            cur = functionCall.next;
+            if (cur != null)
+            {
+                _somethingReturned |= PartitionFunctionCall(cur);
+            }
+            return _somethingReturned;
         }
 
-        private bool ApplyFilter()
+        private bool ApplyFilter(Partition functionName, List<Partition> functionParameters)
         {
             FunctionNameFilterRegex = GetPortValue(FUNCTION_NAME_FILTER_PORT_NAME, FunctionNameFilterRegex);
             if (!string.IsNullOrEmpty(FunctionNameFilterRegex))
             {
-                if (!PcreRegex.IsMatch(FunctionName.Data, FunctionNameFilterRegex))
+                if (!PcreRegex.IsMatch(functionName.Data, FunctionNameFilterRegex))
                 {
                     return false;
                 }
@@ -111,11 +127,11 @@ namespace RefactorGraph.Nodes.FunctionOperations
             ParameterNameFilterRegex = GetPortValue(PARAMETER_NAME_FILTER_PORT_NAME, ParameterNameFilterRegex);
             if (!string.IsNullOrEmpty(ParameterNameFilterRegex))
             {
-                if (FunctionParameters.Count == 0)
+                if (functionParameters == null || functionParameters.Count == 0)
                 {
                     return false;
                 }
-                if (FunctionParameters.All(x => !PcreRegex.IsMatch(x.Data, ParameterNameFilterRegex)))
+                if (functionParameters.All(x => !PcreRegex.IsMatch(x.Data, ParameterNameFilterRegex)))
                 {
                     return false;
                 }
