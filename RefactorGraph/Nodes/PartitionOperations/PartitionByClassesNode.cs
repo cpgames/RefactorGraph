@@ -95,7 +95,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                     continue;
                 }
                 ClassBody = classBodyBlock.PartitionByFirstRegexMatch(CLASS_BODY_REGEX, PcreOptions.MultiLine);
-                SetPortValue(CLASS_BODY_PORT_NAME, ClassBody);
                 if (ClassBody == null)
                 {
                     continue;
@@ -111,7 +110,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
         {
             var cur = classDefinition;
             Scope = cur.PartitionByFirstRegexMatch(SCOPE_REGEX, PcreOptions.MultiLine);
-            SetPortValue(SCOPE_PORT_NAME, Scope);
             if (Scope != null)
             {
                 cur = Scope.next;
@@ -121,7 +119,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return false;
             }
             Qualifier = cur.PartitionByFirstRegexMatch(QUALIFIER_REGEX, PcreOptions.MultiLine);
-            SetPortValue(QUALIFIER_PORT_NAME, Qualifier);
             if (Qualifier != null)
             {
                 cur = Qualifier.next;
@@ -137,8 +134,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
             cur = classNameWithGenerics;
             ClassName = cur.PartitionByFirstRegexMatch(CLASS_NAME_REGEX, PcreOptions.MultiLine);
-            SetPortValue(ClASS_NAME_PORT_NAME, ClassName);
-
             return true;
         }
 

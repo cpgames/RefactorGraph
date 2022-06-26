@@ -133,7 +133,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return;
             }
             FunctionBody = functionBodyBlock.PartitionByFirstRegexMatch(FUNCTION_BODY_REGEX, PcreOptions.MultiLine);
-            SetPortValue(FUNCTION_BODY_PORT_NAME, FunctionBody);
             if (FunctionBody == null)
             {
                 return;
@@ -154,7 +153,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
         {
             var cur = classDefinition;
             Scope = cur.PartitionByFirstRegexMatch(SCOPE_REGEX, PcreOptions.MultiLine);
-            SetPortValue(SCOPE_PORT_NAME, Scope);
             if (Scope != null)
             {
                 cur = Scope.next;
@@ -164,7 +162,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return false;
             }
             Qualifier = cur.PartitionByFirstRegexMatch(QUALIFIER_REGEX, PcreOptions.MultiLine);
-            SetPortValue(QUALIFIER_PORT_NAME, Qualifier);
             if (Qualifier != null)
             {
                 cur = Qualifier.next;
@@ -174,13 +171,11 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 return false;
             }
             ReturnType = cur.PartitionByFirstRegexMatch(RETURN_TYPE_REGEX, PcreOptions.MultiLine);
-            SetPortValue(RETURN_TYPE_PORT_NAME, ReturnType);
             if (ReturnType != null)
             {
                 cur = ReturnType.next;
             }
             IsConstructor = ReturnType == null;
-            SetPortValue(IS_CONSTRUCTOR_PORT_NAME, IsConstructor);
             if (cur == null)
             {
                 return false;
@@ -192,7 +187,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
             cur = functionNameWithRegex;
             FunctionName = cur.PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
-            SetPortValue(FUNCTION_NAME_PORT_NAME, FunctionName);
             return true;
         }
 
@@ -211,7 +205,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             {
                 FunctionParameters = functionParamsInner.PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
             }
-            SetPortValue(FUNCTION_PARAMETERS_PORT_NAME, FunctionParameters);
             return true;
         }
 

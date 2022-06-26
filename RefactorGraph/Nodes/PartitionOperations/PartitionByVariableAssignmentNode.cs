@@ -42,7 +42,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private const string VARIABLE_QUALIFIER_REGEX = @"\b(?:static|const)\b";
         private const string VARIABLE_READONLY_REGEX = @"\b(?:readonly)\b";
         private const string VARIABLE_TYPE_REGEX = @"\w+(?=\s+\w+)";
-        private const string VARIABLE_NAME_REGEX = @"[\w.]+(?=\s*=)";
+        private const string VARIABLE_NAME_REGEX = @"[\w.]+(?=\s*[=;])";
         private const string EQUALITY_REGEX = @"\s*=\s*";
         private const string VARIABLE_VALUE_REGEX = @"\s*\K[\s\S]+(?=;)";
 
@@ -114,7 +114,6 @@ namespace RefactorGraph.Nodes.FunctionOperations
             foreach (var variableBlock in variableDefs)
             {
                 VariableBlock = variableBlock;
-                SetPortValue(VARIABLE_BLOCK_PORT_NAME, VariableBlock);
                 PartitionVariableContent();
                 if (ApplyFilter())
                 {
@@ -127,13 +126,11 @@ namespace RefactorGraph.Nodes.FunctionOperations
         {
             var cur = VariableBlock;
             VariableScope = cur.PartitionByFirstRegexMatch(VARIABLE_SCOPE_REGEX, PcreOptions.Singleline);
-            SetPortValue(VARIABLE_SCOPE_PORT_NAME, VariableScope);
             if (VariableScope != null)
             {
                 cur = VariableScope.next;
             }
             VariableQualifier = cur.PartitionByFirstRegexMatch(VARIABLE_QUALIFIER_REGEX, PcreOptions.Singleline);
-            SetPortValue(VARIABLE_QUALIFIER_PORT_NAME, VariableQualifier);
             if (VariableQualifier != null)
             {
                 cur = VariableQualifier.next;
@@ -142,35 +139,28 @@ namespace RefactorGraph.Nodes.FunctionOperations
             if (variableReadonly != null)
             {
                 VariableReadonly = true;
-                SetPortValue(VARIABLE_READONLY_PORT_NAME, VariableReadonly);
                 cur = variableReadonly.next;
             }
             VariableType = cur.PartitionByFirstRegexMatch(VARIABLE_TYPE_REGEX, PcreOptions.MultiLine);
-            SetPortValue(VARIABLE_TYPE_PORT_NAME, VariableType);
             if (VariableType != null)
             {
                 cur = VariableType.next;
             }
             IsDeclaration = VariableType != null;
-            SetPortValue(IS_DECLARATION_PORT_NAME, IsDeclaration);
             VariableName = cur.PartitionByFirstRegexMatch(VARIABLE_NAME_REGEX, PcreOptions.MultiLine);
-            SetPortValue(VARIABLE_NAME_PORT_NAME, VariableName);
             if (VariableName != null)
             {
                 cur = VariableName.next;
             }
             var equality = cur.PartitionByFirstRegexMatch(EQUALITY_REGEX, PcreOptions.MultiLine);
             IsAssignment = equality != null;
-            SetPortValue(IS_ASSIGNMENT_PORT_NAME, IsAssignment);
             if (equality == null)
             {
                 IsAssignment = false;
-                SetPortValue(IS_ASSIGNMENT_PORT_NAME, IsAssignment);
                 return;
             }
             cur = equality.next;
             VariableValue = cur.PartitionByFirstRegexMatch(VARIABLE_VALUE_REGEX, PcreOptions.MultiLine);
-            SetPortValue(VARIABLE_VALUE_PORT_NAME, VariableValue);
         }
 
         private bool ApplyFilter()

@@ -57,6 +57,7 @@
     <Compile Include="Nodes\Other\BusView.cs" />
     <Compile Include="Nodes\Other\BusViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RasterizePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetNextPartitionNode.cs" />
@@ -94,7 +95,6 @@
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
     <Compile Include="Nodes\Other\BusNode.cs" />
-    <Compile Include="Nodes\Variables\SetVariableNode.cs" />
     <Compile Include="Nodes\Other\ConvertToStringNode.cs" />
     <Compile Include="Nodes\LogicOperations\AddNode.cs" />
     <Compile Include="Nodes\Variables\IntNode.cs" />

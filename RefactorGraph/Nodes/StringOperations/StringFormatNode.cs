@@ -45,9 +45,9 @@ namespace RefactorGraph.Nodes.StringOperations
 
             Format = GetPortValue(FORMAT_PORT_NAME, Format);
             Args = GetPortValue<object>(ARGS_PORT_NAME);
-            if (Args != null)
+            try
             {
-                try
+                if (Args != null)
                 {
                     if (Args is IList list)
                     {
@@ -62,12 +62,15 @@ namespace RefactorGraph.Nodes.StringOperations
                     {
                         Result = string.Format(Format, Args);
                     }
-                    SetPortValue(RESULT_PORT_NAME, Result);
                 }
-                catch (Exception e)
+                else
                 {
-                    NodeGraphManager.AddScreenLog(Owner, e.Message);
+                    Result = Format;
                 }
+            }
+            catch (Exception e)
+            {
+                NodeGraphManager.AddScreenLog(Owner, e.Message);
             }
         }
         #endregion

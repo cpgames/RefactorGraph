@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Linq;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.Collections
@@ -47,7 +48,7 @@ namespace RefactorGraph.Nodes.Collections
             Index = GetPortValue(INDEX_PORT_NAME, Index);
             if (collection != null && collection.Count > Index && Index >= 0)
             {
-                SetPortValue(ELEMENT_PORT_NAME, collection[Index]);
+                OutputPropertyPorts.First(x => x.Name == ELEMENT_PORT_NAME).Value = collection[Index];
                 _success = true;
             }
         }

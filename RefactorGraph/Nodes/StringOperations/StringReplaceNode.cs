@@ -59,7 +59,6 @@ namespace RefactorGraph.Nodes.StringOperations
                 Replacement != null)
             {
                 Result = PcreRegex.Replace(Source, Pattern, Replacement, RegexOptions);
-                SetPortValue(RESULT_PORT_NAME, Result);
             }
         }
         #endregion

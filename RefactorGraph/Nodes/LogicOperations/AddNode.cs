@@ -37,7 +37,6 @@ namespace RefactorGraph.Nodes.LogicOperations
             var a = GetPortValue(A_PORT_NAME, A);
             var b = GetPortValue(B_PORT_NAME, B);
             Result = a + b;
-            SetPortValue(RESULT_PORT_NAME, Result);
         }
         #endregion
     }

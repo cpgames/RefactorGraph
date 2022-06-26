@@ -56,7 +56,6 @@ namespace RefactorGraph.Nodes.StringOperations
                 Result = Length > 0 ?
                     Source.Substring(Index, Length) :
                     Source.Substring(Index);
-                SetPortValue(RESULT_PORT_NAME, Result);
             }
         }
         #endregion

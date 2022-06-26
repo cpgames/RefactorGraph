@@ -30,6 +30,7 @@
         InsertBefore,
         PartitionByFunctionCall,
         PartitionByFunction,
+        PartitionByIfElse,
         PartitionByVariableAssignment,
         PartitionIsValid,
         PartitionByAllRegexMatches,
@@ -55,7 +56,6 @@
         Int,
         PartitionCollection,
         Partition,
-        SetVariable,
         StringCollection,
         String
     }

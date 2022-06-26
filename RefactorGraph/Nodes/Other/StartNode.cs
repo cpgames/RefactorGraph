@@ -24,16 +24,6 @@ namespace RefactorGraph.Nodes.Other
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
-        {
-            base.OnExecute(connector);
-
-            if (Result != null)
-            {
-                SetPortValue(RESULT_PORT_NAME, Result);
-            }
-        }
-
         public override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);

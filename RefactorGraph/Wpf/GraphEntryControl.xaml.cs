@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Media;
-using EnvDTE;
-using Microsoft.VisualStudio.Shell;
 using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
@@ -22,7 +20,6 @@ namespace RefactorGraph
         #region Fields
         private FlowChartViewModel _flowChartViewModel;
         private string _graphName = "NewRefactorGraph";
-        private DesignerWindowControl _flowChartWindow;
         private bool _opened;
         private bool _enabled = true;
         #endregion
@@ -56,26 +53,16 @@ namespace RefactorGraph
                 }
             }
         }
-
-        public bool Opened
+        
+        private void UpdateBorder()
         {
-            get => _opened;
-            set
+            if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
             {
-                if (_opened == value)
-                {
-                    return;
-                }
-                _opened = value;
-                if (_opened)
-                {
-                    Border.BorderBrush = new SolidColorBrush(Colors.Orange);
-                }
-                else
-                {
-                    _flowChartWindow = null;
-                    Border.BorderBrush = new SolidColorBrush(Colors.White);
-                }
+                Border.BorderBrush = new SolidColorBrush(Colors.Orange);
+            }
+            else
+            {
+                Border.BorderBrush = new SolidColorBrush(Colors.White);
             }
         }
 
@@ -98,7 +85,19 @@ namespace RefactorGraph
         {
             InitializeComponent();
             DataContext = this;
-            Unloaded += MainWindow_Unloaded;
+            Loaded += Window_Loaded;
+            Unloaded += Window_Unloaded;
+        }
+
+        private void Window_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Utils.flowChartChanged -= UpdateBorder;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            Utils.flowChartChanged += UpdateBorder;
+            UpdateBorder();
         }
         #endregion
 
@@ -119,92 +118,26 @@ namespace RefactorGraph
 
         public void SetFile(string fileName)
         {
-            try
-            {
-                Utils.Load(fileName, out var flowChart);
-                _flowChartViewModel = flowChart.ViewModel;
-                _graphName = fileName;
-                RaisePropertyChanged("GraphName");
-            }
-            catch (Exception e)
-            {
-                var result = MessageBox.Show($"{e.Message}\n\n Delete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
-                if (result == DialogResult.Yes)
-                {
-                    Utils.Delete(fileName);
-                }
-                ((Panel)Parent).Children.Remove(this);
-            }
-        }
-
-        private void MainWindow_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Unload();
-        }
-
-        public void Unload()
-        {
-            if (_flowChartViewModel != null)
-            {
-                if (_flowChartWindow != null && _flowChartWindow.FlowChartViewModel == _flowChartViewModel)
-                {
-                    DesignerWindow.HideAsync().Wait();
-                    _flowChartWindow = null;
-                }
-                var flowChartGuid = _flowChartViewModel.Model.Guid;
-                NodeGraphManager.DestroyFlowChart(flowChartGuid);
-                _flowChartViewModel = null;
-            }
-        }
-
-        private TextDocument GetActiveDocument()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var doc = (Package.GetGlobalService(typeof(DTE)) as DTE).ActiveDocument;
-            if (doc == null)
-            {
-                MessageBox.Show("No file opened", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            var textDocument = doc.Object() as TextDocument;
-            if (textDocument == null)
-            {
-                MessageBox.Show("Only text documents can be refactored", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            return textDocument;
-        }
-
-        private Partition GetDocument()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var document = GetActiveDocument();
-            if (document == null)
-            {
-                return null;
-            }
-            var chunk = new Partition();
-            if (!document.Selection.IsEmpty)
-            {
-                chunk.Data = document.Selection.Text;
-            }
-            else
-            {
-                var editPoint = document.StartPoint.CreateEditPoint();
-                chunk.Data = editPoint.GetText(document.EndPoint);
-            }
-            return chunk;
-        }
-
-        private void SetDocument(Partition documentPartition)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var document = GetActiveDocument();
-            if (document.Selection.IsEmpty)
-            {
-                document.Selection.SelectAll();
-            }
-            document.Selection.Insert(documentPartition.Data);
+            Utils.Load(fileName, out var flowChart);
+            _flowChartViewModel = flowChart.ViewModel;
+            _graphName = fileName;
+            RaisePropertyChanged("GraphName");
+            //try
+            //{
+            //    Utils.Load(fileName, out var flowChart);
+            //    _flowChartViewModel = flowChart.ViewModel;
+            //    _graphName = fileName;
+            //    RaisePropertyChanged("GraphName");
+            //}
+            //catch (Exception e)
+            //{
+            //    var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+            //    if (result == DialogResult.Yes)
+            //    {
+            //        Utils.Delete(fileName);
+            //    }
+            //    ((Panel)Parent).Children.Remove(this);
+            //}
         }
 
         public void CreateNewGraph()
@@ -240,6 +173,10 @@ namespace RefactorGraph
             var result = MessageBox.Show($"Delete {GraphName}?", "Delete RefactorClick Graph", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes && Utils.Delete(GraphName))
             {
+                if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
+                {
+                    DesignerWindow.HideAsync().Wait();
+                }
                 ((Panel)Parent).Children.Remove(this);
             }
         }
@@ -260,28 +197,7 @@ namespace RefactorGraph
             {
                 return;
             }
-            NodeGraphManager.ClearScreenLogs(_flowChartViewModel.Model);
-            if (!Utils.ValidateGraph(_flowChartViewModel.Model, out var startNode))
-            {
-                return;
-            }
-            try
-            {
-                startNode.Result = GetDocument();
-                var originalData = startNode.Result.Data;
-                startNode.OnPreExecute(null);
-                startNode.OnExecute(null);
-                startNode.OnPostExecute(null);
-                if (startNode.Success &&
-                    startNode.Result.Data != originalData)
-                {
-                    SetDocument(startNode.Result);
-                }
-            }
-            catch (Exception e)
-            {
-                NodeGraphManager.AddScreenLog(_flowChartViewModel.Model, e.Message);
-            }
+            Utils.Refactor(_flowChartViewModel.Model);
         }
 
         private void RefactorClick(object sender, RoutedEventArgs e)
@@ -295,21 +211,9 @@ namespace RefactorGraph
             var window = await task;
             if (window != null)
             {
-                if (_flowChartWindow == null)
-                {
-                    _flowChartWindow = (DesignerWindowControl)window.Content;
-                }
-                _flowChartWindow.FlowChartViewModel = _flowChartViewModel;
+                var flowChartWindow = (DesignerWindowControl)window.Content;
+                flowChartWindow.FlowChartViewModel = _flowChartViewModel;
             }
-
-            foreach (var child in ((Panel)Parent).Children)
-            {
-                if (child is GraphEntryControl refactorGraphEntry)
-                {
-                    refactorGraphEntry.Opened = false;
-                }
-            }
-            Opened = true;
         }
 
         public void Save()

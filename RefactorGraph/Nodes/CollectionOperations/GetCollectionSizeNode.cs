@@ -44,7 +44,7 @@ namespace RefactorGraph.Nodes.Collections
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
             if (collection != null)
             {
-                SetPortValue(SIZE_PORT_NAME, collection.Count);
+                Size = collection.Count;
                 _success = true;
             }
         }
