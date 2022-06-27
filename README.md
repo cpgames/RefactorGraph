@@ -3,7 +3,10 @@
 
 Node-based code refactoring tool for Visual Studio.
 
+Install latest version here: https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1
+
 WARNING: This is a work in progress, and much of parsing functionality is still missing. Also there are stability issues that may cause Visual Studio to crash, so make sure to SAVE YOUR WORK when using this extension. If you experience any issues, please report them here: https://github.com/cpgames/RefactorGraph/issues 
+Also repo is missing some submodules, I will update it later.
 
 ## Concept:  
 
