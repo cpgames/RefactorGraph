@@ -1,7 +1,7 @@
 
 # RefactorGraph
 
-![image](https://user-images.githubusercontent.com/49317353/175890692-b331b0ef-2f44-41a4-ba09-0efc64eae8d9.png)
+![image](https://user-images.githubusercontent.com/49317353/175891778-9c9d7a1b-8472-4485-b62c-5b14873fc685.png)
 
 Node-based code refactoring tool for Visual Studio.
 
