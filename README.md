@@ -1,6 +1,8 @@
 
 # RefactorGraph
 
+![image](https://user-images.githubusercontent.com/49317353/175890692-b331b0ef-2f44-41a4-ba09-0efc64eae8d9.png)
+
 Node-based code refactoring tool for Visual Studio.
 
 Install latest version here: https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1
