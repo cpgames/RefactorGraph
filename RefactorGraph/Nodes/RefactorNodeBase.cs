@@ -74,7 +74,12 @@ namespace RefactorGraph.Nodes
 
         protected void ExecutePort(string portName)
         {
-            var port = NodeGraphManager.FindNodeFlowPort(this, portName);
+            var port = OutputFlowPorts.FirstOrDefault(p => p.Name == portName);
+            if (port == null)
+            {
+                NodeGraphManager.AddScreenLog(Owner, $"Port {portName} not found");
+                return;
+            }
             foreach (var connector in port.Connectors)
             {
                 connector.OnPreExecute();

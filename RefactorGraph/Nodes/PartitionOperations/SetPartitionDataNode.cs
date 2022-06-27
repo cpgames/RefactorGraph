@@ -8,11 +8,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class SetPartitionDataNode : RefactorNodeBase
     {
         #region Fields
-        public const string PARTITION_PORT_NAME = "Partition";
+        public const string SOURCE_PORT_NAME = "Source";
         public const string DATA_PORT_NAME = "Data";
 
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
-        public Partition Partition;
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
+        public Partition Source;
 
         [NodePropertyPort(DATA_PORT_NAME, true, typeof(string), "", true)]
         public string Data;
@@ -27,11 +27,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
         {
             base.OnExecute(connector);
 
-            Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
+            Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             Data = GetPortValue(DATA_PORT_NAME, Data);
-            if (Partition != null && !Partition.IsPartitioned)
+            if (Partition.IsValidAndNotPartitioned(Source))
             {
-                Partition.Data = Data;
+                Source.Data = Data;
             }
         }
         #endregion

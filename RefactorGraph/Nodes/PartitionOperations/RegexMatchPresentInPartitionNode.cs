@@ -39,7 +39,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (Source != null && !string.IsNullOrEmpty(Pattern))
+            if (Partition.IsValid(Source) && 
+                !string.IsNullOrEmpty(Pattern))
             {
                 var result = PcreRegex.IsMatch(Source.Data, Pattern, RegexOptions);
                 ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);

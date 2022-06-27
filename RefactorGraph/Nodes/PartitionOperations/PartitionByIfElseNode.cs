@@ -21,13 +21,17 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string STATEMENT_FILTER_PORT_NAME = "StatementFilterRegex";
 
         public const string IF_ELSE_BLOCK = "IfElseBlock";
+        public const string CLAUSE_BLOCK = "ClauseBlock";
         public const string CONDITION_PORT_NAME = "Condition";
         public const string STATEMENT_PORT_NAME = "Statement";
 
-        private const string IF_ELSE_BLOCK_REGEX = @"else\s*(*SKIP)(*F)|" + // do not start if statement starts with "else"
+        private const string IF_ELSE_BLOCK_REGEX = @"else\s*(*SKIP)(*F)|" + // do not start if clause starts with "else"
             @"^\s*\Kif\s*(\((?:[^()]++|(?-1))*\))\s*({(?:[^{}]|(?-1))*})" + // if (condition) { body }
             @"(?:\s*else\s*if\s*(\((?:[^()]++|(?-1))*\))\s*({(?:[^{}]|(?-1))*}))*" + // else if (condition) { body }
             @"(?:\s*else\s*\s*({(?:[^{}]|(?-1))*}))*"; // else { body }
+        private const string CLAUSE_BLOCK_REGEX = @"^\s*\Kif\s*(\((?:[^()]++|(?-1))*\))\s*({(?:[^{}]|(?-1))*})|" +
+            @"^\s*\Kelse\s*if\s*(\((?:[^()]++|(?-1))*\))\s*({(?:[^{}]|(?-1))*})|" +
+            @"^\s*\K\s*else\s*\s*({(?:[^{}]|(?-1))*})";
         private const string CLAUSE_TYPE_REGEX = @"\s*(?:if|else|else\s*if)";
         private const string CONDITION_BLOCK_REGEX = @"\((?:[^()]|(?R))*\)";
         private const string CONDITION_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
@@ -41,10 +45,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public string ConditionsFilterRegex;
 
         [NodePropertyPort(STATEMENT_FILTER_PORT_NAME, true, typeof(string), "", true)]
-        public string BodyFilterRegex;
+        public string StatementFilterRegex;
 
         [NodePropertyPort(IF_ELSE_BLOCK, false, typeof(Partition), null, false)]
         public Partition IfElseBlock;
+
+        [NodePropertyPort(CLAUSE_BLOCK, false, typeof(Partition), null, false)]
+        public Partition ClauseBlock;
 
         [NodePropertyPort(CONDITION_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Condition;
@@ -88,14 +95,12 @@ namespace RefactorGraph.Nodes.FunctionOperations
             {
                 return;
             }
-            if (!PartitionClauses(ifElseBlock))
-            {
-                return;
-            }
-            IfElseBlock = ifElseBlock;
+            PartitionClauses(ifElseBlock);
             if (_somethingReturned)
             {
+                IfElseBlock = ifElseBlock;
                 ExecutePort(LOOP_IF_ELSE_BLOCK_PORT_NAME);
+                _somethingReturned = false;
             }
             cur = ifElseBlock.next;
             if (cur != null)
@@ -104,72 +109,76 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
         }
 
-        private bool PartitionClauses(Partition cur)
+        private void PartitionClauses(Partition cur)
         {
             var finalClause = false;
-            cur = cur.PartitionByFirstRegexMatch(CLAUSE_TYPE_REGEX, PcreOptions.MultiLine);
-            if (cur == null)
+            var clauseBlock = cur.PartitionByFirstRegexMatch(CLAUSE_BLOCK_REGEX, PcreOptions.MultiLine);
+            if (clauseBlock == null)
             {
-                return false;
+                return;
             }
-            if (PcreRegex.IsMatch(cur.Data, @"\s*else\s*\Z", PcreOptions.MultiLine))
+            var clauseType = clauseBlock.PartitionByFirstRegexMatch(CLAUSE_TYPE_REGEX, PcreOptions.MultiLine);
+            if (PcreRegex.IsMatch(clauseType.Data, @"\s*else\s*\Z", PcreOptions.MultiLine))
             {
                 finalClause = true;
             }
-            cur = cur.next;
+            cur = clauseType.next;
             cur = cur.PartitionByFirstRegexMatch(CONDITION_BLOCK_REGEX, PcreOptions.MultiLine);
             if (cur == null)
             {
-                return false;
+                return;
             }
-            Condition = cur.PartitionByFirstRegexMatch(CONDITION_REGEX, PcreOptions.MultiLine);
-            if (Condition == null)
+            var condition = cur.PartitionByFirstRegexMatch(CONDITION_REGEX, PcreOptions.MultiLine);
+            if (condition == null)
             {
-                return false;
+                return;
             }
             cur = cur.next;
             cur = cur.PartitionByFirstRegexMatch(STATEMENT_BLOCK_REGEX, PcreOptions.MultiLine);
             if (cur == null)
             {
-                return false;
+                return;
             }
-            Statement = cur.PartitionByFirstRegexMatch(STATEMENT_REGEX, PcreOptions.MultiLine);
-            if (Statement == null)
+            var statement = cur.PartitionByFirstRegexMatch(STATEMENT_REGEX, PcreOptions.MultiLine);
+            if (statement == null)
             {
-                return false;
+                return;
             }
-            if (ApplyFilter())
+            PartitionIfElse(statement);
+            if (ApplyFilter(condition, statement))
             {
+                ClauseBlock = clauseBlock;
+                Condition = condition;
+                Statement = statement;
                 ExecutePort(LOOP_EVERY_CLAUSE_PORT_NAME);
                 _somethingReturned = true;
             }
-            PartitionIfElse(Statement);
             if (finalClause)
             {
-                return true;
+                return;
             }
-            cur = cur.next;
+            cur = clauseBlock.next;
             if (cur == null)
             {
-                return true;
+                return;
             }
-            return PartitionClauses(cur);
+            PartitionClauses(cur);
         }
 
-        private bool ApplyFilter()
+        private bool ApplyFilter(Partition condition, Partition statement)
         {
-            ConditionsFilterRegex = GetPortValue<string>(CONDITIONS_FILTER_PORT_NAME);
+            ConditionsFilterRegex = GetPortValue(CONDITIONS_FILTER_PORT_NAME, ConditionsFilterRegex);
             if (!string.IsNullOrEmpty(ConditionsFilterRegex))
             {
-                if (!PcreRegex.IsMatch(Condition.Data, ConditionsFilterRegex, PcreOptions.MultiLine))
+                if (!PcreRegex.IsMatch(condition.Data, ConditionsFilterRegex, PcreOptions.MultiLine))
                 {
                     return false;
                 }
             }
-            BodyFilterRegex = GetPortValue(STATEMENT_FILTER_PORT_NAME, BodyFilterRegex);
-            if (!string.IsNullOrEmpty(BodyFilterRegex))
+            StatementFilterRegex = GetPortValue(STATEMENT_FILTER_PORT_NAME, StatementFilterRegex);
+            if (!string.IsNullOrEmpty(StatementFilterRegex))
             {
-                if (!PcreRegex.IsMatch(Statement.Data, BodyFilterRegex))
+                if (!PcreRegex.IsMatch(statement.Data, StatementFilterRegex))
                 {
                     return false;
                 }

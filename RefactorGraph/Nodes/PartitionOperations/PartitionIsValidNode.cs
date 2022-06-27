@@ -31,7 +31,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         {
             base.OnExecute(connector);
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            var result = Source != null && !string.IsNullOrEmpty(Source.Data);
+            var result = Partition.IsValid(Source);
             ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
         #endregion

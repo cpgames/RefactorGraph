@@ -7,10 +7,12 @@ using PCRE;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.FindPartitionInCollection)]
-    public class FindPartitionInCollectionNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.FindFirstPartitionInCollection)]
+    [NodeFlowPort(NOT_FOUND_PORT_NAME, "Not Found", false)]
+    public class FindFirstPartitionInCollectionNode : RefactorNodeBase
     {
         #region Fields
+        public const string NOT_FOUND_PORT_NAME = "NotFound";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
         public const string SOURCE_PORT_NAME = "Source";
@@ -34,7 +36,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Constructors
-        public FindPartitionInCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public FindFirstPartitionInCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
@@ -54,6 +56,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
             if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
                 Result = Source.FirstOrDefault(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
+                if (!Partition.IsValid(Result))
+                {
+                    ExecutePort(NOT_FOUND_PORT_NAME);
+                }                
             }
         }
         #endregion

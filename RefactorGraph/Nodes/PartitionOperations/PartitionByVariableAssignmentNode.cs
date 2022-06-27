@@ -21,7 +21,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         public const string VARIABLE_BLOCK_PORT_NAME = "VariableBlock";
         public const string VARIABLE_SCOPE_PORT_NAME = "VariableScope";
-        public const string VARIABLE_QUALIFIER_PORT_NAME = "VariableQualifier";
+        public const string VARIABLE_MODIFIER_PORT_NAME = "VariableModifier";
         public const string VARIABLE_READONLY_PORT_NAME = "VariableReadonly";
         public const string VARIABLE_TYPE_PORT_NAME = "VariableType";
         public const string VARIABLE_NAME_PORT_NAME = "VariableName";
@@ -39,7 +39,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             "^\\s*\\K\\w[\\w.\\s<>\\[\\]]+\\s*;";
 
         private const string VARIABLE_SCOPE_REGEX = @"\b(?:public|private|protected|internal)\b";
-        private const string VARIABLE_QUALIFIER_REGEX = @"\b(?:static|const)\b";
+        private const string VARIABLE_MODIFIER_REGEX = @"\b(?:static|const)\b";
         private const string VARIABLE_READONLY_REGEX = @"\b(?:readonly)\b";
         private const string VARIABLE_TYPE_REGEX = @"\w+(?=\s+\w+)";
         private const string VARIABLE_NAME_REGEX = @"[\w.]+(?=\s*[=;])";
@@ -50,7 +50,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Source;
 
-        [NodePropertyPort(VARIABLE_DEFINITION_FILTER_PORT_NAME, true, typeof(VariableDefinition), VariableDefinition.Any, true)]
+        [NodePropertyPort(VARIABLE_DEFINITION_FILTER_PORT_NAME, true, typeof(VariableDefinition), VariableDefinition.Assignment | VariableDefinition.Declaration, true)]
         public VariableDefinition VariableDefinitionFilter;
 
         [NodePropertyPort(VARIABLE_TYPE_FILTER_PORT_NAME, true, typeof(string), "", true)]
@@ -66,8 +66,8 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(VARIABLE_SCOPE_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition VariableScope;
 
-        [NodePropertyPort(VARIABLE_QUALIFIER_PORT_NAME, false, typeof(Partition), null, false)]
-        public Partition VariableQualifier;
+        [NodePropertyPort(VARIABLE_MODIFIER_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition VariableModifier;
 
         [NodePropertyPort(VARIABLE_READONLY_PORT_NAME, false, typeof(bool), false, false)]
         public bool VariableReadonly;
@@ -86,10 +86,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(IS_ASSIGNMENT_PORT_NAME, false, typeof(bool), false, false)]
         public bool IsAssignment;
+
+        private bool _somethingReturned;
         #endregion
 
         #region Properties
         protected override bool HasOutput => false;
+        public override bool Success => _somethingReturned;
         #endregion
 
         #region Constructors
@@ -97,107 +100,96 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _somethingReturned = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            if (Source != null && !Source.IsPartitioned)
+            if (Partition.IsValidAndNotPartitioned(Source))
             {
-                PartitionVariableAssignment();
+                PartitionVariableAssignment(Source);
             }
         }
 
-        private void PartitionVariableAssignment()
+        private void PartitionVariableAssignment(Partition cur)
         {
-            var variableDefs = Source.PartitionByAllRegexMatches(VARIABLE_DEF_REGEX, PcreOptions.MultiLine);
-            foreach (var variableBlock in variableDefs)
+            var variableBlock = cur.PartitionByFirstRegexMatch(VARIABLE_DEF_REGEX, PcreOptions.MultiLine);
+            if (variableBlock == null)
             {
-                VariableBlock = variableBlock;
-                PartitionVariableContent();
-                if (ApplyFilter())
-                {
-                    ExecutePort(LOOP_PORT_NAME);
-                }
-            }
-        }
-
-        private void PartitionVariableContent()
-        {
-            var cur = VariableBlock;
-            VariableScope = cur.PartitionByFirstRegexMatch(VARIABLE_SCOPE_REGEX, PcreOptions.Singleline);
-            if (VariableScope != null)
-            {
-                cur = VariableScope.next;
-            }
-            VariableQualifier = cur.PartitionByFirstRegexMatch(VARIABLE_QUALIFIER_REGEX, PcreOptions.Singleline);
-            if (VariableQualifier != null)
-            {
-                cur = VariableQualifier.next;
-            }
-            var variableReadonly = cur.PartitionByFirstRegexMatch(VARIABLE_READONLY_REGEX, PcreOptions.Singleline);
-            if (variableReadonly != null)
-            {
-                VariableReadonly = true;
-                cur = variableReadonly.next;
-            }
-            VariableType = cur.PartitionByFirstRegexMatch(VARIABLE_TYPE_REGEX, PcreOptions.MultiLine);
-            if (VariableType != null)
-            {
-                cur = VariableType.next;
-            }
-            IsDeclaration = VariableType != null;
-            VariableName = cur.PartitionByFirstRegexMatch(VARIABLE_NAME_REGEX, PcreOptions.MultiLine);
-            if (VariableName != null)
-            {
-                cur = VariableName.next;
-            }
-            var equality = cur.PartitionByFirstRegexMatch(EQUALITY_REGEX, PcreOptions.MultiLine);
-            IsAssignment = equality != null;
-            if (equality == null)
-            {
-                IsAssignment = false;
                 return;
             }
-            cur = equality.next;
-            VariableValue = cur.PartitionByFirstRegexMatch(VARIABLE_VALUE_REGEX, PcreOptions.MultiLine);
+            var variableScope = variableBlock.PartitionByFirstRegexMatch(VARIABLE_SCOPE_REGEX, PcreOptions.Singleline);
+            cur = variableScope != null ? variableScope.next : variableBlock;
+            var variableModifier = cur.PartitionByFirstRegexMatch(VARIABLE_MODIFIER_REGEX, PcreOptions.Singleline);
+            cur = variableModifier != null ? variableModifier.next : cur;
+            var variableReadonlyPartition = cur.PartitionByFirstRegexMatch(VARIABLE_READONLY_REGEX, PcreOptions.Singleline);
+            var variableReadonly = false;
+            if (variableReadonlyPartition != null)
+            {
+                variableReadonly = true;
+                cur = variableReadonlyPartition.next;
+            }
+            var variableType = cur.PartitionByFirstRegexMatch(VARIABLE_TYPE_REGEX, PcreOptions.MultiLine);
+            var isDeclaration = false;
+            if (variableType != null)
+            {
+                isDeclaration = true;
+                cur = variableType.next;
+            }
+            var variableName = cur.PartitionByFirstRegexMatch(VARIABLE_NAME_REGEX, PcreOptions.MultiLine);
+            cur = variableName.next;
+            var equality = cur.PartitionByFirstRegexMatch(EQUALITY_REGEX, PcreOptions.MultiLine);
+            var isAssignment = false;
+            Partition variableValue = null;
+            if (equality != null)
+            {
+                isAssignment = true;
+                cur = equality.next;
+                variableValue = cur.PartitionByFirstRegexMatch(VARIABLE_VALUE_REGEX, PcreOptions.MultiLine);
+            }
+            if (ApplyFilter(isDeclaration, isAssignment, variableType, variableName))
+            {
+                VariableBlock = variableBlock;
+                VariableScope = variableScope;
+                VariableModifier = variableModifier;
+                VariableReadonly = variableReadonly;
+                VariableType = variableType;
+                VariableName = variableName;
+                VariableValue = variableValue;
+                IsDeclaration = isDeclaration;
+                IsAssignment = isAssignment;
+                ExecutePort(LOOP_PORT_NAME);
+                _somethingReturned = true;
+            }
+            cur = variableBlock.next;
+            if (cur != null)
+            {
+                PartitionVariableAssignment(cur);
+            }
         }
 
-        private bool ApplyFilter()
+        private bool ApplyFilter(bool isDeclaration, bool isAssignment, Partition variableType, Partition variableName)
         {
             VariableDefinitionFilter = GetPortValue(VARIABLE_DEFINITION_FILTER_PORT_NAME, VariableDefinitionFilter);
-            switch (VariableDefinitionFilter)
+            if (isDeclaration && (VariableDefinitionFilter & VariableDefinition.Declaration) == 0)
             {
-                case VariableDefinition.Declaration:
-                    if (!IsDeclaration)
-                    {
-                        return false;
-                    }
-                    break;
-                case VariableDefinition.Assignment:
-                    if (!IsAssignment)
-                    {
-                        return false;
-                    }
-                    break;
-                case VariableDefinition.DeclarationOrAssignment:
-                    if (!IsDeclaration && !IsAssignment)
-                    {
-                        return false;
-                    }
-                    break;
-                case VariableDefinition.DeclarationAndAssignment:
-                    if (!IsDeclaration || !IsAssignment)
-                    {
-                        return false;
-                    }
-                    break;
+                return false;
+            }
+            if (isAssignment && (VariableDefinitionFilter & VariableDefinition.Assignment) == 0)
+            {
+                return false;
             }
 
             VariableTypeFilterRegex = GetPortValue(VARIABLE_TYPE_FILTER_PORT_NAME, VariableTypeFilterRegex);
             if (!string.IsNullOrEmpty(VariableTypeFilterRegex))
             {
-                if (!PcreRegex.IsMatch(VariableType.Data, VariableTypeFilterRegex))
+                if (!PcreRegex.IsMatch(variableType.Data, VariableTypeFilterRegex))
                 {
                     return false;
                 }
@@ -206,12 +198,11 @@ namespace RefactorGraph.Nodes.FunctionOperations
             VariableNameFilterRegex = GetPortValue(VARIABLE_NAME_FILTER_PORT_NAME, VariableNameFilterRegex);
             if (!string.IsNullOrEmpty(VariableNameFilterRegex))
             {
-                if (!PcreRegex.IsMatch(VariableName.Data, VariableNameFilterRegex))
+                if (!PcreRegex.IsMatch(variableName.Data, VariableNameFilterRegex))
                 {
                     return false;
                 }
             }
-
             return true;
         }
 

@@ -194,6 +194,23 @@ namespace RefactorGraph
         }
 
         private void NodeGraphManager_NodeSelectionChanged(FlowChart flowChart, ObservableCollection<Guid> nodes, NotifyCollectionChangedEventArgs args) { }
+
+        private void Save(object sender, RoutedEventArgs e)
+        {
+            if (FlowChartViewModel != null)
+            {
+                Utils.Save(FlowChartViewModel.Model);
+            }
+        }
+
+        private void Refactor(object sender, RoutedEventArgs e)
+        {
+            if (FlowChartViewModel == null)
+            {
+                return;
+            }
+            Utils.Refactor(FlowChartViewModel.Model);
+        }
         #endregion
 
         #region Drag & Drop Events

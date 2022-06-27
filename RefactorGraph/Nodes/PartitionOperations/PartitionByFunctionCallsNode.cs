@@ -27,7 +27,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             @"(<(?:[^<>]++|(?-1))*>)*\s*" + // generic parameters
             @"(\((?:[^()]++|(?-1))*\))" + // function parameters
             @"(?!\s*[{:\w])"; // exclude non function call statements
-        private const string FUNCTION_NAME_REGEX = @"[^\s(]+";
+        private const string FUNCTION_NAME_REGEX = @"[^\(]+[^\s\(](?=\s*\()";
         private const string FUNCTION_PARAMS_BLOCK_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
         private const string FUNCTION_PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
             "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
@@ -67,23 +67,29 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _somethingReturned = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            if (Source != null && !Source.IsPartitioned)
+            if (Partition.IsValidAndNotPartitioned(Source))
             {
                 PartitionFunctionCall(Source);
             }
         }
 
-        private bool PartitionFunctionCall(Partition cur)
+        private void PartitionFunctionCall(Partition cur)
         {
             var functionCall = cur.PartitionByFirstRegexMatch(FUNCTION_CALL_REGEX, PcreOptions.MultiLine);
             if (!Partition.IsValid(functionCall))
             {
-                return false;
+                return;
             }
             var functionName = functionCall.PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
             var paramsBlock = functionName.next;
@@ -94,7 +100,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 functionParameters = paramsContent.PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
                 foreach (var functionParameter in functionParameters)
                 {
-                    _somethingReturned |= PartitionFunctionCall(functionParameter);
+                    PartitionFunctionCall(functionParameter);
                 }
             }
             if (ApplyFilter(functionName, functionParameters))
@@ -108,9 +114,8 @@ namespace RefactorGraph.Nodes.FunctionOperations
             cur = functionCall.next;
             if (cur != null)
             {
-                _somethingReturned |= PartitionFunctionCall(cur);
+                PartitionFunctionCall(cur);
             }
-            return _somethingReturned;
         }
 
         private bool ApplyFilter(Partition functionName, List<Partition> functionParameters)

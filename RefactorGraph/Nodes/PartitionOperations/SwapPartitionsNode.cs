@@ -8,14 +8,20 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class SwapPartitionsNode : RefactorNodeBase
     {
         #region Fields
-        public const string A_PORT_NAME = "PartitionA";
-        public const string B_PORT_NAME = "PartitionB";
+        public const string A_PORT_NAME = "A";
+        public const string B_PORT_NAME = "B";
 
         [NodePropertyPort(A_PORT_NAME, true, typeof(Partition), null, true)]
-        public Partition PartitionA;
+        public Partition A;
 
         [NodePropertyPort(B_PORT_NAME, true, typeof(Partition), null, true)]
-        public Partition PartitionB;
+        public Partition B;
+
+        private bool _success  ;
+        #endregion
+
+        #region Properties
+        public override bool Success => _success;
         #endregion
 
         #region Constructors
@@ -23,36 +29,43 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _success = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
-            PartitionA = GetPortValue<Partition>(A_PORT_NAME);
-            PartitionB = GetPortValue<Partition>(B_PORT_NAME);
-            if (PartitionA != null &&
-                PartitionB != null &&
-                PartitionA != PartitionB &&
-                !PartitionA.IsRoot &&
-                !PartitionB.IsRoot)
+            A = GetPortValue<Partition>(A_PORT_NAME);
+            B = GetPortValue<Partition>(B_PORT_NAME);
+            if (A != null &&
+                B != null &&
+                A != B &&
+                !A.IsRoot &&
+                !B.IsRoot)
             {
-                var aPrev = PartitionA.prev;
-                var aNext = PartitionA.next;
+                var aPrev = A.prev;
+                var aNext = A.next;
 
-                PartitionA.prev = PartitionB.prev;
-                PartitionA.prev.next = PartitionA;
-                PartitionA.next = PartitionB.next;
-                if (PartitionA.next != null)
+                A.prev = B.prev;
+                A.prev.next = A;
+                A.next = B.next;
+                if (A.next != null)
                 {
-                    PartitionA.next.prev = PartitionA;
+                    A.next.prev = A;
                 }
 
-                PartitionB.prev = aPrev;
-                PartitionB.prev.next = PartitionB;
-                PartitionB.next = aNext;
-                if (PartitionB.next != null)
+                B.prev = aPrev;
+                B.prev.next = B;
+                B.next = aNext;
+                if (B.next != null)
                 {
-                    PartitionB.next.prev = PartitionB;
+                    B.next.prev = B;
                 }
+                _success = true;
             }
         }
         #endregion
