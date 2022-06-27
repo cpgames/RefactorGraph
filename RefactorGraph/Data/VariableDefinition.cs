@@ -1,11 +1,11 @@
-﻿namespace RefactorGraph
+﻿using System;
+
+namespace RefactorGraph
 {
+    [Flags]
     public enum VariableDefinition
     {
-        Declaration,
-        Assignment,
-        DeclarationAndAssignment,
-        DeclarationOrAssignment,
-        Any
+        Declaration = 1,
+        Assignment = 2
     }
 }

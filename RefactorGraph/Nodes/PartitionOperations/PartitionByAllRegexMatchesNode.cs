@@ -28,7 +28,9 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public List<Partition> Result;
         #endregion
 
+        #region Properties
         public override bool Success => Result != null;
+        #endregion
 
         #region Constructors
         public PartitionByAllRegexMatchesNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
@@ -48,7 +50,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (Source != null && !Source.IsPartitioned && !string.IsNullOrEmpty(Pattern))
+            if (Partition.IsValidAndNotPartitioned(Source) &&
+                !string.IsNullOrEmpty(Pattern))
             {
                 Result = Source.PartitionByAllRegexMatches(Pattern, RegexOptions);
             }

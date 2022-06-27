@@ -118,26 +118,22 @@ namespace RefactorGraph
 
         public void SetFile(string fileName)
         {
-            Utils.Load(fileName, out var flowChart);
-            _flowChartViewModel = flowChart.ViewModel;
-            _graphName = fileName;
-            RaisePropertyChanged("GraphName");
-            //try
-            //{
-            //    Utils.Load(fileName, out var flowChart);
-            //    _flowChartViewModel = flowChart.ViewModel;
-            //    _graphName = fileName;
-            //    RaisePropertyChanged("GraphName");
-            //}
-            //catch (Exception e)
-            //{
-            //    var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
-            //    if (result == DialogResult.Yes)
-            //    {
-            //        Utils.Delete(fileName);
-            //    }
-            //    ((Panel)Parent).Children.Remove(this);
-            //}
+            try
+            {
+                Utils.Load(fileName, out var flowChart);
+                _flowChartViewModel = flowChart.ViewModel;
+                _graphName = fileName;
+                RaisePropertyChanged("GraphName");
+            }
+            catch (Exception e)
+            {
+                var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                if (result == DialogResult.Yes)
+                {
+                    Utils.Delete(fileName);
+                }
+                ((Panel)Parent).Children.Remove(this);
+            }
         }
 
         public void CreateNewGraph()

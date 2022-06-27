@@ -1,12 +1,14 @@
-﻿namespace RefactorGraph
+﻿using System;
+
+namespace RefactorGraph
 {
+    [Flags]
     public enum Scope
     {
-        None,
-        Public,
-        Private,
-        Protected,
-        Internal,
-        Any
+        Scopeless = 1,
+        Public = 2,
+        Private = 4,
+        Protected = 8,
+        Internal = 16,
     }
 }

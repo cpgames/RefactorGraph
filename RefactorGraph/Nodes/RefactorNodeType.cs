@@ -22,7 +22,7 @@
         Print,
         Start,
         // PartitionOperations
-        FindPartitionInCollection,
+        FindFirstPartitionInCollection,
         GetNextPartition,
         GetPreviousPartition,
         GetPartitionData,
@@ -35,7 +35,7 @@
         PartitionIsValid,
         PartitionByAllRegexMatches,
         PartitionByFirstRegexMatch,
-        PartitionByClasses,
+        PartitionByClass,
         RasterizePartition,
         Reference,
         RemoveFunctionCall,

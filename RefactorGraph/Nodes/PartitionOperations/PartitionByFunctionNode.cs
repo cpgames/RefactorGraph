@@ -18,46 +18,54 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string SOURCE_PORT_NAME = "Source";
 
         public const string SCOPE_FILTER_PORT_NAME = "ScopeFilter";
-        public const string QUALIFIER_FILTER_PORT_NAME = "QualifierFilter";
+        public const string MODIFIER_FILTER_PORT_NAME = "ModifierFilter";
         public const string RETURN_TYPE_FILTER_PORT_NAME = "ReturnTypeFilterRegex";
-        public const string IS_CONSTRUCTOR_FILTER_PORT_NAME = "IsConstructorFilter";
         public const string FUNCTION_NAME_FILTER_PORT_NAME = "FunctionNameFilterRegex";
         public const string PARAMETER_NAME_FILTER_PORT_NAME = "ParameterNameFilterRegex";
 
+        public const string FUNCTION_BLOCK_PORT_NAME = "FunctionBlock";
+        public const string FUNCTION_DEF_PORT_NAME = "FunctionDef";
         public const string SCOPE_PORT_NAME = "Scope";
-        public const string QUALIFIER_PORT_NAME = "Qualifier";
+        public const string MODIFIER_PORT_NAME = "Modifier";
         public const string RETURN_TYPE_PORT_NAME = "ReturnType";
-        public const string IS_CONSTRUCTOR_PORT_NAME = "IsConstructor";
         public const string FUNCTION_NAME_PORT_NAME = "FunctionName";
         public const string FUNCTION_PARAMETERS_PORT_NAME = "FunctionParameters";
         public const string FUNCTION_BODY_PORT_NAME = "FunctionBody";
 
-        private const string FUNCTION_DEFINITION_REGEX = @"(?:public\s*|private\s*|protected\s*|internal\s*)?(?:abstract\s*|static\s*|override\s*)?\w+\s+[\w<>]+?(?=\([^()]*\)\s*[{:])";
-        private const string SCOPE_REGEX = @"(?:public\s*|private\s*|protected\s*|internal\s*)";
-        private const string QUALIFIER_REGEX = @"(?:abstract\s*|static\s*|override\s*)";
-        private const string RETURN_TYPE_REGEX = @"\w+(?=\s+\w+)";
-        private const string FUNCTION_NAME_WITH_GENERICS_REGEX = @"\b[\w\n\s,<>]*[\w>](?=\s*:*)*";
-        private const string FUNCTION_NAME_REGEX = @"\w+";
-        private const string FUNCTION_PARAMS_BLOCK_REGEX = @"\((?:[^()]|(?R))*\)";
-        private const string FUNCTION_PARAMS_INNER_REGEX = @"\b(?:\s|.)+(?<!\s)(?=\s*\))";
-        private const string FUNCTION_PARAMS_REGEX = "[^,\\s*][\\w\\s<>.()\\[\\]]*[\\w\"\\)]";
-        private const string FUNCTION_BODY_BLOCK_REGEX = @"{(?:[^{}]|(?R))*}";
+        private const string FUNCTION_BLOCK_REGEX = @"(?:public\s*|private\s*|protected\s*|internal\s*)?" + // scope
+            @"(?:abstract\s*|static\s*|override\s*)?" + // modifier
+            @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)\s*" + // return type
+            @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?\s*" + // function name
+            @"(\((?:[^()]++|(?-1))*\)))" + // function parameters
+            @"[\s\w:,]*" + // where clause
+            @"({(?:[^{}]++|(?-1))*})"; // function body
+        private const string FUNCTION_DEFINITION_REGEX = @"[\s\S]+?(?=\s*{)";
+        private const string SCOPE_REGEX = @"(?:public|private|protected|internal)";
+        private const string MODIFIER_REGEX = @"(?:abstract|static|override)";
+        private const string RETURN_TYPE_REGEX = @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)";
+        private const string FUNCTION_NAME_REGEX = @"(?:\b[\w.]+\b\s*)(<(?:[^<>]++|(?-1))*>)?";
+        private const string FUNCTION_PARAMS_BLOCK_REGEX = @"(\((?:[^()]++|(?-1))*\))";
+        private const string FUNCTION_PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
+            "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
+            "(\\((?:[^()]++|(?-1))*\\))|" + // () brackets
+            "(\"(?:[^\"\"]++|(?-1))*\")|" + // quotes
+            "\\s*=>\\s*|" + // lambda
+            "({(?:[^{}]++|(?-1))*}))+"; // {} brackets
+        private const string FUNCTION_BODY_BLOCK_REGEX = @"({(?:[^{}]++|(?-1))*})";
         private const string FUNCTION_BODY_REGEX = @"(?<={)[\S\s]*(?=\s*})";
 
+        // Inputs
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
         public Partition Source;
 
-        [NodePropertyPort(SCOPE_FILTER_PORT_NAME, true, typeof(Scope), RefactorGraph.Scope.Any, true)]
+        [NodePropertyPort(SCOPE_FILTER_PORT_NAME, true, typeof(Scope), RefactorGraph.Scope.Protected | RefactorGraph.Scope.Private | RefactorGraph.Scope.Internal | RefactorGraph.Scope.Public, true)]
         public Scope ScopeFilter;
 
-        [NodePropertyPort(QUALIFIER_FILTER_PORT_NAME, true, typeof(Qualifier), RefactorGraph.Qualifier.Any, true)]
-        public Qualifier QualifierFilter;
+        [NodePropertyPort(MODIFIER_FILTER_PORT_NAME, true, typeof(FunctionModifier), FunctionModifier.Static | FunctionModifier.Abstract | FunctionModifier.Virtual | FunctionModifier.None, true)]
+        public FunctionModifier ModifierFilter;
 
         [NodePropertyPort(RETURN_TYPE_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ReturnTypeFilterRegex;
-
-        [NodePropertyPort(IS_CONSTRUCTOR_FILTER_PORT_NAME, true, typeof(bool), false, true)]
-        public bool IsConstructorFilter;
 
         [NodePropertyPort(FUNCTION_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string FunctionNameFilterRegex;
@@ -65,17 +73,21 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(PARAMETER_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ParameterNameFilterRegex;
 
+        // Outputs
+        [NodePropertyPort(FUNCTION_BLOCK_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition FunctionBlock;
+
+        [NodePropertyPort(FUNCTION_DEF_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition FunctionDef;
+
         [NodePropertyPort(SCOPE_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Scope;
 
-        [NodePropertyPort(QUALIFIER_PORT_NAME, false, typeof(Partition), null, false)]
-        public Partition Qualifier;
+        [NodePropertyPort(MODIFIER_PORT_NAME, false, typeof(Partition), null, false)]
+        public Partition Modifier;
 
         [NodePropertyPort(RETURN_TYPE_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition ReturnType;
-
-        [NodePropertyPort(IS_CONSTRUCTOR_PORT_NAME, false, typeof(bool), false, false)]
-        public bool IsConstructor;
 
         [NodePropertyPort(FUNCTION_NAME_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition FunctionName;
@@ -85,10 +97,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(FUNCTION_BODY_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition FunctionBody;
+
+        private bool _somethingReturned;
         #endregion
 
         #region Properties
         protected override bool HasOutput => false;
+        public override bool Success => _somethingReturned;
         #endregion
 
         #region Constructors
@@ -96,200 +111,127 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #endregion
 
         #region Methods
+        public override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            _somethingReturned = false;
+        }
+
         public override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            if (Source != null && !Source.IsPartitioned)
+            if (Partition.IsValidAndNotPartitioned(Source))
             {
-                PartitionFunctions(Source);
+                PartitionFunction(Source);
             }
         }
 
-        private void PartitionFunctions(Partition cur)
+        private void PartitionFunction(Partition cur)
         {
-            var classDefinition = cur.PartitionByFirstRegexMatch(FUNCTION_DEFINITION_REGEX, PcreOptions.MultiLine);
-            if (classDefinition == null)
+            var functionBlock = cur.PartitionByFirstRegexMatch(FUNCTION_BLOCK_REGEX, PcreOptions.MultiLine);
+            if (functionBlock == null)
             {
                 return;
             }
-            if (!PartitionFunctionDefinition(classDefinition))
-            {
-                return;
-            }
-            cur = classDefinition.next;
-            if (!PartitionFunctionParameters(cur, out cur))
-            {
-                return;
-            }
-            if (cur == null)
-            {
-                return;
-            }
+            var functionDef = functionBlock.PartitionByFirstRegexMatch(FUNCTION_DEFINITION_REGEX, PcreOptions.MultiLine);
+            var scope = functionDef.PartitionByFirstRegexMatch(SCOPE_REGEX, PcreOptions.MultiLine);
+            cur = scope != null ? scope.next : functionDef;
+            var modifier = cur.PartitionByFirstRegexMatch(MODIFIER_REGEX, PcreOptions.MultiLine);
+            cur = modifier != null ? modifier.next : cur;
+            var returnType = cur.PartitionByFirstRegexMatch(RETURN_TYPE_REGEX, PcreOptions.MultiLine);
+            cur = returnType != null ? returnType.next : cur;
+            var functionName = cur.PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
+            cur = functionName.next;
+            var functionParamsBlock = cur.PartitionByFirstRegexMatch(FUNCTION_PARAMS_BLOCK_REGEX, PcreOptions.MultiLine);
+            var functionParameters = functionParamsBlock.PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
+            cur = functionDef.next;
             var functionBodyBlock = cur.PartitionByFirstRegexMatch(FUNCTION_BODY_BLOCK_REGEX, PcreOptions.MultiLine);
-            if (functionBodyBlock == null)
+            var functionBody = functionBodyBlock.PartitionByFirstRegexMatch(FUNCTION_BODY_REGEX, PcreOptions.MultiLine);
+            if (ApplyFilter(scope, modifier, returnType, functionName, functionParameters))
             {
-                return;
-            }
-            FunctionBody = functionBodyBlock.PartitionByFirstRegexMatch(FUNCTION_BODY_REGEX, PcreOptions.MultiLine);
-            if (FunctionBody == null)
-            {
-                return;
-            }
-            if (ApplyFilter())
-            {
+                FunctionBlock = functionBlock;
+                FunctionDef = functionDef;
+                Scope = scope;
+                Modifier = modifier;
+                ReturnType = returnType;
+                FunctionName = functionName;
+                FunctionParameters = functionParameters;
+                FunctionBody = functionBody;
                 ExecutePort(LOOP_PORT_NAME);
+                _somethingReturned = true;
             }
             cur = functionBodyBlock.next;
             if (cur == null)
             {
                 return;
             }
-            PartitionFunctions(cur);
+            PartitionFunction(cur);
         }
 
-        private bool PartitionFunctionDefinition(Partition classDefinition)
-        {
-            var cur = classDefinition;
-            Scope = cur.PartitionByFirstRegexMatch(SCOPE_REGEX, PcreOptions.MultiLine);
-            if (Scope != null)
-            {
-                cur = Scope.next;
-            }
-            if (cur == null)
-            {
-                return false;
-            }
-            Qualifier = cur.PartitionByFirstRegexMatch(QUALIFIER_REGEX, PcreOptions.MultiLine);
-            if (Qualifier != null)
-            {
-                cur = Qualifier.next;
-            }
-            if (cur == null)
-            {
-                return false;
-            }
-            ReturnType = cur.PartitionByFirstRegexMatch(RETURN_TYPE_REGEX, PcreOptions.MultiLine);
-            if (ReturnType != null)
-            {
-                cur = ReturnType.next;
-            }
-            IsConstructor = ReturnType == null;
-            if (cur == null)
-            {
-                return false;
-            }
-            var functionNameWithRegex = cur.PartitionByFirstRegexMatch(FUNCTION_NAME_WITH_GENERICS_REGEX, PcreOptions.MultiLine);
-            if (functionNameWithRegex == null)
-            {
-                return false;
-            }
-            cur = functionNameWithRegex;
-            FunctionName = cur.PartitionByFirstRegexMatch(FUNCTION_NAME_REGEX, PcreOptions.MultiLine);
-            return true;
-        }
-
-        private bool PartitionFunctionParameters(Partition partition, out Partition next)
-        {
-            FunctionParameters = new List<Partition>();
-            var functionParamsBlock = partition.PartitionByFirstRegexMatch(FUNCTION_PARAMS_BLOCK_REGEX, PcreOptions.MultiLine);
-            if (functionParamsBlock == null)
-            {
-                next = null;
-                return false;
-            }
-            next = functionParamsBlock.next;
-            var functionParamsInner = functionParamsBlock.PartitionByFirstRegexMatch(FUNCTION_PARAMS_INNER_REGEX, PcreOptions.MultiLine);
-            if (functionParamsInner != null)
-            {
-                FunctionParameters = functionParamsInner.PartitionByAllRegexMatches(FUNCTION_PARAMS_REGEX, PcreOptions.MultiLine);
-            }
-            return true;
-        }
-
-        private bool ApplyFilter()
+        private bool ApplyFilter(Partition scope, Partition modifier, Partition returnType, Partition functionName, List<Partition> functionParameters)
         {
             ScopeFilter = GetPortValue(SCOPE_FILTER_PORT_NAME, ScopeFilter);
-            switch (ScopeFilter)
+            var scopeEnum = RefactorGraph.Scope.Scopeless;
+            if (scope != null)
             {
-                case RefactorGraph.Scope.None:
-                    if (Scope != null)
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Scope.Public:
-                    if (Scope == null || Scope.Data != "public")
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Scope.Private:
-                    if (Scope == null || Scope.Data != "private")
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Scope.Internal:
-                    if (Scope == null || Scope.Data != "internal")
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Scope.Protected:
-                    if (Scope == null || Scope.Data != "protected")
-                    {
-                        return false;
-                    }
-                    break;
-            }
-
-            QualifierFilter = GetPortValue(QUALIFIER_FILTER_PORT_NAME, QualifierFilter);
-            switch (QualifierFilter)
-            {
-                case RefactorGraph.Qualifier.None:
-                    if (Qualifier != null)
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Qualifier.Static:
-                    if (Qualifier == null || Qualifier.Data != "static")
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Qualifier.Abstract:
-                    if (Qualifier == null || Qualifier.Data != "abstract")
-                    {
-                        return false;
-                    }
-                    break;
-                case RefactorGraph.Qualifier.Virtual:
-                    if (Qualifier == null || Qualifier.Data != "virtual")
-                    {
-                        return false;
-                    }
-                    break;
-            }
-
-            if (ReturnType != null)
-            {
-                ReturnTypeFilterRegex = GetPortValue(RETURN_TYPE_FILTER_PORT_NAME, ReturnTypeFilterRegex);
-                if (!string.IsNullOrEmpty(ReturnTypeFilterRegex))
+                switch (scope.Data)
                 {
-                    if (!PcreRegex.IsMatch(ReturnType.Data, ReturnTypeFilterRegex))
-                    {
-                        return false;
-                    }
+                    case "public":
+                        scopeEnum = RefactorGraph.Scope.Public;
+                        break;
+                    case "private":
+                        scopeEnum = RefactorGraph.Scope.Private;
+                        break;
+                    case "internal":
+                        scopeEnum = RefactorGraph.Scope.Internal;
+                        break;
+                    case "protected":
+                        scopeEnum = RefactorGraph.Scope.Protected;
+                        break;
+                }
+            }
+            if ((scopeEnum & ScopeFilter) == 0)
+            {
+                return false;
+            }
+
+            ModifierFilter = GetPortValue(MODIFIER_FILTER_PORT_NAME, ModifierFilter);
+            var modifierEnum = FunctionModifier.None;
+            if (modifier != null)
+            {
+                switch (modifier.Data)
+                {
+                    case "static":
+                        modifierEnum = FunctionModifier.Static;
+                        break;
+                    case "virtual":
+                        modifierEnum = FunctionModifier.Virtual;
+                        break;
+                    case "abstract":
+                        modifierEnum = FunctionModifier.Abstract;
+                        break;
+                }
+            }
+            if ((modifierEnum & ModifierFilter) == 0)
+            {
+                return false;
+            }
+            ReturnTypeFilterRegex = GetPortValue(RETURN_TYPE_FILTER_PORT_NAME, ReturnTypeFilterRegex);
+            if (!string.IsNullOrEmpty(ReturnTypeFilterRegex))
+            {
+                if (!Partition.IsValid(returnType) ||
+                    !PcreRegex.IsMatch(returnType.Data, ReturnTypeFilterRegex))
+                {
+                    return false;
                 }
             }
 
             FunctionNameFilterRegex = GetPortValue(FUNCTION_NAME_FILTER_PORT_NAME, FunctionNameFilterRegex);
             if (!string.IsNullOrEmpty(FunctionNameFilterRegex))
             {
-                if (!PcreRegex.IsMatch(FunctionName.Data, FunctionNameFilterRegex))
+                if (!PcreRegex.IsMatch(functionName.Data, FunctionNameFilterRegex))
                 {
                     return false;
                 }
@@ -298,18 +240,17 @@ namespace RefactorGraph.Nodes.FunctionOperations
             ParameterNameFilterRegex = GetPortValue(PARAMETER_NAME_FILTER_PORT_NAME, ParameterNameFilterRegex);
             if (!string.IsNullOrEmpty(ParameterNameFilterRegex))
             {
-                if (FunctionParameters.Count == 0)
+                if (functionParameters.Count == 0)
                 {
                     return false;
                 }
-                if (FunctionParameters.All(x => !PcreRegex.IsMatch(x.Data, ParameterNameFilterRegex)))
+                if (functionParameters.All(x => !PcreRegex.IsMatch(x.Data, ParameterNameFilterRegex)))
                 {
                     return false;
                 }
             }
 
-            IsConstructorFilter = GetPortValue(IS_CONSTRUCTOR_FILTER_PORT_NAME, IsConstructorFilter);
-            return IsConstructorFilter == IsConstructor;
+            return true;
         }
 
         public override void OnPostExecute(Connector connector)

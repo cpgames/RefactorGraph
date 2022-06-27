@@ -6,9 +6,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.PartitionByFirstRegexMatch)]
+    [NodeFlowPort(NOT_FOUND_PORT_NAME, "Not Found", false)]
     public class PartitionByFirstRegexMatchNode : RefactorNodeBase
     {
         #region Fields
+        public const string NOT_FOUND_PORT_NAME = "NotFound";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
         public const string SOURCE_PORT_NAME = "Source";
@@ -49,9 +51,14 @@ namespace RefactorGraph.Nodes.PartitionOperations
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (Source != null && !Source.IsPartitioned && !string.IsNullOrEmpty(Pattern))
+            if (Partition.IsValidAndNotPartitioned(Source) && 
+                !string.IsNullOrEmpty(Pattern))
             {
                 Result = Source.PartitionByFirstRegexMatch(Pattern, RegexOptions);
+                if (!Partition.IsValid(Result))
+                {
+                    ExecutePort(NOT_FOUND_PORT_NAME);
+                }
             }
         }
         #endregion
