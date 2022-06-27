@@ -1,5 +1,5 @@
 
-# RefactorGraph
+# Refactor Graph
 
 ![image](https://user-images.githubusercontent.com/49317353/175891778-9c9d7a1b-8472-4485-b62c-5b14873fc685.png)
 
