@@ -13,7 +13,7 @@ namespace RefactorGraph.Nodes
         Bool
     }
 
-    public abstract class DynamicRefactorNodeBase : RefactorNodeBase
+    public abstract class TypedRefactorNodeBase : RefactorNodeBase
     {
         #region Fields
         public const string ELEMENT_TYPE_PORT_NAME = "ElementType";
@@ -41,7 +41,7 @@ namespace RefactorGraph.Nodes
         #endregion
 
         #region Constructors
-        protected DynamicRefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        protected TypedRefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods

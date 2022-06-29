@@ -56,8 +56,9 @@
     <Compile Include="Nodes\LogicOperations\CompareNode.cs" />
     <Compile Include="Nodes\LogicOperations\MultiplyNode.cs" />
     <Compile Include="Nodes\LogicOperations\SubtractNode.cs" />
-    <Compile Include="Nodes\Other\BusView.cs" />
-    <Compile Include="Nodes\Other\BusViewModel.cs" />
+    <Compile Include="Nodes\DynamiacNode.cs" />
+    <Compile Include="Nodes\DynamicNodeView.cs" />
+    <Compile Include="Nodes\DynamicNodeViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RasterizePartitionNode.cs" />
@@ -78,12 +79,14 @@
     <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
-    <Compile Include="Nodes\DynamicRefactorNodeBase.cs" />
+    <Compile Include="Nodes\TypedRefactorNodeBase.cs" />
     <Compile Include="Nodes\CollectionOperations\GetLastElementNode.cs" />
     <Compile Include="Nodes\CollectionOperations\GetFirstElementNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFunctionCallsNode.cs" />
     <Compile Include="Nodes\StringOperations\RegexMatchPresentInStringNode.cs" />
     <Compile Include="Nodes\Other\StartNode.cs" />
+    <Compile Include="Nodes\StringOperations\StringToUpperFirstCharacter.cs" />
+    <Compile Include="Nodes\StringOperations\StringToLowerFirstCharacter.cs" />
     <Compile Include="Nodes\StringOperations\StringReplaceNode.cs" />
     <Compile Include="Nodes\PartitionOperations\ReferenceNode.cs" />
     <Compile Include="Nodes\StringOperations\StringRemoveNode.cs" />

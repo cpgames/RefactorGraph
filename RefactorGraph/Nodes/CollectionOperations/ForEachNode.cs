@@ -9,7 +9,7 @@ namespace RefactorGraph.Nodes.Collections
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.ForEach)]
     [NodeFlowPort(COMPLETED_PORT_NAME, "Completed", false)]
     [NodeFlowPort(LOOP_PORT_NAME, "Loop", false)]
-    public class ForEachNode : DynamicRefactorNodeBase
+    public class ForEachNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string LOOP_PORT_NAME = "Loop";

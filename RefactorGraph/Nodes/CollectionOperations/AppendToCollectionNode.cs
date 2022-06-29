@@ -6,7 +6,7 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.AppendToCollection)]
-    public class AppendToCollectionNode : DynamicRefactorNodeBase
+    public class AppendToCollectionNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string COLLECTION_PORT_NAME = "Collection";

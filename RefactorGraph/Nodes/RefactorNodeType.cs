@@ -50,6 +50,8 @@
         StringFormat,
         StringRemove,
         StringReplace,
+        StringToLowerFirstCharacter,
+        StringToUpperFirstCharacter,
         Substring,
         // Variables
         IntCollection,

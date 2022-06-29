@@ -50,7 +50,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 {
                     Data = Data,
                     prev = Partition.prev,
-                    next = Partition
+                    next = Partition,
+                    parent = Partition.parent
                 };
                 Partition.prev.next = Result;
                 Partition.prev = Result;
