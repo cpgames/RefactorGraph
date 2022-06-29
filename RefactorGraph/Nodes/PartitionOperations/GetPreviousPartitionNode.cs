@@ -8,11 +8,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class GetPreviousPartitionNode : RefactorNodeBase
     {
         #region Fields
-        public const string PARTITION_PORT_NAME = "Partition";
+        public const string SOURCE_PORT_NAME = "Source";
         public const string PREVIOUS_PORT_NAME = "Previous";
 
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
-        public Partition Partition;
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
+        public Partition Source;
 
         [NodePropertyPort(PREVIOUS_PORT_NAME, false, typeof(Partition), null, false)]
         public Partition Previous;
@@ -37,10 +37,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
         {
             base.OnExecute(connector);
 
-            Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
-            if (Partition != null)
+            Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
+            if (Source != null)
             {
-                Previous = Partition.prev;
+                Previous = Partition.GetPrevious(Source);
             }
         }
         #endregion

@@ -6,7 +6,7 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.GetCollectionSize)]
-    public class GetCollectionSizeNode : DynamicRefactorNodeBase
+    public class GetCollectionSizeNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string SIZE_PORT_NAME = "Size";

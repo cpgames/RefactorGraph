@@ -6,7 +6,7 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.ClearCollection)]
-    public class ClearCollectionNode : DynamicRefactorNodeBase
+    public class ClearCollectionNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string COLLECTION_PORT_NAME = "Collection";

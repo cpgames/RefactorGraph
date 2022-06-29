@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Linq;
-using System.Windows;
+using System.Collections;
 using NodeGraph;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.Other
 {
-    [Node(ViewModelType = typeof(BusViewModel))]
+    [Node(ViewModelType = typeof(DynamicNodeViewModel))]
     [RefactorNode(RefactorNodeGroup.Other, RefactorNodeType.Bus)]
-    public class BusNode : RefactorNodeBase
+    public class BusNode : DynamicNodeBase
     {
         #region Properties
         protected override bool HasOutput => false;
+        protected override IList DynamicPorts => OutputFlowPorts;
+        protected override int MinDynamicPorts => 2;
         #endregion
 
         #region Constructors
@@ -22,39 +23,15 @@ namespace RefactorGraph.Nodes.Other
         public override void OnCreate()
         {
             base.OnCreate();
-            var busView = ViewModel.View as BusView;
-            busView.nodeAdded += AddOutputPort;
-            busView.nodeRemoved += RemoveOutputPort;
 
-            AddOutputPort(null, null);
-            AddOutputPort(null, null);
+            AddDynamicPort(null, null);
+            AddDynamicPort(null, null);
         }
 
-        public override void OnPreDestroy()
+        protected override void CreateDynamicPort(Guid guid)
         {
-            if (ViewModel.View is BusView busView)
-            {
-                busView.nodeAdded -= AddOutputPort;
-                busView.nodeRemoved -= RemoveOutputPort;
-            }
-            base.OnPreDestroy();
-        }
-
-        private void AddOutputPort(object sender, RoutedEventArgs routedEventArgs)
-        {
-            var name = OutputFlowPorts.Count.ToString();
-            var guid = Guid.NewGuid();
+            var name = DynamicPorts.Count.ToString();
             NodeGraphManager.CreateNodeFlowPort(false, guid, this, false, null, name, name);
-        }
-
-        private void RemoveOutputPort(object sender, RoutedEventArgs routedEventArgs)
-        {
-            if (OutputFlowPorts.Count <= 2)
-            {
-                return;
-            }
-            var lastOutputPort = OutputFlowPorts.Last();
-            NodeGraphManager.DestroyNodePort(lastOutputPort.Guid);
         }
 
         public override void OnPostExecute(Connector connector)

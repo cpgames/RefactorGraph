@@ -7,7 +7,7 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.GetElement)]
-    public class GetElementNode : DynamicRefactorNodeBase
+    public class GetElementNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string INDEX_PORT_NAME = "Index";

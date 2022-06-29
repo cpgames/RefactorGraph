@@ -7,7 +7,7 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.GetFirstElement)]
-    public class GetFirstElementNode : DynamicRefactorNodeBase
+    public class GetFirstElementNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string COLLECTION_PORT_NAME = "Collection";

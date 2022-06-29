@@ -14,7 +14,7 @@ namespace RefactorGraph.Nodes.LogicOperations
 
     [Node]
     [RefactorNode(RefactorNodeGroup.LogicOperations, RefactorNodeType.Compare)]
-    public class CompareNode : DynamicRefactorNodeBase
+    public class CompareNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string ALGORITHM_PORT_NAME = "Algorithm";

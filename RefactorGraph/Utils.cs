@@ -303,17 +303,17 @@ namespace RefactorGraph
             {
                 return null;
             }
-            var chunk = new Partition();
+            var documentPartition = new Partition();
             if (!document.Selection.IsEmpty)
             {
-                chunk.Data = document.Selection.Text;
+                documentPartition.Data = document.Selection.Text;
             }
             else
             {
                 var editPoint = document.StartPoint.CreateEditPoint();
-                chunk.Data = editPoint.GetText(document.EndPoint);
+                documentPartition.Data = editPoint.GetText(document.EndPoint);
             }
-            return chunk;
+            return documentPartition;
         }
 
         private static void SetDocument(Partition documentPartition)

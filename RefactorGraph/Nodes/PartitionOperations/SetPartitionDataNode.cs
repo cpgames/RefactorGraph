@@ -29,8 +29,9 @@ namespace RefactorGraph.Nodes.PartitionOperations
 
             Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
             Data = GetPortValue(DATA_PORT_NAME, Data);
-            if (Partition.IsValidAndNotPartitioned(Source))
+            if (Partition.IsValid(Source))
             {
+                Source.Rasterize();
                 Source.Data = Data;
             }
         }

@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using NodeGraph;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.StringOperations
 {
-    [Node]
+    [Node(ViewModelType = typeof(DynamicNodeViewModel))]
     [RefactorNode(RefactorNodeGroup.StringOperations, RefactorNodeType.StringFormat)]
-    public class StringFormatNode : RefactorNodeBase
+    public class StringFormatNode : DynamicNodeBase
     {
         #region Fields
         public const string FORMAT_PORT_NAME = "Format";
@@ -17,15 +19,14 @@ namespace RefactorGraph.Nodes.StringOperations
         [NodePropertyPort(FORMAT_PORT_NAME, true, typeof(string), "", true)]
         public string Format;
 
-        [NodePropertyPort(ARGS_PORT_NAME, true, typeof(object), null, false)]
-        public object Args;
-
         [NodePropertyPort(RESULT_PORT_NAME, false, typeof(string), "", false)]
         public string Result;
         #endregion
 
         #region Properties
         public override bool Success => Result != null;
+        protected override IList DynamicPorts => InputPropertyPorts;
+        protected override int MinDynamicPorts => 1;
         #endregion
 
         #region Constructors
@@ -33,6 +34,13 @@ namespace RefactorGraph.Nodes.StringOperations
         #endregion
 
         #region Methods
+        public override void OnCreate()
+        {
+            base.OnCreate();
+
+            AddDynamicPort(null, null);
+        }
+
         public override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
@@ -44,34 +52,44 @@ namespace RefactorGraph.Nodes.StringOperations
             base.OnExecute(connector);
 
             Format = GetPortValue(FORMAT_PORT_NAME, Format);
-            Args = GetPortValue<object>(ARGS_PORT_NAME);
-            try
+            var argPorts = InputPropertyPorts
+                .Where(x => x.Name.Contains("Args"));
+            var args = new List<object>();
+            foreach (var port in argPorts)
             {
-                if (Args != null)
+                NodeGraphManager.FindConnectedPorts(port, out var connectedPorts);
+                var otherPort = connectedPorts.Count > 0 ? connectedPorts[0] as NodePropertyPort : null;
+                if (otherPort != null)
                 {
-                    if (Args is IList list)
+                    var value = otherPort.Value;
+                    if (value is IList list)
                     {
-                        var strArray = new object[list.Count];
-                        for (var i = 0; i < list.Count; i++)
+                        foreach (var listValue in list)
                         {
-                            strArray[i] = list[i].ToString();
+                            args.Add(listValue.ToString());
                         }
-                        Result = string.Format(Format, strArray);
                     }
                     else
                     {
-                        Result = string.Format(Format, Args);
+                        args.Add(value.ToString());
                     }
                 }
-                else
-                {
-                    Result = Format;
-                }
+            }
+            var strArgs = args.ToArray();
+            try
+            {
+                Result = string.Format(Format, strArgs);
             }
             catch (Exception e)
             {
                 NodeGraphManager.AddScreenLog(Owner, e.Message);
             }
+        }
+
+        protected override void CreateDynamicPort(Guid guid)
+        {
+            var name = $"Args {DynamicPorts.Count - 1}";
+            NodeGraphManager.CreateNodePropertyPort(false, guid, this, true, typeof(object), null, name, false, displayName: name);
         }
         #endregion
     }

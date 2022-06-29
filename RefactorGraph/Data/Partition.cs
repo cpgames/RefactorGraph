@@ -12,11 +12,15 @@ namespace RefactorGraph
         [XmlIgnore]
         private string _data;
         [XmlIgnore]
+        private bool _root;
+        [XmlIgnore]
         public Partition prev;
         [XmlIgnore]
         public Partition next;
         [XmlIgnore]
         public Partition inner;
+        [XmlIgnore]
+        public Partition parent;
         #endregion
 
         #region Properties
@@ -54,7 +58,7 @@ namespace RefactorGraph
         }
 
         public bool IsPartitioned => inner != null;
-        public bool IsRoot => prev == null;
+        public bool IsRoot => _root;
         #endregion
 
         #region Methods
@@ -70,8 +74,22 @@ namespace RefactorGraph
             return innerData;
         }
 
+        public static Partition GetPrevious(Partition partition)
+        {
+            if (partition == null)
+            {
+                return null;
+            }
+            return (partition.IsRoot || partition.prev.IsRoot) ? 
+                GetPrevious(partition.parent) : partition.prev;
+        }
+
         public void Remove()
         {
+            if (parent == null)
+            {
+                return;
+            }
             prev.next = next;
             if (next != null)
             {
@@ -79,6 +97,16 @@ namespace RefactorGraph
             }
             next = null;
             prev = null;
+
+            if (parent.inner.next == null)
+            {
+                parent.Remove();
+            }
+            else if (parent.First.next == null)
+            {
+                parent.Rasterize();
+            }
+            parent = null;
         }
 
         public void Rasterize()
@@ -90,7 +118,7 @@ namespace RefactorGraph
             _data = GetInnerData();
             inner = null;
         }
-        
+
         public override string ToString()
         {
             return Data;
@@ -106,12 +134,17 @@ namespace RefactorGraph
             {
                 throw new Exception("Index exceeds data length");
             }
-            inner = new Partition();
+            inner = new Partition
+            {
+                parent = this,
+                _root = true
+            };
             var cur = inner;
             if (index > 0)
             {
                 var part1 = new Partition
                 {
+                    parent = this,
                     prev = cur,
                     Data = _data.Substring(0, index)
                 };
@@ -122,11 +155,13 @@ namespace RefactorGraph
             {
                 var part2 = new Partition
                 {
+                    parent = this,
                     prev = cur,
                     Data = _data.Substring(index)
                 };
                 cur.next = part2;
             }
+            _data = string.Empty;
         }
 
         public Partition PartitionByIndexAndLength(int index, int length)
@@ -139,12 +174,17 @@ namespace RefactorGraph
             {
                 throw new Exception("Index+length exceeds data length");
             }
-            inner = new Partition();
+            inner = new Partition
+            {
+                parent = this,
+                _root = true
+            };
             var cur = inner;
             if (index > 0)
             {
                 var part1 = new Partition
                 {
+                    parent = this,
                     prev = cur,
                     Data = _data.Substring(0, index)
                 };
@@ -153,6 +193,7 @@ namespace RefactorGraph
             }
             var part2 = new Partition
             {
+                parent = this,
                 prev = cur,
                 Data = _data.Substring(index, length)
             };
@@ -162,11 +203,13 @@ namespace RefactorGraph
             {
                 var part3 = new Partition
                 {
+                    parent = this,
                     prev = cur,
                     Data = _data.Substring(index + length)
                 };
                 cur.next = part3;
             }
+            _data = string.Empty;
             return part2;
         }
 
@@ -181,7 +224,11 @@ namespace RefactorGraph
             {
                 return partitions;
             }
-            inner = new Partition();
+            inner = new Partition
+            {
+                parent = this,
+                _root = true
+            };
             var cur = inner;
             var index = 0;
             indexLengths = indexLengths.OrderBy(x => x.Key).ToList();
@@ -197,6 +244,7 @@ namespace RefactorGraph
                 {
                     var part1 = new Partition
                     {
+                        parent = this,
                         prev = cur,
                         Data = _data.Substring(index, length)
                     };
@@ -207,6 +255,7 @@ namespace RefactorGraph
                 length = indexLength.Value;
                 var part2 = new Partition
                 {
+                    parent = this,
                     prev = cur,
                     Data = _data.Substring(index, length)
                 };
@@ -226,6 +275,7 @@ namespace RefactorGraph
                 {
                     var part3 = new Partition
                     {
+                        parent = this,
                         prev = cur,
                         Data = _data.Substring(index, length)
                     };
@@ -234,7 +284,7 @@ namespace RefactorGraph
                 }
                 index += length;
             }
-
+            _data = string.Empty;
             return partitions;
         }
 
