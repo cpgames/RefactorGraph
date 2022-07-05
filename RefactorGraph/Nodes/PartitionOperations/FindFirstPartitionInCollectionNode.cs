@@ -8,18 +8,17 @@ namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.FindFirstPartitionInCollection)]
-    [NodeFlowPort(NOT_FOUND_PORT_NAME, "Not Found", false)]
     public class FindFirstPartitionInCollectionNode : RefactorNodeBase
     {
         #region Fields
         public const string NOT_FOUND_PORT_NAME = "NotFound";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
-        public const string SOURCE_PORT_NAME = "Source";
-        public const string RESULT_PORT_NAME = "Result";
+        public const string PARTITION_COLLECTION_PORT_NAME = "PartitionCollection";
+        public const string PARTITION_PORT_NAME = "Partition";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false)]
-        public List<Partition> Source;
+        [NodePropertyPort(PARTITION_COLLECTION_PORT_NAME, true, typeof(List<Partition>), null, false, Serialized = false)]
+        public List<Partition> PartitionCollection;
 
         [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
@@ -27,12 +26,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(Partition), null, false)]
-        public Partition Result;
-        #endregion
-
-        #region Properties
-        public override bool Success => Result != null;
+        [NodePropertyPort(PARTITION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
+        public Partition Partition;
         #endregion
 
         #region Constructors
@@ -40,26 +35,38 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        public override void OnCreate()
         {
-            base.OnPreExecute(prevConnector);
-            Result = null;
+            base.OnCreate();
+            CreateOutputFlowPort(NOT_FOUND_PORT_NAME);
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnPreExecute(Connector prevConnector)
+        {
+            base.OnPreExecute(prevConnector);
+            Partition = null;
+        }
+
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
-            Source = GetPortValue<List<Partition>>(SOURCE_PORT_NAME);
+            PartitionCollection = GetPortValue<List<Partition>>(PARTITION_COLLECTION_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (Source != null && !string.IsNullOrEmpty(Pattern))
+            if (PartitionCollection == null || string.IsNullOrEmpty(Pattern))
             {
-                Result = Source.FirstOrDefault(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
-                if (!Partition.IsValid(Result))
-                {
-                    ExecutePort(NOT_FOUND_PORT_NAME);
-                }                
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            Partition = PartitionCollection.FirstOrDefault(x => PcreRegex.IsMatch(x.data, Pattern, RegexOptions));
+            if (Partition == null)
+            {
+                ExecutePort(NOT_FOUND_PORT_NAME);
+            }
+            else
+            {
+                ExecutionState = ExecutionState.Skipped;
             }
         }
         #endregion

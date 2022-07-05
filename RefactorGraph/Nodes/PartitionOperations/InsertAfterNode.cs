@@ -10,20 +10,19 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
         public const string DATA_PORT_NAME = "Data";
-        public const string RESULT_PORT_NAME = "Result";
+        public const string NEW_PARTITION_PORT_NAME = "NewPartition";
 
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, true)]
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, true, Serialized = false)]
         public Partition Partition;
 
         [NodePropertyPort(DATA_PORT_NAME, true, typeof(string), "", true)]
         public string Data;
 
-        [NodePropertyPort(RESULT_PORT_NAME, false, typeof(Partition), null, false)]
-        public Partition Result;
+        [NodePropertyPort(NEW_PARTITION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
+        public Partition NewPartition;
         #endregion
 
         #region Properties
-        public override bool Success => Result != null;
         #endregion
 
         #region Constructors
@@ -31,33 +30,34 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
-            Result = null;
+            NewPartition = null;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             Data = GetPortValue(DATA_PORT_NAME, Data);
-            if (Partition != null)
+            if (Partition == null)
             {
-                Result = new Partition
-                {
-                    Data = Data,
-                    prev = Partition,
-                    next = Partition.next,
-                    parent = Partition.parent
-                };
-                if (Partition.next != null)
-                {
-                    Partition.next.prev = Result;
-                }
-                Partition.next = Result;
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            NewPartition = new Partition
+            {
+                data = Data,
+                prev = Partition,
+                next = Partition.next
+            };
+            if (Partition.next != null)
+            {
+                Partition.next.prev = NewPartition;
+            }
+            Partition.next = NewPartition;
         }
         #endregion
     }

@@ -35,13 +35,13 @@ namespace RefactorGraph.Nodes.StringOperations
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
             Result = null;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
             Source = GetPortValue(SOURCE_PORT_NAME, SOURCE_PORT_NAME);

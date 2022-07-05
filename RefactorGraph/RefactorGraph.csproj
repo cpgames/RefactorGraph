@@ -53,6 +53,14 @@
     <Compile Include="Data\Scope.cs" />
     <Compile Include="Nodes\CollectionOperations\ClearCollectionNode.cs" />
     <Compile Include="Nodes\CollectionOperations\AppendToCollectionNode.cs" />
+    <Compile Include="Nodes\DTE\EnumerateDocumentsInSolutionNode.cs" />
+    <Compile Include="Nodes\DTE\EnumerateDocumentsInProjectNode.cs" />
+    <Compile Include="Nodes\DTE\EnumerateProjectsNode.cs" />
+    <Compile Include="Nodes\DTE\GetCurrentProjectNode.cs" />
+    <Compile Include="Nodes\DTE\GetProjectNameNode.cs" />
+    <Compile Include="Nodes\DTE\GetDocumentNameNode.cs" />
+    <Compile Include="Nodes\DTE\GetDocumentPartitionNode.cs" />
+    <Compile Include="Nodes\DTE\GetCurrentDocumentNode.cs" />
     <Compile Include="Nodes\LogicOperations\CompareNode.cs" />
     <Compile Include="Nodes\LogicOperations\MultiplyNode.cs" />
     <Compile Include="Nodes\LogicOperations\SubtractNode.cs" />
@@ -60,29 +68,27 @@
     <Compile Include="Nodes\DynamicNodeView.cs" />
     <Compile Include="Nodes\DynamicNodeViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RasterizePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetNextPartitionNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\PartitionByVariableAssignmentNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByVariableNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionIsValidNode.cs" />
     <Compile Include="Nodes\PartitionOperations\InsertAfterNode.cs" />
     <Compile Include="Nodes\PartitionOperations\InsertBeforeNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFunctionNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByClassNode.cs" />
     <Compile Include="Nodes\PartitionOperations\FindFirstPartitionInCollectionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionCollectionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\RemoveFunctionCallNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\RemoveParameterNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
     <Compile Include="Nodes\TypedRefactorNodeBase.cs" />
     <Compile Include="Nodes\CollectionOperations\GetLastElementNode.cs" />
     <Compile Include="Nodes\CollectionOperations\GetFirstElementNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\PartitionByFunctionCallsNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByFunctionCallNode.cs" />
     <Compile Include="Nodes\StringOperations\RegexMatchPresentInStringNode.cs" />
     <Compile Include="Nodes\Other\StartNode.cs" />
     <Compile Include="Nodes\StringOperations\StringToUpperFirstCharacter.cs" />
@@ -92,6 +98,8 @@
     <Compile Include="Nodes\StringOperations\StringRemoveNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SetPartitionDataNode.cs" />
     <Compile Include="Data\Partition.cs" />
+    <Compile Include="Nodes\Variables\ProjectNode.cs" />
+    <Compile Include="Nodes\Variables\DocumentNode.cs" />
     <Compile Include="Nodes\Variables\StringCollectionNode.cs" />
     <Compile Include="Nodes\Variables\PartitionCollectionNode.cs" />
     <Compile Include="Nodes\Variables\IntCollectionNode.cs" />
@@ -109,7 +117,7 @@
     <Compile Include="Nodes\StringOperations\SubstringNode.cs" />
     <Compile Include="Nodes\Variables\VariableNode.cs" />
     <Compile Include="Nodes\CollectionOperations\ForEachNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\PartitionByAllRegexMatchesNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByRegexMatchNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
     <Compile Include="Wpf\ToolbarNodeEntryControl.xaml.cs">
@@ -150,6 +158,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Resources\RefactorAdv.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Remove.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -224,12 +235,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\AddCapture.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
-    <Resource Include="Resources\AddProcessor.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\Refactor.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -277,11 +282,6 @@
       <Project>{b650df81-3a89-4807-987b-aeee0e9ae242}</Project>
       <Name>NodeGraph</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\AddGraph.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Delete.png">

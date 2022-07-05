@@ -18,7 +18,7 @@ namespace RefactorGraph.Nodes.Variables
         protected virtual string DisplayNameOut => string.Empty;
         protected override bool AllowEditingHeaderOverride => true;
         protected override bool HasInput => false;
-        protected override bool HasOutput => false;
+        protected override bool HasDone => false;
         #endregion
 
         #region Constructors
