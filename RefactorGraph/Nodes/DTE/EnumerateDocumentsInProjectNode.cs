@@ -18,7 +18,7 @@ namespace RefactorGraph.Nodes.Other
         [NodePropertyPort(PROJECT_PORT_NAME, true, typeof(Project), null, false, Serialized = false)]
         public Project Project;
 
-        [NodePropertyPort(FILENAME_FILTER_PORT_NAME, true, typeof(string), null, true)]
+        [NodePropertyPort(FILENAME_FILTER_PORT_NAME, true, typeof(string), ".cs", true)]
         public string FilenameFilter;
 
         [NodePropertyPort(DOCUMENT_PORT_NAME, false, typeof(TextDocument), null, false, Serialized = false)]

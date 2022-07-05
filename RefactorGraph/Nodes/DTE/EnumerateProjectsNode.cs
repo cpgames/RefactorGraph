@@ -13,7 +13,7 @@ namespace RefactorGraph.Nodes.Other
         public const string LOOP_PROJECT_PORT_NAME = "LoopProject";
         public const string PROJECT_PORT_NAME = "Project";
 
-        [NodePropertyPort(PROJECT_FILTER_PORT_NAME, true, typeof(string), null, true)]
+        [NodePropertyPort(PROJECT_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ProjectFilter;
 
         [NodePropertyPort(PROJECT_PORT_NAME, false, typeof(Project), null, false, Serialized = false)]

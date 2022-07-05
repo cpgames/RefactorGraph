@@ -52,7 +52,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         };
 
         // Inputs
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
 
         [NodePropertyPort(VARIABLE_DEFINITION_FILTER_PORT_NAME, true, typeof(VariableDefinition), VariableDefinition.Assignment | VariableDefinition.Declaration, true)]
