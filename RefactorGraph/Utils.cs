@@ -4,16 +4,16 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Forms;
 using System.Xml;
 using EnvDTE;
+using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using NodeGraph;
 using NodeGraph.Model;
+using PCRE;
 using RefactorGraph.Nodes;
 using RefactorGraph.Nodes.Other;
 using RefactorGraph.Nodes.PartitionOperations;
-using MessageBox = System.Windows.MessageBox;
 
 namespace RefactorGraph
 {
@@ -153,46 +153,60 @@ namespace RefactorGraph
 
         public static bool Delete(string graphName)
         {
-            try
+            var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+            if (flowChart != null)
             {
-                var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
-                if (flowChart != null)
-                {
-                    NodeGraphManager.DestroyFlowChart(flowChart.Guid);
-                }
-                var filePath = CreateGraphFilePath(graphName);
-                if (!File.Exists(filePath))
-                {
-                    throw new FileNotFoundException("FlowGraph file not found.", filePath);
-                }
+                NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+            }
+            var filePath = CreateGraphFilePath(graphName);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("FlowGraph file not found.", filePath);
+            }
 
-                File.Delete(filePath);
-                return true;
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            File.Delete(filePath);
+            return true;
+
+            //try
+            //{
+            //    var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+            //    if (flowChart != null)
+            //    {
+            //        NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+            //    }
+            //    var filePath = CreateGraphFilePath(graphName);
+            //    if (!File.Exists(filePath))
+            //    {
+            //        throw new FileNotFoundException("FlowGraph file not found.", filePath);
+            //    }
+
+            //    File.Delete(filePath);
+            //    return true;
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return false;
+            //}
         }
 
         public static bool ValidateGraph(FlowChart flowChart, out StartNode startNode)
         {
             startNode = null;
 
-            var getDocumentNodes = NodeGraphManager.FindNode(flowChart, "Start");
-            if (getDocumentNodes.Count == 0)
+            var startNodes = NodeGraphManager.FindNode(flowChart, "Start");
+            if (startNodes.Count == 0)
             {
                 NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Start' node.");
                 return false;
             }
-            if (getDocumentNodes.Count > 1)
+            if (startNodes.Count > 1)
             {
                 NodeGraphManager.AddScreenLog(flowChart, "Only single 'Start' must exist.");
                 return false;
             }
 
-            startNode = getDocumentNodes[0] as StartNode;
+            startNode = startNodes[0] as StartNode;
             if (startNode == null)
             {
                 NodeGraphManager.AddScreenLog(flowChart, "You need to place a 'Start' node.");
@@ -277,56 +291,6 @@ namespace RefactorGraph
             return nodes;
         }
 
-        private static TextDocument GetActiveDocument()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var doc = (Package.GetGlobalService(typeof(DTE)) as DTE).ActiveDocument;
-            if (doc == null)
-            {
-                System.Windows.Forms.MessageBox.Show("No file opened", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            var textDocument = doc.Object() as TextDocument;
-            if (textDocument == null)
-            {
-                System.Windows.Forms.MessageBox.Show("Only text documents can be refactored", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            return textDocument;
-        }
-
-        private static Partition GetDocument()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var document = GetActiveDocument();
-            if (document == null)
-            {
-                return null;
-            }
-            var documentPartition = new Partition();
-            if (!document.Selection.IsEmpty)
-            {
-                documentPartition.Data = document.Selection.Text;
-            }
-            else
-            {
-                var editPoint = document.StartPoint.CreateEditPoint();
-                documentPartition.Data = editPoint.GetText(document.EndPoint);
-            }
-            return documentPartition;
-        }
-
-        private static void SetDocument(Partition documentPartition)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            var document = GetActiveDocument();
-            if (document.Selection.IsEmpty)
-            {
-                document.Selection.SelectAll();
-            }
-            document.Selection.Insert(documentPartition.Data);
-        }
-
         public static void Refactor(FlowChart flowChart)
         {
             if (flowChart == null)
@@ -340,25 +304,163 @@ namespace RefactorGraph
             }
             try
             {
-                startNode.Result = GetDocument();
-                if (startNode.Result == null)
-                {
-                    return;
-                }
-                var originalData = startNode.Result.Data;
-                startNode.OnPreExecute(null);
-                startNode.OnExecute(null);
-                startNode.OnPostExecute(null);
-                if (startNode.Success &&
-                    startNode.Result.Data != originalData)
-                {
-                    SetDocument(startNode.Result);
-                }
+                startNode.Execute(null);
             }
             catch (Exception e)
             {
                 NodeGraphManager.AddScreenLog(flowChart, e.Message);
             }
+        }
+
+        public static Partition GetDocumentPartition(TextDocument document)
+        {
+            var documentPartition = new Partition();
+            var editPoint = document.StartPoint.CreateEditPoint();
+            documentPartition.data = editPoint.GetText(document.EndPoint);
+            return documentPartition;
+        }
+
+        public static bool SetDocumentPartition(TextDocument document, Partition partition)
+        {
+            var editPoint = document.StartPoint.CreateEditPoint();
+            var originalText = editPoint.GetText(document.EndPoint);
+            if (originalText != partition.data)
+            {
+                document.Selection.SelectAll();
+                document.Selection.Insert(partition.data);
+                return true;
+            }
+            return false;
+        }
+
+        public static Project GetActiveProject()
+        {
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            Assumes.Present(dte);
+            if (!(dte.ActiveSolutionProjects is Array projects) || projects.Length == 0)
+            {
+                return null;
+            }
+            return projects.GetValue(0) as Project;
+        }
+
+        public static TextDocument GetActiveDocument()
+        {
+            var dte = Package.GetGlobalService(typeof(DTE)) as DTE;
+            Assumes.Present(dte);
+            if (!(dte.ActiveDocument?.Object() is TextDocument textDocument))
+            {
+                return null;
+            }
+            return textDocument;
+        }
+
+        public static List<ProjectItem> GetProjectItemsInSolution(string projectFilter = "", string filenameFilter = "")
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
+            Assumes.Present(dte);
+            var projectItems = new List<ProjectItem>();
+            if (dte.Solution == null)
+            {
+                return projectItems;
+            }
+            var projects = dte.Solution.Projects.GetEnumerator();
+            while (projects.MoveNext())
+            {
+                var project = projects.Current as Project;
+                if (project == null || !StringMatchesRegex(project.Name, projectFilter))
+                {
+                    continue;
+                }
+                var items = project.ProjectItems.GetEnumerator();
+                while (items.MoveNext())
+                {
+                    var currentItem = (ProjectItem)items.Current;
+                    var childItem = GetProjectItemsInProjectItem(currentItem, projectItems);
+                    AppendProjectItem(childItem, projectItems, filenameFilter);
+                }
+            }
+            return projectItems;
+        }
+
+        public static List<ProjectItem> GetProjectItemsInProject(Project project, string filenameFilter = "")
+        {
+            var projectItems = new List<ProjectItem>();
+            var items = project.ProjectItems.GetEnumerator();
+            while (items.MoveNext())
+            {
+                var currentItem = (ProjectItem)items.Current;
+                var childItem = GetProjectItemsInProjectItem(currentItem, projectItems);
+                AppendProjectItem(childItem, projectItems, filenameFilter);
+            }
+            return projectItems;
+        }
+
+        public static ProjectItem GetProjectItemsInProjectItem(ProjectItem item, List<ProjectItem> projectItems, string filenameFilter = "")
+        {
+            if (item?.ProjectItems == null)
+            {
+                return item;
+            }
+
+            var items = item.ProjectItems.GetEnumerator();
+            while (items.MoveNext())
+            {
+                var currentItem = (ProjectItem)items.Current;
+                var childItem = GetProjectItemsInProjectItem(currentItem, projectItems, filenameFilter);
+                AppendProjectItem(childItem, projectItems, filenameFilter);
+            }
+            return item;
+        }
+
+        public static List<Project> GetProjectsInSolution(string projectFilter = "")
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var dte = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE;
+            Assumes.Present(dte);
+            var projects = dte.Solution?.Projects
+                .OfType<Project>()
+                .Where(project => StringMatchesRegex(project.Name, projectFilter)).ToList();
+            return projects;
+        }
+
+        private static void AppendProjectItem(ProjectItem item, ICollection<ProjectItem> projectItems, string filenameFilter)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            if (item != null &&
+                item.Kind == Constants.vsProjectItemKindPhysicalFile &&
+                StringMatchesRegex(item.Name, filenameFilter))
+            {
+                projectItems.Add(item);
+            }
+        }
+        
+        
+        public static ProjectItem GetFiles(ProjectItem item, List<ProjectItem> projectItems)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            if (item.ProjectItems == null)
+            {
+                return item;
+            }
+
+            var items = item.ProjectItems.GetEnumerator();
+            while (items.MoveNext())
+            {
+                var currentItem = (ProjectItem)items.Current;
+                projectItems.Add(GetFiles(currentItem, projectItems));
+            }
+
+            return item;
+        }
+        
+        public static bool StringMatchesRegex(string str, string pattern)
+        {
+            return
+                string.IsNullOrEmpty(pattern) ||
+                PcreRegex.IsMatch(str, pattern);
         }
         #endregion
     }

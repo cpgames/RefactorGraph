@@ -10,7 +10,7 @@ namespace RefactorGraph.Nodes.Other
     public class BusNode : DynamicNodeBase
     {
         #region Properties
-        protected override bool HasOutput => false;
+        protected override bool HasDone => false;
         protected override IList DynamicPorts => OutputFlowPorts;
         protected override int MinDynamicPorts => 2;
         #endregion
@@ -34,16 +34,18 @@ namespace RefactorGraph.Nodes.Other
             NodeGraphManager.CreateNodeFlowPort(false, guid, this, false, null, name, name);
         }
 
-        public override void OnPostExecute(Connector connector)
+        protected override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
             foreach (var outputPort in OutputFlowPorts)
             {
                 foreach (var flowConnector in outputPort.Connectors)
                 {
-                    flowConnector.OnPreExecute();
-                    flowConnector.OnExecute();
-                    flowConnector.OnPostExecute();
+                    ExecutionState = flowConnector.Execute();
+                    if (ExecutionState == ExecutionState.Failed)
+                    {
+                        return;
+                    }
                 }
             }
         }

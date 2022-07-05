@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml.Serialization;
+﻿using System.Collections.Generic;
 using PCRE;
 
 namespace RefactorGraph
@@ -9,87 +6,40 @@ namespace RefactorGraph
     public class Partition
     {
         #region Fields
-        [XmlIgnore]
-        private string _data;
-        [XmlIgnore]
-        private bool _root;
-        [XmlIgnore]
+        public string data;
         public Partition prev;
-        [XmlIgnore]
         public Partition next;
-        [XmlIgnore]
         public Partition inner;
-        [XmlIgnore]
-        public Partition parent;
-        #endregion
 
-        #region Properties
-        [XmlIgnore]
-        public string Data
-        {
-            get => !IsPartitioned ? _data : GetInnerData();
-            set
-            {
-                if (IsPartitioned)
-                {
-                    throw new Exception("Can't modify data of partitioned chunk");
-                }
-                _data = value;
-            }
-        }
-        [XmlIgnore]
-        public Partition First => !IsPartitioned ? null : inner.next;
-        [XmlIgnore]
-        public Partition Last
+        public string RasterizedData
         {
             get
             {
-                if (!IsPartitioned)
+                var rData = data;
+                var cur = inner;
+                while (cur != null)
                 {
-                    return null;
-                }
-                var cur = First;
-                while (cur.next != null)
-                {
+                    rData += cur.RasterizedData;
                     cur = cur.next;
                 }
-                return cur;
+                return rData;
             }
         }
-
-        public bool IsPartitioned => inner != null;
-        public bool IsRoot => _root;
         #endregion
 
         #region Methods
-        private string GetInnerData()
+        public Partition GetRoot()
         {
-            var innerData = string.Empty;
-            var c = inner;
-            while (c != null)
+            var root = this;
+            while (root.prev != null)
             {
-                innerData += c.Data;
-                c = c.next;
+                root = root.prev;
             }
-            return innerData;
-        }
-
-        public static Partition GetPrevious(Partition partition)
-        {
-            if (partition == null)
-            {
-                return null;
-            }
-            return (partition.IsRoot || partition.prev.IsRoot) ? 
-                GetPrevious(partition.parent) : partition.prev;
+            return root;
         }
 
         public void Remove()
         {
-            if (parent == null)
-            {
-                return;
-            }
             prev.next = next;
             if (next != null)
             {
@@ -97,228 +47,171 @@ namespace RefactorGraph
             }
             next = null;
             prev = null;
-
-            if (parent.inner.next == null)
-            {
-                parent.Remove();
-            }
-            else if (parent.First.next == null)
-            {
-                parent.Rasterize();
-            }
-            parent = null;
         }
 
         public void Rasterize()
         {
-            if (!IsPartitioned)
-            {
-                return;
-            }
-            _data = GetInnerData();
+            data = RasterizedData;
             inner = null;
         }
 
         public override string ToString()
         {
-            return Data;
+            return RasterizedData;
         }
 
-        public void PartitionByIndex(int index)
+        public List<Partition> PartitionByRegexMatch(string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
-            if (IsPartitioned)
-            {
-                throw new Exception("Data is already partitioned");
-            }
-            if (index > _data.Length)
-            {
-                throw new Exception("Index exceeds data length");
-            }
-            inner = new Partition
-            {
-                parent = this,
-                _root = true
-            };
-            var cur = inner;
-            if (index > 0)
-            {
-                var part1 = new Partition
-                {
-                    parent = this,
-                    prev = cur,
-                    Data = _data.Substring(0, index)
-                };
-                cur.next = part1;
-                cur = part1;
-            }
-            if (index < _data.Length)
-            {
-                var part2 = new Partition
-                {
-                    parent = this,
-                    prev = cur,
-                    Data = _data.Substring(index)
-                };
-                cur.next = part2;
-            }
-            _data = string.Empty;
-        }
-
-        public Partition PartitionByIndexAndLength(int index, int length)
-        {
-            if (IsPartitioned)
-            {
-                throw new Exception("Data is already partitioned");
-            }
-            if (index + length > _data.Length)
-            {
-                throw new Exception("Index+length exceeds data length");
-            }
-            inner = new Partition
-            {
-                parent = this,
-                _root = true
-            };
-            var cur = inner;
-            if (index > 0)
-            {
-                var part1 = new Partition
-                {
-                    parent = this,
-                    prev = cur,
-                    Data = _data.Substring(0, index)
-                };
-                cur.next = part1;
-                cur = part1;
-            }
-            var part2 = new Partition
-            {
-                parent = this,
-                prev = cur,
-                Data = _data.Substring(index, length)
-            };
-            cur.next = part2;
-            cur = part2;
-            if (index + length < _data.Length)
-            {
-                var part3 = new Partition
-                {
-                    parent = this,
-                    prev = cur,
-                    Data = _data.Substring(index + length)
-                };
-                cur.next = part3;
-            }
-            _data = string.Empty;
-            return part2;
-        }
-
-        public List<Partition> PartitionByIndexAndLength(List<KeyValuePair<int, int>> indexLengths)
-        {
-            if (IsPartitioned)
-            {
-                throw new Exception("Data is already partitioned");
-            }
             var partitions = new List<Partition>();
-            if (indexLengths.Count == 0)
-            {
-                return partitions;
-            }
-            inner = new Partition
-            {
-                parent = this,
-                _root = true
-            };
-            var cur = inner;
+            var matches = PcreRegex.Matches(data, pattern, regexOptions);
+            Partition cur = null;
             var index = 0;
-            indexLengths = indexLengths.OrderBy(x => x.Key).ToList();
-            for (var i = 0; i < indexLengths.Count; i++)
+            foreach (var match in matches)
             {
-                var indexLength = indexLengths[i];
-                var length = indexLength.Key - index;
-                if (index + length > _data.Length)
+                if (match.Length == 0)
                 {
-                    throw new Exception("Index+length exceeds data length");
+                    continue;
                 }
-                if (length > 0)
+                if (match.Index > index)
                 {
-                    var part1 = new Partition
+                    var pNoMatch = new Partition
                     {
-                        parent = this,
-                        prev = cur,
-                        Data = _data.Substring(index, length)
+                        data = data.Substring(index, match.Index - index),
+                        prev = cur
                     };
-                    cur.next = part1;
-                    cur = part1;
+                    if (cur != null)
+                    {
+                        cur.next = pNoMatch;
+                    }
+                    cur = pNoMatch;
                 }
-                index = indexLength.Key;
-                length = indexLength.Value;
-                var part2 = new Partition
+                var pMatch = new Partition
                 {
-                    parent = this,
-                    prev = cur,
-                    Data = _data.Substring(index, length)
+                    data = match.Value,
+                    prev = cur
                 };
-                cur.next = part2;
-                partitions.Add(part2);
-                cur = part2;
-                index += length;
-                if (i < indexLengths.Count - 1)
+                if (cur != null)
                 {
-                    length = indexLengths[i + 1].Key - index;
+                    cur.next = pMatch;
                 }
-                else
-                {
-                    length = _data.Length - index;
-                }
-                if (index < _data.Length)
-                {
-                    var part3 = new Partition
-                    {
-                        parent = this,
-                        prev = cur,
-                        Data = _data.Substring(index, length)
-                    };
-                    cur.next = part3;
-                    cur = part3;
-                }
-                index += length;
+                cur = pMatch;
+                partitions.Add(pMatch);
+                index = match.Index + match.Length;
             }
-            _data = string.Empty;
+            if (cur != null)
+            {
+                if (index < data.Length)
+                {
+                    var pNoMatch = new Partition
+                    {
+                        data = data.Substring(index),
+                        prev = cur
+                    };
+                    cur.next = pNoMatch;
+                }
+
+                cur = cur.GetRoot();
+                inner = cur;
+                data = string.Empty;
+            }
             return partitions;
         }
 
-        public Partition PartitionByFirstRegexMatch(string pattern, PcreOptions regexOptions)
+        public List<Partition> PartitionByRegexMatch(IEnumerable<string> pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
-            if (IsPartitioned)
+            var partitions = new List<Partition>();
+            Partition cur = null;
+            var index = 0;
+            foreach (var p in pattern)
             {
-                throw new Exception("Data is already partitioned");
+                var match = PcreRegex.Match(data.Substring(index), p, regexOptions);
+                if (!match.Success || match.Length == 0)
+                {
+                    partitions.Add(null);
+                    continue;
+                }
+                if (match.Index > 0)
+                {
+                    var pNoMatch = new Partition
+                    {
+                        data = data.Substring(index, match.Index),
+                        prev = cur
+                    };
+                    if (cur != null)
+                    {
+                        cur.next = pNoMatch;
+                    }
+                    cur = pNoMatch;
+                }
+                var pMatch = new Partition
+                {
+                    data = match.Value,
+                    prev = cur
+                };
+                if (cur != null)
+                {
+                    cur.next = pMatch;
+                }
+                cur = pMatch;
+                partitions.Add(pMatch);
+                index += match.Index + match.Length;
             }
-            var match = PcreRegex.Match(_data, pattern, regexOptions);
-            return match.Success ? PartitionByIndexAndLength(match.Index, match.Length) : null;
-        }
-
-        public List<Partition> PartitionByAllRegexMatches(string pattern, PcreOptions regexOptions)
-        {
-            if (IsPartitioned)
+            if (cur != null)
             {
-                throw new Exception("Data is already partitioned");
+                if (index < data.Length)
+                {
+                    var pNoMatch = new Partition
+                    {
+                        data = data.Substring(index),
+                        prev = cur
+                    };
+                    cur.next = pNoMatch;
+                }
+
+                cur = cur.GetRoot();
+                inner = cur;
+                data = string.Empty;
             }
-            var matches = PcreRegex.Matches(_data, pattern, regexOptions);
-            var indexLengths = matches
-                .Select(x => new KeyValuePair<int, int>(x.Index, x.Length))
-                .ToList();
-            return PartitionByIndexAndLength(indexLengths);
+            return partitions;
         }
 
-        public static bool IsValid(Partition partition)
+        public Partition PartitionByFirstRegexMatch(string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
-            return partition != null && !string.IsNullOrEmpty(partition.Data);
+            var match = PcreRegex.Match(data, pattern, regexOptions);
+            if (!match.Success || match.Length == 0)
+            {
+                return null;
+            }
+            Partition cur = null;
+            if (match.Index > 0)
+            {
+                var pNoMatch = new Partition
+                {
+                    data = data.Substring(0, match.Index)
+                };
+                cur = pNoMatch;
+            }
+            var pMatch = new Partition
+            {
+                data = match.Value,
+                prev = cur
+            };
+            if (cur != null)
+            {
+                cur.next = pMatch;
+            }
+            cur = pMatch;
+            inner = cur.GetRoot();
+            data = string.Empty;
+            return pMatch;
         }
-
-        public static bool IsValidAndNotPartitioned(Partition partition)
+        
+        public static bool IsMatch(Partition partition, string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
-            return IsValid(partition) && !partition.IsPartitioned;
+            return
+                string.IsNullOrEmpty(pattern) ||
+                partition != null &&
+                PcreRegex.IsMatch(partition.data, pattern, regexOptions);
         }
         #endregion
     }

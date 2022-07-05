@@ -21,12 +21,12 @@ namespace RefactorGraph.Nodes.Variables
         [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false)]
         public string Data
         {
-            get => Value != null ? Value.Data : string.Empty;
+            get => Value != null ? Value.data : string.Empty;
             set
             {
                 if (Value != null)
                 {
-                    Value.Data = value;
+                    Value.data = value;
                 }
             }
         }
