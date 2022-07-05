@@ -153,27 +153,41 @@ namespace RefactorGraph
 
         public static bool Delete(string graphName)
         {
-            try
+            var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+            if (flowChart != null)
             {
-                var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
-                if (flowChart != null)
-                {
-                    NodeGraphManager.DestroyFlowChart(flowChart.Guid);
-                }
-                var filePath = CreateGraphFilePath(graphName);
-                if (!File.Exists(filePath))
-                {
-                    throw new FileNotFoundException("FlowGraph file not found.", filePath);
-                }
+                NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+            }
+            var filePath = CreateGraphFilePath(graphName);
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("FlowGraph file not found.", filePath);
+            }
 
-                File.Delete(filePath);
-                return true;
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            File.Delete(filePath);
+            return true;
+
+            //try
+            //{
+            //    var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+            //    if (flowChart != null)
+            //    {
+            //        NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+            //    }
+            //    var filePath = CreateGraphFilePath(graphName);
+            //    if (!File.Exists(filePath))
+            //    {
+            //        throw new FileNotFoundException("FlowGraph file not found.", filePath);
+            //    }
+
+            //    File.Delete(filePath);
+            //    return true;
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return false;
+            //}
         }
 
         public static bool ValidateGraph(FlowChart flowChart, out StartNode startNode)

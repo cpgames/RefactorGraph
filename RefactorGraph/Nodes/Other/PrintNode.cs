@@ -12,7 +12,7 @@ namespace RefactorGraph.Nodes.Other
         #region Fields
         public const string SOURCE_PORT_NAME = "Source";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(object), null, false)]
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(object), null, false, Serialized = false)]
         public object Source;
         #endregion
 
@@ -25,9 +25,9 @@ namespace RefactorGraph.Nodes.Other
         {
             base.OnExecute(connector);
             Source = GetPortValue<object>(SOURCE_PORT_NAME);
-            var result = string.Empty;
             if (Source != null)
             {
+                string result;
                 if (Source is IList list)
                 {
                     result = string.Empty;

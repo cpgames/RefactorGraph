@@ -15,10 +15,10 @@ namespace RefactorGraph.Nodes.Other
         public const string LOOP_DOCUMENT_PORT_NAME = "LoopDocument";
         public const string DOCUMENT_PORT_NAME = "Document";
 
-        [NodePropertyPort(PROJECT_FILTER_PORT_NAME, true, typeof(string), null, true)]
+        [NodePropertyPort(PROJECT_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ProjectFilter;
 
-        [NodePropertyPort(FILENAME_FILTER_PORT_NAME, true, typeof(string), null, true)]
+        [NodePropertyPort(FILENAME_FILTER_PORT_NAME, true, typeof(string), ".cs", true)]
         public string FilenameFilter;
 
         [NodePropertyPort(DOCUMENT_PORT_NAME, false, typeof(TextDocument), null, false, Serialized = false)]

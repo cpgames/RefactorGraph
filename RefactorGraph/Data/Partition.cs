@@ -10,6 +10,21 @@ namespace RefactorGraph
         public Partition prev;
         public Partition next;
         public Partition inner;
+
+        public string RasterizedData
+        {
+            get
+            {
+                var rData = data;
+                var cur = inner;
+                while (cur != null)
+                {
+                    rData += cur.RasterizedData;
+                    cur = cur.next;
+                }
+                return rData;
+            }
+        }
         #endregion
 
         #region Methods
@@ -36,19 +51,13 @@ namespace RefactorGraph
 
         public void Rasterize()
         {
-            var cur = inner;
-            while (cur != null)
-            {
-                cur.Rasterize();
-                data += cur.data;
-                cur = cur.next;
-            }
+            data = RasterizedData;
             inner = null;
         }
 
         public override string ToString()
         {
-            return data;
+            return RasterizedData;
         }
 
         public List<Partition> PartitionByRegexMatch(string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
@@ -115,17 +124,17 @@ namespace RefactorGraph
             var index = 0;
             foreach (var p in pattern)
             {
-                var match = PcreRegex.Match(data, p, regexOptions);
+                var match = PcreRegex.Match(data.Substring(index), p, regexOptions);
                 if (!match.Success || match.Length == 0)
                 {
                     partitions.Add(null);
                     continue;
                 }
-                if (match.Index > index)
+                if (match.Index > 0)
                 {
                     var pNoMatch = new Partition
                     {
-                        data = data.Substring(index, match.Index - index),
+                        data = data.Substring(index, match.Index),
                         prev = cur
                     };
                     if (cur != null)
@@ -145,7 +154,7 @@ namespace RefactorGraph
                 }
                 cur = pMatch;
                 partitions.Add(pMatch);
-                index = match.Index + match.Length;
+                index += match.Index + match.Length;
             }
             if (cur != null)
             {
@@ -200,7 +209,7 @@ namespace RefactorGraph
         public static bool IsMatch(Partition partition, string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
             return
-                !string.IsNullOrEmpty(pattern) &&
+                string.IsNullOrEmpty(pattern) ||
                 partition != null &&
                 PcreRegex.IsMatch(partition.data, pattern, regexOptions);
         }
