@@ -7,20 +7,20 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.ForEach)]
-    [NodeFlowPort(COMPLETED_PORT_NAME, "Completed", false)]
+    [NodeFlowPort(COMPLETED_PORT_NAME, "Done", false)]
     [NodeFlowPort(LOOP_PORT_NAME, "Loop", false)]
     public class ForEachNode : TypedRefactorNodeBase
     {
         #region Fields
         public const string LOOP_PORT_NAME = "Loop";
-        public const string COMPLETED_PORT_NAME = "Completed";
+        public const string COMPLETED_PORT_NAME = "Done";
         public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
         private bool _success;
         #endregion
 
         #region Properties
-        protected override bool HasOutput => false;
+        protected override bool HasDone => false;
         public override bool Success => _success;
         #endregion
 
@@ -35,13 +35,13 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
         }
 
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
             _success = false;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
@@ -57,7 +57,7 @@ namespace RefactorGraph.Nodes.Collections
             }
         }
 
-        public override void OnPostExecute(Connector connector)
+        protected override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
             if (Success)

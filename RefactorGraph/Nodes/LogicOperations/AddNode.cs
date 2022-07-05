@@ -30,7 +30,7 @@ namespace RefactorGraph.Nodes.LogicOperations
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 

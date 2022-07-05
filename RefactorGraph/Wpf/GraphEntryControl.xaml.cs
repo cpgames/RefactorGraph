@@ -159,9 +159,16 @@ namespace RefactorGraph
 
         private void BuildDefaultGraph()
         {
-            NodeGraphManager.CreateNode(
+            var startNode = NodeGraphManager.CreateNode(
                 false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(StartNode),
                 200, 200, 0);
+            var getDocumentNode = NodeGraphManager.CreateNode(
+                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetCurrentDocumentNode),
+                400, 200, 0);
+            var connector = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(startNode.OutputFlowPorts[0], connector);
+            NodeGraphManager.ConnectTo(getDocumentNode.InputFlowPorts[0], connector);
         }
 
         private void Delete(object sender, RoutedEventArgs routedEventArgs)

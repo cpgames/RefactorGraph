@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
+using NodeGraph;
 using DataObject = System.Windows.DataObject;
 using DragDropEffects = System.Windows.DragDropEffects;
 using DragEventArgs = System.Windows.DragEventArgs;
@@ -16,6 +17,7 @@ namespace RefactorGraph
     public partial class MainWindowControl : UserControl
     {
         #region Fields
+        private static bool _loaded = false;
         private bool _isDown;
         private bool _isDragging;
         private Point _startPoint;
@@ -33,7 +35,11 @@ namespace RefactorGraph
         #region Methods
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            RefreshInternal();
+            if (!_loaded)
+            {
+                RefreshInternal();
+                _loaded = true;
+            }
         }
 
         private void CreateRefactorGraph(object sender, RoutedEventArgs e)
@@ -55,6 +61,14 @@ namespace RefactorGraph
 
         private void RefreshInternal()
         {
+            foreach (UIElement element in StackPatterns.Children)
+            {
+                if (element is GraphEntryControl refactorGraphEntry && refactorGraphEntry.FlowChartViewModel != null)
+                {
+                    NodeGraphManager.DestroyFlowChart(refactorGraphEntry.FlowChartViewModel.Model.Guid);
+                }
+            }
+
             StackPatterns.Children.Clear();
             var files = Utils.GetGraphFiles();
             foreach (var fileName in files)

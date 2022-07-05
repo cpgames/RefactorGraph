@@ -11,7 +11,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string PARTITION_PORT_NAME = "Partition";
         public const string DATA_PORT_NAME = "Data";
 
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false)]
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
         #endregion
 
@@ -24,7 +24,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 

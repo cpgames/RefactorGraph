@@ -21,7 +21,7 @@ namespace RefactorGraph.Nodes.Other
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
             Source = GetPortValue<object>(SOURCE_PORT_NAME);

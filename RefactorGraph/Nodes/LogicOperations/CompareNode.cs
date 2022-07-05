@@ -28,7 +28,7 @@ namespace RefactorGraph.Nodes.LogicOperations
         #endregion
 
         #region Properties
-        protected override bool HasOutput => false;
+        protected override bool HasDone => false;
         #endregion
 
         #region Constructors
@@ -42,7 +42,7 @@ namespace RefactorGraph.Nodes.LogicOperations
             AddElementPort(B_PORT_NAME, true);
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
@@ -112,7 +112,7 @@ namespace RefactorGraph.Nodes.LogicOperations
         {
             var a = GetPortValue<Partition>(A_PORT_NAME);
             var b = GetPortValue<Partition>(B_PORT_NAME);
-            var r = string.Compare(a.Data, b.Data, StringComparison.Ordinal);
+            var r = string.Compare(a.data, b.data, StringComparison.Ordinal);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:

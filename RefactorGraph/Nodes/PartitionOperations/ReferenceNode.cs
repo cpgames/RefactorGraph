@@ -9,12 +9,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class ReferenceNode : RefactorNodeBase
     {
         #region Fields
-        public const string SOURCE_PORT_NAME = "Source";
-
         private FlowChart _referencedFlowChart;
-
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, true)]
-        public Partition Source;
         #endregion
 
         #region Constructors
@@ -22,7 +17,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
@@ -35,18 +30,16 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 catch (Exception e)
                 {
                     NodeGraphManager.AddScreenLog(Owner, e.Message);
+                    ExecutionState = ExecutionState.Failed;
                     return;
                 }
             }
-            Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            if (Source != null &&
-                Utils.ValidateGraph(_referencedFlowChart, out var startNode))
+            if (!Utils.ValidateGraph(_referencedFlowChart, out var startNode))
             {
-                startNode.Result = Source;
-                startNode.OnPreExecute(null);
-                startNode.OnExecute(null);
-                startNode.OnPostExecute(null);
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            ExecutionState = startNode.Execute(null);
         }
         #endregion
     }
