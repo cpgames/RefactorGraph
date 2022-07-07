@@ -69,6 +69,7 @@
     <Compile Include="Nodes\DynamicNodeViewModel.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByParametersNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RasterizePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
