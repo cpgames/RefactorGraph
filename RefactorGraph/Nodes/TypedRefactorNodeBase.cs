@@ -68,6 +68,7 @@ namespace RefactorGraph.Nodes
             RemoveOldPort(portName);
             Type elementType;
             object defaultValue;
+            var serializeValue = true;
             switch (ElementType)
             {
                 case CollectionType.String:
@@ -81,11 +82,12 @@ namespace RefactorGraph.Nodes
                 case CollectionType.Partition:
                     elementType = typeof(Partition);
                     defaultValue = null;
+                    serializeValue = false;
                     break;
                 default: throw new ArgumentOutOfRangeException();
             }
             NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, input, elementType,
-                defaultValue, portName, false, displayName: $"{portName}\n[{ElementType}]", index: index);
+                defaultValue, portName, false, displayName: $"{portName}\n[{ElementType}]", index: index, serializeValue: serializeValue);
         }
 
         protected void AddCollectionPort(string portName, bool input, int index = -1)
@@ -106,7 +108,7 @@ namespace RefactorGraph.Nodes
                 default: throw new ArgumentOutOfRangeException();
             }
             NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, input, collectionType,
-                null, portName, false, displayName: $"{portName}\n[List<{ElementType}>]", index: index);
+                null, portName, false, displayName: $"{portName}\n[List<{ElementType}>]", index: index, serializeValue: false);
         }
         #endregion
     }

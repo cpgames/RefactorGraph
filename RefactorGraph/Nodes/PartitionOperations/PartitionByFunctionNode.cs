@@ -48,7 +48,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private static readonly string[] DEF_BODY = { DEF_REGEX, BODY_BLOCK_REGEX };
         private static readonly string[] SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS = { SCOPE_REGEX, MODIFIER_REGEX, RETURN_TYPE_REGEX, NAME_REGEX, PARAMS_BLOCK_REGEX };
-        
+
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
 
@@ -124,7 +124,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionFunctions(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(FUNCTION_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, FUNCTION_REGEX);
             foreach (var p in partitions)
             {
                 if (ExecutionState == ExecutionState.Failed)
@@ -137,14 +137,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionFunction(Partition partition)
         {
-            var def_body = partition.PartitionByRegexMatch(DEF_BODY);
-            var scope_modifier_returnType_name_params = def_body[0].PartitionByRegexMatch(SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS);
+            var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
+            var scope_modifier_returnType_name_params = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS);
             Scope = scope_modifier_returnType_name_params[0];
             Modifier = scope_modifier_returnType_name_params[1];
             ReturnType = scope_modifier_returnType_name_params[2];
             FunctionName = scope_modifier_returnType_name_params[3];
-            Parameters = scope_modifier_returnType_name_params[4].PartitionByFirstRegexMatch(PARAMS_REGEX);
-            FunctionBody = def_body[1].PartitionByFirstRegexMatch(BODY_REGEX);
+            Parameters = Partition.PartitionByFirstRegexMatch(scope_modifier_returnType_name_params[4], PARAMS_REGEX);
+            FunctionBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
             if (ApplyFilter())
             {
                 var executionState = ExecutePort(LOOP_PORT_NAME);

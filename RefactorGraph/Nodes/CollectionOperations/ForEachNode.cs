@@ -7,21 +7,16 @@ namespace RefactorGraph.Nodes.Collections
 {
     [Node]
     [RefactorNode(RefactorNodeGroup.CollectionOperations, RefactorNodeType.ForEach)]
-    [NodeFlowPort(COMPLETED_PORT_NAME, "Done", false)]
-    [NodeFlowPort(LOOP_PORT_NAME, "Loop", false)]
     public class ForEachNode : TypedRefactorNodeBase
     {
         #region Fields
-        public const string LOOP_PORT_NAME = "Loop";
         public const string COMPLETED_PORT_NAME = "Done";
         public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
-        private bool _success;
         #endregion
 
         #region Properties
-        protected override bool HasDone => false;
-        public override bool Success => _success;
+        protected override bool HasLoop => true;
         #endregion
 
         #region Constructors
@@ -35,34 +30,25 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
         }
 
-        protected override void OnPreExecute(Connector prevConnector)
-        {
-            base.OnPreExecute(prevConnector);
-            _success = false;
-        }
-
         protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
-            if (collection != null)
+            if (collection == null)
             {
-                foreach (var item in collection)
-                {
-                    OutputPropertyPorts.First(x => x.Name == ELEMENT_PORT_NAME).Value = item;
-                    ExecutePort(LOOP_PORT_NAME);
-                }
-                _success = true;
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
-        }
-
-        protected override void OnPostExecute(Connector connector)
-        {
-            base.OnPostExecute(connector);
-            if (Success)
+            foreach (var item in collection)
             {
-                ExecutePort(COMPLETED_PORT_NAME);
+                OutputPropertyPorts.First(x => x.Name == ELEMENT_PORT_NAME).Value = item;
+                var executionState = ExecutePort(LOOP_PORT_NAME);
+                if (executionState == ExecutionState.Failed)
+                {
+                    ExecutionState = executionState;
+                    return;
+                }
             }
         }
         #endregion

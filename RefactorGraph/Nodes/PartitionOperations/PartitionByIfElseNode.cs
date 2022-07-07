@@ -77,7 +77,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionIfElses(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(IF_ELSE_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, IF_ELSE_REGEX);
             foreach (var p in partitions)
             {
                 IfElse = p;
@@ -93,14 +93,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionClauses(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(CLAUSE_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, CLAUSE_REGEX);
             var pBodies = new List<Partition>();
             foreach (var p in partitions)
             {
-                var type_condition_body = p.PartitionByRegexMatch(TYPE_CONDITION_BODY);
+                var type_condition_body = Partition.PartitionByRegexMatch(p, TYPE_CONDITION_BODY);
                 Clause = p;
-                ClauseCondition = type_condition_body[1].PartitionByFirstRegexMatch(CONDITION_REGEX);
-                ClauseBody = type_condition_body[2].PartitionByFirstRegexMatch(BODY_REGEX);
+                ClauseCondition = Partition.PartitionByFirstRegexMatch(type_condition_body[1], CONDITION_REGEX);
+                ClauseBody = Partition.PartitionByFirstRegexMatch(type_condition_body[2], BODY_REGEX);
                 if (ApplyFilter())
                 {
                     var executionState = ExecutePort(LOOP_CLAUSE_PORT_NAME);

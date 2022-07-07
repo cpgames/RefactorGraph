@@ -131,7 +131,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionVariableAssignments(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(VARIABLE_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, VARIABLE_REGEX);
             foreach (var p in partitions)
             {
                 if (ExecutionState == ExecutionState.Failed)
@@ -144,7 +144,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionVariableAssignment(Partition partition)
         {
-            var def = partition.PartitionByRegexMatch(DEF);
+            var def = Partition.PartitionByRegexMatch(partition, DEF);
             VariableScope = def[0];
             VariableModifier = def[1];
             VariableReadonly = def[2] != null;

@@ -10,7 +10,9 @@ namespace RefactorGraph
         public Partition prev;
         public Partition next;
         public Partition inner;
+        #endregion
 
+        #region Properties
         public string RasterizedData
         {
             get
@@ -60,10 +62,14 @@ namespace RefactorGraph
             return RasterizedData;
         }
 
-        public List<Partition> PartitionByRegexMatch(string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
+        public static List<Partition> PartitionByRegexMatch(Partition partition, string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
+            if (partition == null)
+            {
+                return null;
+            }
             var partitions = new List<Partition>();
-            var matches = PcreRegex.Matches(data, pattern, regexOptions);
+            var matches = PcreRegex.Matches(partition.data, pattern, regexOptions);
             Partition cur = null;
             var index = 0;
             foreach (var match in matches)
@@ -76,7 +82,7 @@ namespace RefactorGraph
                 {
                     var pNoMatch = new Partition
                     {
-                        data = data.Substring(index, match.Index - index),
+                        data = partition.data.Substring(index, match.Index - index),
                         prev = cur
                     };
                     if (cur != null)
@@ -100,31 +106,35 @@ namespace RefactorGraph
             }
             if (cur != null)
             {
-                if (index < data.Length)
+                if (index < partition.data.Length)
                 {
                     var pNoMatch = new Partition
                     {
-                        data = data.Substring(index),
+                        data = partition.data.Substring(index),
                         prev = cur
                     };
                     cur.next = pNoMatch;
                 }
 
                 cur = cur.GetRoot();
-                inner = cur;
-                data = string.Empty;
+                partition.inner = cur;
+                partition.data = string.Empty;
             }
             return partitions;
         }
 
-        public List<Partition> PartitionByRegexMatch(IEnumerable<string> pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
+        public static List<Partition> PartitionByRegexMatch(Partition partition, IEnumerable<string> pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
+            if (partition == null)
+            {
+                return  null;
+            }
             var partitions = new List<Partition>();
             Partition cur = null;
             var index = 0;
             foreach (var p in pattern)
             {
-                var match = PcreRegex.Match(data.Substring(index), p, regexOptions);
+                var match = PcreRegex.Match(partition.data.Substring(index), p, regexOptions);
                 if (!match.Success || match.Length == 0)
                 {
                     partitions.Add(null);
@@ -134,7 +144,7 @@ namespace RefactorGraph
                 {
                     var pNoMatch = new Partition
                     {
-                        data = data.Substring(index, match.Index),
+                        data = partition.data.Substring(index, match.Index),
                         prev = cur
                     };
                     if (cur != null)
@@ -158,26 +168,30 @@ namespace RefactorGraph
             }
             if (cur != null)
             {
-                if (index < data.Length)
+                if (index < partition.data.Length)
                 {
                     var pNoMatch = new Partition
                     {
-                        data = data.Substring(index),
+                        data = partition.data.Substring(index),
                         prev = cur
                     };
                     cur.next = pNoMatch;
                 }
 
                 cur = cur.GetRoot();
-                inner = cur;
-                data = string.Empty;
+                partition.inner = cur;
+                partition.data = string.Empty;
             }
             return partitions;
         }
 
-        public Partition PartitionByFirstRegexMatch(string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
+        public static Partition PartitionByFirstRegexMatch(Partition partition, string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
-            var match = PcreRegex.Match(data, pattern, regexOptions);
+            if (partition == null)
+            {
+                return null;
+            }
+            var match = PcreRegex.Match(partition.data, pattern, regexOptions);
             if (!match.Success || match.Length == 0)
             {
                 return null;
@@ -187,7 +201,7 @@ namespace RefactorGraph
             {
                 var pNoMatch = new Partition
                 {
-                    data = data.Substring(0, match.Index)
+                    data = partition.data.Substring(0, match.Index)
                 };
                 cur = pNoMatch;
             }
@@ -201,17 +215,26 @@ namespace RefactorGraph
                 cur.next = pMatch;
             }
             cur = pMatch;
-            inner = cur.GetRoot();
-            data = string.Empty;
+            if (match.Index + match.Length < partition.data.Length)
+            {
+                var pNoMatch = new Partition
+                {
+                    data = partition.data.Substring(match.Index + match.Length),
+                    prev = cur
+                };
+                cur.next = pNoMatch;
+            }
+            partition.inner = pMatch.GetRoot();
+            partition.data = string.Empty;
             return pMatch;
         }
-        
+
         public static bool IsMatch(Partition partition, string pattern, PcreOptions regexOptions = PcreOptions.MultiLine)
         {
             return
                 string.IsNullOrEmpty(pattern) ||
-                partition != null &&
-                PcreRegex.IsMatch(partition.data, pattern, regexOptions);
+                (partition != null &&
+                    PcreRegex.IsMatch(partition.data, pattern, regexOptions));
         }
         #endregion
     }

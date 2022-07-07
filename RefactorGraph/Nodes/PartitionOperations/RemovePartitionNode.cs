@@ -47,20 +47,20 @@ namespace RefactorGraph.Nodes.PartitionOperations
         private void RemovePrefix(out bool removedOp)
         {
             removedOp = false;
-            var op = Partition.prev.PartitionByFirstRegexMatch(PREFIX_OP_REGEX);
+            var op = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_OP_REGEX);
             if (op != null)
             {
                 op.Remove();
                 removedOp = true;
                 return;
             }
-            var assignment = Partition.prev.PartitionByFirstRegexMatch(PREFIX_ASSIGNMENT_REGEX);
+            var assignment = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_ASSIGNMENT_REGEX);
             if (assignment != null)
             {
                 assignment.Remove();
                 return;
             }
-            var regular = Partition.prev.PartitionByFirstRegexMatch(PREFIX_EMPTY_REGEX);
+            var regular = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_EMPTY_REGEX);
             if (regular != null)
             {
                 regular.Remove();
@@ -71,18 +71,15 @@ namespace RefactorGraph.Nodes.PartitionOperations
         {
             if (!removedOp)
             {
-                var op = Partition.next.PartitionByFirstRegexMatch(SUFFIX_OP_REGEX);
+                var op = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_OP_REGEX);
                 if (op != null)
                 {
                     op.Remove();
                     return;
                 }
             }
-            var suffix = Partition.next.PartitionByFirstRegexMatch(SUFFIX_SEMICOLON_REGEX);
-            if (suffix != null)
-            {
-                suffix.Remove();
-            }
+            var suffix = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_SEMICOLON_REGEX);
+            suffix?.Remove();
         }
 
         private void RemoveEmptyLines()

@@ -55,7 +55,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            PartitionOut = PartitionIn.PartitionByFirstRegexMatch(Pattern, RegexOptions);
+            PartitionOut = Partition.PartitionByFirstRegexMatch(PartitionIn, Pattern, RegexOptions);
             if (PartitionOut == null)
             {
                 ExecutePort(NOT_FOUND_PORT_NAME);

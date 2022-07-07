@@ -10,11 +10,6 @@ namespace RefactorGraph.Nodes.Collections
     {
         #region Fields
         public const string COLLECTION_PORT_NAME = "Collection";
-        private bool _success;
-        #endregion
-
-        #region Properties
-        public override bool Success => _success;
         #endregion
 
         #region Constructors
@@ -27,22 +22,17 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
         }
 
-        protected override void OnPreExecute(Connector prevConnector)
-        {
-            base.OnPreExecute(prevConnector);
-            _success = false;
-        }
-
         protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
-            if (collection != null)
+            if (collection == null)
             {
-                collection.Clear();
-                _success = true;
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            collection.Clear();
         }
         #endregion
     }

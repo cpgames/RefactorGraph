@@ -98,7 +98,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionClasses(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(CLASS_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, CLASS_REGEX);
             foreach (var p in partitions)
             {
                 if (ExecutionState == ExecutionState.Failed)
@@ -111,13 +111,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionClass(Partition partition)
         {
-            var def_body = partition.PartitionByRegexMatch(DEF_BODY);
-            var scope_modifier_category_name = def_body[0].PartitionByRegexMatch(SCOPE_MODIFIER_CATEGORY_NAME);
+            var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
+            var scope_modifier_category_name = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_CATEGORY_NAME);
             Scope = scope_modifier_category_name[0];
             Modifier = scope_modifier_category_name[1];
             TypeCategory = scope_modifier_category_name[2];
             ClassName = scope_modifier_category_name[3];
-            ClassBody = def_body[1].PartitionByFirstRegexMatch(BODY_REGEX);
+            ClassBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
 
             if (ApplyFilter())
             {

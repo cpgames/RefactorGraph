@@ -24,7 +24,6 @@ namespace RefactorGraph.Nodes.StringOperations
         #endregion
 
         #region Properties
-        public override bool Success => Result != null;
         protected override IList DynamicPorts => InputPropertyPorts;
         protected override int MinDynamicPorts => 1;
         #endregion
@@ -83,13 +82,15 @@ namespace RefactorGraph.Nodes.StringOperations
             catch (Exception e)
             {
                 NodeGraphManager.AddScreenLog(Owner, e.Message);
+                ExecutionState = ExecutionState.Failed;
             }
         }
 
         protected override void CreateDynamicPort(Guid guid)
         {
             var name = $"Args {DynamicPorts.Count - 1}";
-            NodeGraphManager.CreateNodePropertyPort(false, guid, this, true, typeof(object), null, name, false, displayName: name);
+            NodeGraphManager.CreateNodePropertyPort(false, guid, this, true, typeof(object), 
+                null, name, false, displayName: name, serializeValue: false);
         }
         #endregion
     }

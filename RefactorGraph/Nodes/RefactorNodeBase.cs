@@ -20,7 +20,6 @@ namespace RefactorGraph.Nodes
         protected virtual bool HasInput => true;
         protected virtual bool HasDone => true;
         protected virtual bool HasLoop => false;
-        public virtual bool Success => true;
         #endregion
 
         #region Constructors

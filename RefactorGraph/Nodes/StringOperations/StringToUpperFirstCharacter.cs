@@ -18,10 +18,6 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
-        #region Properties
-        public override bool Success => Result != null;
-        #endregion
-
         #region Constructors
         public StringToUpperFirstCharacter(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
@@ -38,19 +34,21 @@ namespace RefactorGraph.Nodes.StringOperations
             base.OnExecute(connector);
 
             Source = GetPortValue(SOURCE_PORT_NAME, Source);
-            if (!string.IsNullOrEmpty(Source))
+            if (string.IsNullOrEmpty(Source))
             {
-                if (Source.Length == 1)
-                {
-                    Result = Source.ToUpper();
-                }
-                else
-                {
-                    var first = Source.Substring(0, 1);
-                    var second = Source.Substring(1);
-                    first = first.ToUpper();
-                    Result = first + second;
-                }
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            if (Source.Length == 1)
+            {
+                Result = Source.ToUpper();
+            }
+            else
+            {
+                var first = Source.Substring(0, 1);
+                var second = Source.Substring(1);
+                first = first.ToUpper();
+                Result = first + second;
             }
         }
         #endregion

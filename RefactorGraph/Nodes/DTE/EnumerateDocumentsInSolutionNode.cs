@@ -12,7 +12,6 @@ namespace RefactorGraph.Nodes.Other
         #region Fields
         public const string PROJECT_FILTER_PORT_NAME = "ProjectFilter";
         public const string FILENAME_FILTER_PORT_NAME = "FilenameFilter";
-        public const string LOOP_DOCUMENT_PORT_NAME = "LoopDocument";
         public const string DOCUMENT_PORT_NAME = "Document";
 
         [NodePropertyPort(PROJECT_FILTER_PORT_NAME, true, typeof(string), "", true)]
@@ -25,17 +24,15 @@ namespace RefactorGraph.Nodes.Other
         public TextDocument Document;
         #endregion
 
+        #region Properties
+        protected override bool HasLoop => true;
+        #endregion
+
         #region Constructors
         public EnumerateDocumentsInSolutionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
-        public override void OnCreate()
-        {
-            base.OnCreate();
-            CreateOutputFlowPort(LOOP_DOCUMENT_PORT_NAME);
-        }
-
         protected override void OnExecute(Connector prevConnector)
         {
             ProjectFilter = GetPortValue(PROJECT_FILTER_PORT_NAME, ProjectFilter);
@@ -51,7 +48,7 @@ namespace RefactorGraph.Nodes.Other
                 Document = projectItem.Document?.Object() as TextDocument;
                 if (Document != null)
                 {
-                    var executionState = ExecutePort(LOOP_DOCUMENT_PORT_NAME);
+                    var executionState = ExecutePort(LOOP_PORT_NAME);
                     if (executionState == ExecutionState.Failed)
                     {
                         ExecutionState = ExecutionState.Failed;
