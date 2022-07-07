@@ -16,19 +16,10 @@ namespace RefactorGraph.Nodes.Variables
         protected virtual bool HasEditor => false;
         protected virtual Type ViewModelTypeOverride => null;
         protected virtual string DisplayNameOut => string.Empty;
+        protected virtual bool SerializeValue => true;
         protected override bool AllowEditingHeaderOverride => true;
         protected override bool HasInput => false;
-        protected override bool HasOutput => false;
-        #endregion
-
-        #region Constructors
-        protected VariableNode(Guid guid, FlowChart flowChart, string customHeader = null) : base(guid, flowChart)
-        {
-            Header = customHeader ?? typeof(T).Name;
-        }
-        #endregion
-
-        #region IVariableNode Members
+        protected override bool HasDone => false;
         public T Value
         {
             get
@@ -52,6 +43,13 @@ namespace RefactorGraph.Nodes.Variables
         }
         #endregion
 
+        #region Constructors
+        protected VariableNode(Guid guid, FlowChart flowChart, string customHeader = null) : base(guid, flowChart)
+        {
+            Header = customHeader ?? typeof(T).Name;
+        }
+        #endregion
+
         #region Methods
         protected virtual T DefaultFactory()
         {
@@ -64,9 +62,11 @@ namespace RefactorGraph.Nodes.Variables
             _value = DefaultFactory();
 
             NodeGraphManager.CreateNodePropertyPort(
-                false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut);
+                false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut,
+                serializeValue: SerializeValue);
             NodeGraphManager.CreateNodePropertyPort(
-                false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty, true);
+                false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty, true,
+                serializeValue: SerializeValue);
             base.OnCreate();
         }
         #endregion

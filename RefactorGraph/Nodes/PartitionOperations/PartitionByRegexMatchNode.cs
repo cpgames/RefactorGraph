@@ -5,12 +5,10 @@ using PCRE;
 namespace RefactorGraph.Nodes.PartitionOperations
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.PartitionByFirstRegexMatch)]
-    [NodeFlowPort(NOT_FOUND_PORT_NAME, "Not Found", false)]
-    public class PartitionByFirstRegexMatchNode : RefactorNodeBase
+    [RefactorNode(RefactorNodeGroup.PartitionOperations, RefactorNodeType.PartitionByRegexMatch)]
+    public class PartitionByRegexMatchNode : RefactorNodeBase
     {
         #region Fields
-        public const string NOT_FOUND_PORT_NAME = "NotFound";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
         public const string PARTITION_IN_PORT_NAME = "PartitionIn";
@@ -25,15 +23,16 @@ namespace RefactorGraph.Nodes.PartitionOperations
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
 
-        [NodePropertyPort(PARTITION_OUT_PORT_NAME, false, typeof(Partition), null, true, DisplayName = "Partition", Serialized = false)]
+        [NodePropertyPort(PARTITION_OUT_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition PartitionOut;
         #endregion
 
         #region Properties
+        protected override bool HasLoop => true;
         #endregion
 
         #region Constructors
-        public PartitionByFirstRegexMatchNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        public PartitionByRegexMatchNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
@@ -55,10 +54,21 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            PartitionOut = Partition.PartitionByFirstRegexMatch(PartitionIn, Pattern, RegexOptions);
-            if (PartitionOut == null)
+            PartitionByRegexMatches(PartitionIn);
+        }
+
+        private void PartitionByRegexMatches(Partition partition)
+        {
+            var partitions = Partition.PartitionByRegexMatch(partition, Pattern);
+            foreach (var p in partitions)
             {
-                ExecutePort(NOT_FOUND_PORT_NAME);
+                PartitionOut = p;
+                var executionState = ExecutePort(LOOP_PORT_NAME);
+                if (executionState == ExecutionState.Failed)
+                {
+                    ExecutionState = ExecutionState.Failed;
+                    return;
+                }
             }
         }
         #endregion

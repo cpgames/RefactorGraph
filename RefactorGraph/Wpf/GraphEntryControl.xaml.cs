@@ -159,9 +159,27 @@ namespace RefactorGraph
 
         private void BuildDefaultGraph()
         {
-            NodeGraphManager.CreateNode(
+            var startNode = NodeGraphManager.CreateNode(
                 false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(StartNode),
                 200, 200, 0);
+            var getDocumentNode = NodeGraphManager.CreateNode(
+                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetCurrentDocumentNode),
+                350, 200, 0);
+            var connector = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(startNode.OutputFlowPorts[0], connector);
+            NodeGraphManager.ConnectTo(getDocumentNode.InputFlowPorts[0], connector);
+            var getDocumentPartitionNode = NodeGraphManager.CreateNode(
+                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetDocumentPartitionNode),
+                600, 200, 0);
+            var connector2 = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(getDocumentNode.OutputFlowPorts[0], connector2);
+            NodeGraphManager.ConnectTo(getDocumentPartitionNode.InputFlowPorts[0], connector2);
+            var connector3 = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(getDocumentNode.OutputPropertyPorts[0], connector3);
+            NodeGraphManager.ConnectTo(getDocumentPartitionNode.InputPropertyPorts[0], connector3);
         }
 
         private void Delete(object sender, RoutedEventArgs routedEventArgs)

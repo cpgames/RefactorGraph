@@ -19,44 +19,42 @@ namespace RefactorGraph.Nodes.Other
         public string Result;
         #endregion
 
-        #region Properties
-        public override bool Success => Result != null;
-        #endregion
-
         #region Constructors
         public ConvertToStringNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
             Result = null;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Source = GetPortValue<object>(SOURCE_PORT_NAME);
-            if (Source != null)
+            if (Source == null)
             {
-                if (Source is IList list)
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            if (Source is IList list)
+            {
+                Result = string.Empty;
+                for (var i = 0; i < list.Count; i++)
                 {
-                    Result = string.Empty;
-                    for (var i = 0; i < list.Count; i++)
+                    Result += list[i].ToString();
+                    if (i < list.Count - 1)
                     {
-                        Result += list[i].ToString();
-                        if (i < list.Count - 1)
-                        {
-                            Result += ", ";
-                        }
+                        Result += ", ";
                     }
                 }
-                else
-                {
-                    Result = Source.ToString();
-                }
+            }
+            else
+            {
+                Result = Source.ToString();
             }
         }
         #endregion

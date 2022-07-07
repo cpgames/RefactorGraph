@@ -15,35 +15,34 @@ namespace RefactorGraph.Nodes.Variables
         #endregion
 
         #region Properties
-        protected override bool HasEditor => true;
-        protected override string DisplayNameOut => "PartitionOperations";
+        protected override bool SerializeValue => false;
 
-        [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false)]
+        [NodePropertyPort(DATA_PORT_NAME, false, typeof(string), "", false, Serialized = false)]
         public string Data
         {
-            get => Value != null ? Value.Data : string.Empty;
+            get => Value != null ? Value.data : string.Empty;
             set
             {
                 if (Value != null)
                 {
-                    Value.Data = value;
+                    Value.data = value;
                 }
             }
         }
 
-        [NodePropertyPort(PREV_PORT_NAME, false, typeof(Partition), null, false)]
+        [NodePropertyPort(PREV_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition Prev
         {
             get => Value.prev;
             set => Value.prev = value;
         }
-        [NodePropertyPort(NEXT_PORT_NAME, false, typeof(Partition), null, false)]
+        [NodePropertyPort(NEXT_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition Next
         {
             get => Value.next;
             set => Value.next = value;
         }
-        [NodePropertyPort(INNER_PORT_NAME, false, typeof(Partition), null, false)]
+        [NodePropertyPort(INNER_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition Inner
         {
             get => Value.inner;

@@ -9,9 +9,19 @@ namespace RefactorGraph.Nodes.PartitionOperations
     {
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
+        public const string TRIM_PORT_NAME = "SmartTrim";
 
-        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, true)]
+        public const string PREFIX_EMPTY_REGEX = @"[^\S\n]*[\n]?\Z";
+        public const string PREFIX_ASSIGNMENT_REGEX = @"[^\S\n]*[\n]?\w[\w.\[\]\s]*\s*=\s*\Z";
+        public const string PREFIX_OP_REGEX = @"\s*(?:\|\||&&|[,+\-*\/&\|\^])\s*\Z";
+        public const string SUFFIX_OP_REGEX = @"\s*(?:\|\||&&|[,+\-*\/&\|\^])";
+        public const string SUFFIX_SEMICOLON_REGEX = @"\s*;";
+
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, true, Serialized = false)]
         public Partition Partition;
+
+        [NodePropertyPort(TRIM_PORT_NAME, true, typeof(bool), false, true)]
+        public bool SmartTrim;
         #endregion
 
         #region Constructors
@@ -19,15 +29,69 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
-            if (Partition != null &&
-                !Partition.IsRoot /* can't remove root */)
+            SmartTrim = GetPortValue(TRIM_PORT_NAME, SmartTrim);
+            if (Partition == null)
             {
-                Partition.Remove();
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            RemoveEmptyLines();
+            Partition.Remove();
+        }
+
+        private void RemovePrefix(out bool removedOp)
+        {
+            removedOp = false;
+            var op = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_OP_REGEX);
+            if (op != null)
+            {
+                op.Remove();
+                removedOp = true;
+                return;
+            }
+            var assignment = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_ASSIGNMENT_REGEX);
+            if (assignment != null)
+            {
+                assignment.Remove();
+                return;
+            }
+            var regular = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_EMPTY_REGEX);
+            if (regular != null)
+            {
+                regular.Remove();
+            }
+        }
+
+        private void RemoveSuffix(bool removedOp)
+        {
+            if (!removedOp)
+            {
+                var op = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_OP_REGEX);
+                if (op != null)
+                {
+                    op.Remove();
+                    return;
+                }
+            }
+            var suffix = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_SEMICOLON_REGEX);
+            suffix?.Remove();
+        }
+
+        private void RemoveEmptyLines()
+        {
+            var removedOp = false;
+            if (Partition.prev != null)
+            {
+                RemovePrefix(out removedOp);
+            }
+            if (Partition.next != null)
+            {
+                RemoveSuffix(removedOp);
             }
         }
         #endregion

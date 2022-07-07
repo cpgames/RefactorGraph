@@ -18,39 +18,37 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
-        #region Properties
-        public override bool Success => Result != null;
-        #endregion
-
         #region Constructors
         public StringToLowerFirstCharacter(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
             Result = null;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             Source = GetPortValue(SOURCE_PORT_NAME, Source);
-            if (!string.IsNullOrEmpty(Source))
+            if (string.IsNullOrEmpty(Source))
             {
-                if (Source.Length == 1)
-                {
-                    Result = Source.ToLower();
-                }
-                else
-                {
-                    var first = Source.Substring(0, 1);
-                    var second = Source.Substring(1);
-                    first = first.ToLower();
-                    Result = first + second;
-                }
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            if (Source.Length == 1)
+            {
+                Result = Source.ToLower();
+            }
+            else
+            {
+                var first = Source.Substring(0, 1);
+                var second = Source.Substring(1);
+                first = first.ToLower();
+                Result = first + second;
             }
         }
         #endregion

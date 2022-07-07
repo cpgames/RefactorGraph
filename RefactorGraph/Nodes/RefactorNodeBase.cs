@@ -10,16 +10,16 @@ namespace RefactorGraph.Nodes
     public abstract class RefactorNodeBase : Node
     {
         #region Fields
-        private const string INPUT_PORT_NAME = "Input";
-        private const string OUTPUT_PORT_NAME = "Output";
+        public const string START_PORT_NAME = "Start";
+        public const string DONE_PORT_NAME = "Done";
+        public const string LOOP_PORT_NAME = "Loop";
         #endregion
 
         #region Properties
         protected virtual bool AllowEditingHeaderOverride => false;
-
         protected virtual bool HasInput => true;
-        protected virtual bool HasOutput => true;
-        public virtual bool Success => true;
+        protected virtual bool HasDone => true;
+        protected virtual bool HasLoop => false;
         #endregion
 
         #region Constructors
@@ -43,24 +43,34 @@ namespace RefactorGraph.Nodes
 
             if (HasInput)
             {
-                NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, true, name: INPUT_PORT_NAME, displayName: "In");
+                CreateInputFlowPort(START_PORT_NAME);
             }
-            if (HasOutput)
+            if (HasDone)
             {
-                NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, false, name: OUTPUT_PORT_NAME, displayName: "Out");
+                CreateOutputFlowPort(DONE_PORT_NAME);
+            }
+            if (HasLoop)
+            {
+                CreateOutputFlowPort(LOOP_PORT_NAME);
             }
         }
 
-        public override void OnPostExecute(Connector connector)
+        protected void CreateInputFlowPort(string name)
+        {
+            NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, true, name: name, displayName: name);
+        }
+
+        protected void CreateOutputFlowPort(string name)
+        {
+            NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, false, name: name, displayName: name);
+        }
+        
+        protected override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
-            if (HasOutput && Success)
+            if (HasDone)
             {
-                ExecutePort(OUTPUT_PORT_NAME);
-            }
-            if (!Success)
-            {
-                ExecutionState = NodeExecutionState.Failed;
+                ExecutionState = ExecutePort(DONE_PORT_NAME);
             }
         }
 
@@ -72,20 +82,16 @@ namespace RefactorGraph.Nodes
             return otherPort != null ? (TValue)otherPort.Value : defaultValue;
         }
 
-        protected void ExecutePort(string portName)
+        protected ExecutionState ExecutePort(string portName)
         {
             var port = OutputFlowPorts.FirstOrDefault(p => p.Name == portName);
             if (port == null)
             {
                 NodeGraphManager.AddScreenLog(Owner, $"Port {portName} not found");
-                return;
+                return ExecutionState.Failed;
             }
-            foreach (var connector in port.Connectors)
-            {
-                connector.OnPreExecute();
-                connector.OnExecute();
-                connector.OnPostExecute();
-            }
+            var connector = port.Connectors.FirstOrDefault();
+            return connector?.Execute() ?? ExecutionState.Executed;
         }
         #endregion
     }

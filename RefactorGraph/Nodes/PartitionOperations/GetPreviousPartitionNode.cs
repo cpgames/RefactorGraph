@@ -8,18 +8,17 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class GetPreviousPartitionNode : RefactorNodeBase
     {
         #region Fields
-        public const string SOURCE_PORT_NAME = "Source";
-        public const string PREVIOUS_PORT_NAME = "Previous";
+        public const string PARTITION_PORT_NAME = "Partition";
+        public const string PREVIOUS_PARTITION_PORT_NAME = "PreviousPartition";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(Partition), null, false)]
-        public Partition Source;
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
+        public Partition Partition;
 
-        [NodePropertyPort(PREVIOUS_PORT_NAME, false, typeof(Partition), null, false)]
-        public Partition Previous;
+        [NodePropertyPort(PREVIOUS_PARTITION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
+        public Partition PreviousPartition;
         #endregion
 
         #region Properties
-        public override bool Success => Previous != null;
         #endregion
 
         #region Constructors
@@ -27,20 +26,26 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnPreExecute(Connector prevConnector)
+        protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
-            Previous = null;
+            PreviousPartition = null;
         }
 
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
-            Source = GetPortValue<Partition>(SOURCE_PORT_NAME);
-            if (Source != null)
+            Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
+            if (Partition == null)
             {
-                Previous = Partition.GetPrevious(Source);
+                ExecutionState = ExecutionState.Failed;
+                return;
+            }
+            PreviousPartition = Partition.prev;
+            if (Partition == null)
+            {
+                ExecutionState = ExecutionState.Skipped;
             }
         }
         #endregion

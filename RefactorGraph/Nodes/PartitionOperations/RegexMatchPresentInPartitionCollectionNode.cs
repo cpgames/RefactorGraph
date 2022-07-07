@@ -15,11 +15,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #region Fields
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
-        public const string SOURCE_PORT_NAME = "Source";
+        public const string SOURCE_PORT_NAME = "Partition";
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
 
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false)]
+        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false, Serialized = false)]
         public List<Partition> Source;
 
         [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
@@ -30,7 +30,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Properties
-        protected override bool HasOutput => false;
+        protected override bool HasDone => false;
         #endregion
 
         #region Constructors
@@ -38,7 +38,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         #endregion
 
         #region Methods
-        public override void OnExecute(Connector connector)
+        protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
@@ -47,7 +47,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
             if (Source != null && !string.IsNullOrEmpty(Pattern))
             {
-                var result = Source.Any(x => PcreRegex.IsMatch(x.Data, Pattern, RegexOptions));
+                var result = Source.Any(x => PcreRegex.IsMatch(x.data, Pattern, RegexOptions));
                 ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
             }
         }
