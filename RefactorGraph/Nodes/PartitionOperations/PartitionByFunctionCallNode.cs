@@ -24,13 +24,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             @"(?!\s*[{:\w])"; // exclude non function call statements
         private const string NAME_REGEX = @"[^\(]+[^\s\(](?=\s*\()";
         private const string PARAMS_BLOCK_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
-        private const string PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
-            "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
-            "(\\((?:[^()]++|(?-1))*\\))|" + // () brackets
-            "(\"(?:[^\"\"]++|(?-1))*\")|" + // quotes
-            "\\s*=>\\s*|" + // lambda
-            "({(?:[^{}]++|(?-1))*}))+"; // {} brackets
-
+        
         private static readonly string[] NAME_PARAMS = { NAME_REGEX, PARAMS_BLOCK_REGEX };
 
         // Inputs
@@ -86,22 +80,25 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionFunctionCalls(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(FUNCTION_CALL_REGEX);
-            foreach (var p in partitions)
+            var partitions = Partition.PartitionByRegexMatch(partition, FUNCTION_CALL_REGEX);
+            if (partitions != null)
             {
-                if (ExecutionState == ExecutionState.Failed)
+                foreach (var p in partitions)
                 {
-                    return;
+                    if (ExecutionState == ExecutionState.Failed)
+                    {
+                        return;
+                    }
+                    PartitionFunctionCall(p);
                 }
-                PartitionFunctionCall(p);
             }
         }
 
         private void PartitionFunctionCall(Partition partition)
         {
-            var name_params = partition.PartitionByRegexMatch(NAME_PARAMS);
+            var name_params = Partition.PartitionByRegexMatch(partition, NAME_PARAMS);
             FunctionName = name_params[0];
-            Parameters = name_params[1].PartitionByFirstRegexMatch(PARAMS_REGEX);
+            Parameters = name_params[1];
 
             if (ApplyFilter())
             {

@@ -27,7 +27,6 @@ namespace RefactorGraph.Nodes.StringOperations
         #endregion
 
         #region Properties
-        public override bool Success => Result != null;
         #endregion
 
         #region Constructors
@@ -47,12 +46,14 @@ namespace RefactorGraph.Nodes.StringOperations
             Source = GetPortValue(SOURCE_PORT_NAME, SOURCE_PORT_NAME);
             Index = GetPortValue(INDEX_PORT_NAME, Index);
             Length = GetPortValue(LENGTH_PORT_NAME, Length);
-            if (Index + Length < Source.Length)
+            if (Index + Length >= Source.Length)
             {
-                Result = Length > 0 ?
-                    Source.Remove(Index, Length) :
-                    Source.Remove(Index);
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            Result = Length > 0 ?
+                Source.Remove(Index, Length) :
+                Source.Remove(Index);
         }
         #endregion
     }

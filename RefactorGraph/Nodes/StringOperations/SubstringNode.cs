@@ -26,10 +26,6 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
-        #region Properties
-        public override bool Success => Result != null;
-        #endregion
-
         #region Constructors
         public SubstringNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
@@ -49,14 +45,17 @@ namespace RefactorGraph.Nodes.StringOperations
             Index = GetPortValue(INDEX_PORT_NAME, Index);
             Length = GetPortValue(LENGTH_PORT_NAME, Length);
 
-            if (!string.IsNullOrEmpty(Source) &&
-                Index >= 0 &&
-                Index + Length < Source.Length)
+            if (string.IsNullOrEmpty(Source) ||
+                Index < 0 ||
+                Index + Length >= Source.Length)
             {
-                Result = Length > 0 ?
-                    Source.Substring(Index, Length) :
-                    Source.Substring(Index);
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+
+            Result = Length > 0 ?
+                Source.Substring(Index, Length) :
+                Source.Substring(Index);
         }
         #endregion
     }

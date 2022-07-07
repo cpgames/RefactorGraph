@@ -31,10 +31,6 @@ namespace RefactorGraph.Nodes.StringOperations
         public string Result;
         #endregion
 
-        #region Properties
-        public override bool Success => Result != null;
-        #endregion
-
         #region Constructors
         public StringReplaceNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
@@ -54,12 +50,14 @@ namespace RefactorGraph.Nodes.StringOperations
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
             Replacement = GetPortValue(REPLACEMENT_PORT_NAME, Replacement);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (!string.IsNullOrEmpty(Source) &&
-                !string.IsNullOrEmpty(Pattern) &&
-                Replacement != null)
+            if (string.IsNullOrEmpty(Source) ||
+                string.IsNullOrEmpty(Pattern) ||
+                Replacement == null)
             {
-                Result = PcreRegex.Replace(Source, Pattern, Replacement, RegexOptions);
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            Result = PcreRegex.Replace(Source, Pattern, Replacement, RegexOptions);
         }
         #endregion
     }

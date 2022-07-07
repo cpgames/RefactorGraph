@@ -11,10 +11,9 @@ namespace RefactorGraph.Nodes.Other
     {
         #region Fields
         public const string FILENAME_FILTER_PORT_NAME = "FilenameFilter";
-        public const string LOOP_DOCUMENT_PORT_NAME = "LoopDocument";
         public const string PROJECT_PORT_NAME = "Project";
         public const string DOCUMENT_PORT_NAME = "Document";
-        
+
         [NodePropertyPort(PROJECT_PORT_NAME, true, typeof(Project), null, false, Serialized = false)]
         public Project Project;
 
@@ -25,17 +24,15 @@ namespace RefactorGraph.Nodes.Other
         public TextDocument Document;
         #endregion
 
+        #region Properties
+        protected override bool HasLoop => true;
+        #endregion
+
         #region Constructors
         public EnumerateDocumentsInProjectNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
 
         #region Methods
-        public override void OnCreate()
-        {
-            base.OnCreate();
-            CreateOutputFlowPort(LOOP_DOCUMENT_PORT_NAME);
-        }
-
         protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
@@ -51,7 +48,7 @@ namespace RefactorGraph.Nodes.Other
                 return;
             }
             FilenameFilter = GetPortValue(FILENAME_FILTER_PORT_NAME, FilenameFilter);
-            
+
             var projectItems = Utils.GetProjectItemsInProject(Project, FilenameFilter);
             foreach (var projectItem in projectItems
                          .Where(projectItem => projectItem.Kind == Constants.vsProjectItemKindPhysicalFile))
@@ -63,7 +60,7 @@ namespace RefactorGraph.Nodes.Other
                 Document = projectItem.Document?.Object() as TextDocument;
                 if (Document != null)
                 {
-                    var executionState = ExecutePort(LOOP_DOCUMENT_PORT_NAME);
+                    var executionState = ExecutePort(LOOP_PORT_NAME);
                     if (executionState == ExecutionState.Failed)
                     {
                         ExecutionState = ExecutionState.Failed;

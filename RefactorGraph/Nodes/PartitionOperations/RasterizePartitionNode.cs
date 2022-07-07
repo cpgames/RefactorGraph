@@ -15,10 +15,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public Partition Partition;
         #endregion
 
-        #region Properties
-        public override bool Success => Partition != null;
-        #endregion
-
         #region Constructors
         public RasterizePartitionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
@@ -29,10 +25,12 @@ namespace RefactorGraph.Nodes.PartitionOperations
             base.OnExecute(connector);
 
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
-            if (Partition != null)
+            if (Partition == null)
             {
-                Partition.Rasterize();
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            Partition.Rasterize();
         }
         #endregion
     }
