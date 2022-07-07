@@ -40,6 +40,7 @@
         PartitionByFunctionCall,
         PartitionByFunction,
         PartitionByIfElse,
+        PartitionByParameters,
         PartitionByVariable,
         PartitionIsValid,
         PartitionByRegexMatch,

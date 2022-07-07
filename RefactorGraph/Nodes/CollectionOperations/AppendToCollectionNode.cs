@@ -11,11 +11,6 @@ namespace RefactorGraph.Nodes.Collections
         #region Fields
         public const string COLLECTION_PORT_NAME = "Collection";
         public const string ELEMENT_PORT_NAME = "Element";
-        private bool _success;
-        #endregion
-
-        #region Properties
-        public override bool Success => _success;
         #endregion
 
         #region Constructors
@@ -28,24 +23,19 @@ namespace RefactorGraph.Nodes.Collections
             AddCollectionPort(COLLECTION_PORT_NAME, true);
             AddElementPort(ELEMENT_PORT_NAME, true);
         }
-
-        protected override void OnPreExecute(Connector prevConnector)
-        {
-            base.OnPreExecute(prevConnector);
-            _success = false;
-        }
-
+        
         protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
 
             var collection = GetPortValue<IList>(COLLECTION_PORT_NAME);
             var element = GetPortValue<object>(ELEMENT_PORT_NAME);
-            if (collection != null && element != null)
+            if (collection == null || element == null)
             {
-                collection.Add(element);
-                _success = true;
+                ExecutionState = ExecutionState.Failed;
+                return;
             }
+            collection.Add(element);
         }
         #endregion
     }

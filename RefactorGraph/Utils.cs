@@ -86,34 +86,54 @@ namespace RefactorGraph
 
         public static bool Save(FlowChart flowChart)
         {
-            try
+            var filePath = CreateGraphFilePath(flowChart.Name);
+            var settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.IndentChars = "\t";
+            settings.NewLineChars = "\n";
+            settings.NewLineHandling = NewLineHandling.Replace;
+            settings.NewLineOnAttributes = false;
+            using (var writer = XmlWriter.Create(filePath, settings))
             {
-                var filePath = CreateGraphFilePath(flowChart.Name);
-                var settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.IndentChars = "\t";
-                settings.NewLineChars = "\n";
-                settings.NewLineHandling = NewLineHandling.Replace;
-                settings.NewLineOnAttributes = false;
-                using (var writer = XmlWriter.Create(filePath, settings))
+                writer.WriteStartDocument();
                 {
-                    writer.WriteStartDocument();
-                    {
-                        writer.WriteStartElement("FlowChart");
-                        flowChart.WriteXml(writer);
-                        writer.WriteEndElement();
-                    }
-                    writer.WriteEndDocument();
-
-                    writer.Flush();
-                    writer.Close();
+                    writer.WriteStartElement("FlowChart");
+                    flowChart.WriteXml(writer);
+                    writer.WriteEndElement();
                 }
+                writer.WriteEndDocument();
+
+                writer.Flush();
+                writer.Close();
             }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
-                return false;
-            }
+            //try
+            //{
+            //    var filePath = CreateGraphFilePath(flowChart.Name);
+            //    var settings = new XmlWriterSettings();
+            //    settings.Indent = true;
+            //    settings.IndentChars = "\t";
+            //    settings.NewLineChars = "\n";
+            //    settings.NewLineHandling = NewLineHandling.Replace;
+            //    settings.NewLineOnAttributes = false;
+            //    using (var writer = XmlWriter.Create(filePath, settings))
+            //    {
+            //        writer.WriteStartDocument();
+            //        {
+            //            writer.WriteStartElement("FlowChart");
+            //            flowChart.WriteXml(writer);
+            //            writer.WriteEndElement();
+            //        }
+            //        writer.WriteEndDocument();
+
+            //        writer.Flush();
+            //        writer.Close();
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    MessageBox.Show(e.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            //    return false;
+            //}
             return true;
         }
 

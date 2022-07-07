@@ -118,27 +118,22 @@ namespace RefactorGraph
 
         public void SetFile(string fileName)
         {
-
-            Utils.Load(fileName, out var flowChart);
-            _flowChartViewModel = flowChart.ViewModel;
-            _graphName = fileName;
-            RaisePropertyChanged("GraphName");
-            //try
-            //{
-            //    Utils.Load(fileName, out var flowChart);
-            //    _flowChartViewModel = flowChart.ViewModel;
-            //    _graphName = fileName;
-            //    RaisePropertyChanged("GraphName");
-            //}
-            //catch (Exception e)
-            //{
-            //    var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
-            //    if (result == DialogResult.Yes)
-            //    {
-            //        Utils.Delete(fileName);
-            //    }
-            //    ((Panel)Parent).Children.Remove(this);
-            //}
+            try
+            {
+                Utils.Load(fileName, out var flowChart);
+                _flowChartViewModel = flowChart.ViewModel;
+                _graphName = fileName;
+                RaisePropertyChanged("GraphName");
+            }
+            catch (Exception e)
+            {
+                var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
+                if (result == DialogResult.Yes)
+                {
+                    Utils.Delete(fileName);
+                }
+                ((Panel)Parent).Children.Remove(this);
+            }
         }
 
         public void CreateNewGraph()
@@ -169,11 +164,22 @@ namespace RefactorGraph
                 200, 200, 0);
             var getDocumentNode = NodeGraphManager.CreateNode(
                 false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetCurrentDocumentNode),
-                400, 200, 0);
+                350, 200, 0);
             var connector = NodeGraphManager.CreateConnector(
                 false, Guid.NewGuid(), _flowChartViewModel.Model);
             NodeGraphManager.ConnectTo(startNode.OutputFlowPorts[0], connector);
             NodeGraphManager.ConnectTo(getDocumentNode.InputFlowPorts[0], connector);
+            var getDocumentPartitionNode = NodeGraphManager.CreateNode(
+                false, Guid.NewGuid(), _flowChartViewModel.Model, typeof(GetDocumentPartitionNode),
+                600, 200, 0);
+            var connector2 = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(getDocumentNode.OutputFlowPorts[0], connector2);
+            NodeGraphManager.ConnectTo(getDocumentPartitionNode.InputFlowPorts[0], connector2);
+            var connector3 = NodeGraphManager.CreateConnector(
+                false, Guid.NewGuid(), _flowChartViewModel.Model);
+            NodeGraphManager.ConnectTo(getDocumentNode.OutputPropertyPorts[0], connector3);
+            NodeGraphManager.ConnectTo(getDocumentPartitionNode.InputPropertyPorts[0], connector3);
         }
 
         private void Delete(object sender, RoutedEventArgs routedEventArgs)

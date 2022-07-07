@@ -59,7 +59,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
 
         private void PartitionByRegexMatches(Partition partition)
         {
-            var partitions = partition.PartitionByRegexMatch(Pattern);
+            var partitions = Partition.PartitionByRegexMatch(partition, Pattern);
             foreach (var p in partitions)
             {
                 PartitionOut = p;
