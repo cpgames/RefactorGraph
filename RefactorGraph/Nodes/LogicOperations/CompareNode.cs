@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes.LogicOperations
@@ -23,7 +24,7 @@ namespace RefactorGraph.Nodes.LogicOperations
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
 
-        [NodePropertyPort(ALGORITHM_PORT_NAME, false, typeof(CompareAlgorithm), CompareAlgorithm.Equals, true)]
+        [NodePropertyPort(ALGORITHM_PORT_NAME, true, typeof(CompareAlgorithm), CompareAlgorithm.Equals, true)]
         public CompareAlgorithm Algorithm;
         #endregion
 
@@ -36,6 +37,14 @@ namespace RefactorGraph.Nodes.LogicOperations
         #endregion
 
         #region Methods
+        public override void OnCreate()
+        {
+            base.OnCreate();
+
+            CreateOutputFlowPort(TRUE_PORT_NAME);
+            CreateOutputFlowPort(FALSE_PORT_NAME);
+        }
+
         protected override void UpdatePorts()
         {
             AddElementPort(A_PORT_NAME, true);
@@ -49,28 +58,30 @@ namespace RefactorGraph.Nodes.LogicOperations
             ElementType = GetPortValue(ELEMENT_TYPE_PORT_NAME, ElementType);
             Algorithm = GetPortValue(ALGORITHM_PORT_NAME, Algorithm);
             var result = false;
+            var defaultA = InputPropertyPorts.First(x => x.Name == A_PORT_NAME).Value;
+            var defaultB = InputPropertyPorts.First(x => x.Name == B_PORT_NAME).Value;
             switch (ElementType)
             {
                 case CollectionType.String:
-                    result = CompareStrings();
+                    result = CompareStrings((string)defaultA, (string)defaultB);
                     break;
                 case CollectionType.Int:
-                    result = CompareInts();
+                    result = CompareInts((int)defaultA, (int)defaultB);
                     break;
                 case CollectionType.Partition:
                     result = ComparePartitions();
                     break;
                 case CollectionType.Bool:
-                    result = CompareBools();
+                    result = CompareBools((bool)defaultA, (bool)defaultB);
                     break;
             }
             ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
 
-        private bool CompareStrings()
+        private bool CompareStrings(string defaultA, string defaultB)
         {
-            var a = GetPortValue<string>(A_PORT_NAME);
-            var b = GetPortValue<string>(B_PORT_NAME);
+            var a = GetPortValue(A_PORT_NAME, defaultA);
+            var b = GetPortValue(B_PORT_NAME, defaultB);
             var r = string.Compare(a, b, StringComparison.Ordinal);
             switch (Algorithm)
             {
@@ -88,10 +99,10 @@ namespace RefactorGraph.Nodes.LogicOperations
             return false;
         }
 
-        private bool CompareInts()
+        private bool CompareInts(int defaultA, int defaultB)
         {
-            var a = GetPortValue<int>(A_PORT_NAME);
-            var b = GetPortValue<int>(B_PORT_NAME);
+            var a = GetPortValue(A_PORT_NAME, defaultA);
+            var b = GetPortValue(B_PORT_NAME, defaultB);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:
@@ -129,10 +140,10 @@ namespace RefactorGraph.Nodes.LogicOperations
             return false;
         }
 
-        private bool CompareBools()
+        private bool CompareBools(bool defaultA, bool defaultB)
         {
-            var a = GetPortValue<bool>(A_PORT_NAME);
-            var b = GetPortValue<bool>(B_PORT_NAME);
+            var a = GetPortValue(A_PORT_NAME, defaultA);
+            var b = GetPortValue(B_PORT_NAME, defaultB);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:

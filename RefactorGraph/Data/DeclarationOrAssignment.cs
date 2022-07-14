@@ -3,7 +3,7 @@
 namespace RefactorGraph
 {
     [Flags]
-    public enum VariableDefinition
+    public enum DeclarationOrAssignment
     {
         Declaration = 1,
         Assignment = 2

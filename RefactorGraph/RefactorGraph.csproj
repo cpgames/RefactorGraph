@@ -48,7 +48,7 @@
   <ItemGroup>
     <Compile Include="Data\TypeCategory.cs" />
     <Compile Include="Data\ClassModifier.cs" />
-    <Compile Include="Data\VariableDefinition.cs" />
+    <Compile Include="Data\DeclarationOrAssignment.cs" />
     <Compile Include="Data\FunctionModifier.cs" />
     <Compile Include="Data\Scope.cs" />
     <Compile Include="Nodes\CollectionOperations\ClearCollectionNode.cs" />
@@ -95,12 +95,12 @@
     <Compile Include="Nodes\StringOperations\StringToUpperFirstCharacter.cs" />
     <Compile Include="Nodes\StringOperations\StringToLowerFirstCharacter.cs" />
     <Compile Include="Nodes\StringOperations\StringReplaceNode.cs" />
-    <Compile Include="Nodes\PartitionOperations\ReferenceNode.cs" />
+    <Compile Include="Nodes\Other\ReferenceNode.cs" />
     <Compile Include="Nodes\StringOperations\StringRemoveNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SetPartitionDataNode.cs" />
     <Compile Include="Data\Partition.cs" />
-    <Compile Include="Nodes\Variables\ProjectNode.cs" />
-    <Compile Include="Nodes\Variables\DocumentNode.cs" />
+    <Compile Include="Nodes\Variables\BoolCollectionNode.cs" />
+    <Compile Include="Nodes\Variables\BoolNode.cs" />
     <Compile Include="Nodes\Variables\StringCollectionNode.cs" />
     <Compile Include="Nodes\Variables\PartitionCollectionNode.cs" />
     <Compile Include="Nodes\Variables\IntCollectionNode.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="Nodes\RefactorNodeAttribute.cs" />
     <Compile Include="Nodes\RefactorNodeGroup.cs" />
     <Compile Include="Nodes\Other\BusNode.cs" />
-    <Compile Include="Nodes\Other\ConvertToStringNode.cs" />
+    <Compile Include="Nodes\StringOperations\ConvertToStringNode.cs" />
     <Compile Include="Nodes\LogicOperations\AddNode.cs" />
     <Compile Include="Nodes\Variables\IntNode.cs" />
     <Compile Include="Nodes\CollectionOperations\GetCollectionSizeNode.cs" />
@@ -171,12 +171,28 @@
     <Resource Include="Resources\Power.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Help.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\Point.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Content Include="ICSharpCode.AvalonEdit.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="MdXaml.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Resource Include="Resources\Help.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Content Include="PCRE.NET.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="PCRE.NET.Native.x64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Content Include="Resources\Preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -224,9 +240,15 @@
       <Version>17.0.451</Version>
     </PackageReference>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.1.9-preview1">
+    <PackageReference Include="MdXaml">
+      <Version>1.15.0</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2186">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="PCRE.NET">
+      <Version>0.19.0</Version>
     </PackageReference>
     <PackageReference Include="PropertyTools">
       <Version>3.1.0</Version>
@@ -271,14 +293,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\PCRE\src\PCRE.NET.Native\PCRE.NET.Native.vcxproj">
-      <Project>{cb0ec78a-b7fb-423f-8abb-0984a9d7b3ba}</Project>
-      <Name>PCRE.NET.Native</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\PCRE\src\PCRE.NET\PCRE.NET.csproj">
-      <Project>{31afb263-1b8c-48fb-812c-6bfa3496d5b3}</Project>
-      <Name>PCRE.NET</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NodeGraph\NodeGraph.csproj">
       <Project>{b650df81-3a89-4807-987b-aeee0e9ae242}</Project>
       <Name>NodeGraph</Name>
@@ -311,12 +325,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="NodeGraph\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LICENSE.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />

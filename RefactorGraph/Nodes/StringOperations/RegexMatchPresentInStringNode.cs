@@ -21,11 +21,15 @@ namespace RefactorGraph.Nodes.StringOperations
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(string), "", false)]
         public string Source;
 
-        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex", true)]
+        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
 
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
+        #endregion
+
+        #region Properties
+        protected override bool HasDone => false;
         #endregion
 
         #region Constructors
