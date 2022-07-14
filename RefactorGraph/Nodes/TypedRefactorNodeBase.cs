@@ -79,6 +79,10 @@ namespace RefactorGraph.Nodes
                     elementType = typeof(int);
                     defaultValue = 0;
                     break;
+                case CollectionType.Bool:
+                    elementType = typeof(bool);
+                    defaultValue = false;
+                    break;
                 case CollectionType.Partition:
                     elementType = typeof(Partition);
                     defaultValue = null;
@@ -87,7 +91,7 @@ namespace RefactorGraph.Nodes
                 default: throw new ArgumentOutOfRangeException();
             }
             NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, input, elementType,
-                defaultValue, portName, false, displayName: $"{portName}\n[{ElementType}]", index: index, serializeValue: serializeValue);
+                defaultValue, portName, true, displayName: $"{portName}\n[{ElementType}]", index: index, serializeValue: serializeValue);
         }
 
         protected void AddCollectionPort(string portName, bool input, int index = -1)

@@ -102,18 +102,7 @@ namespace RefactorGraph
         {
             ToolbarWindow.ShowAsync().Wait();
         }
-
-        private void RefactorAll(object sender, RoutedEventArgs e)
-        {
-            foreach (UIElement element in StackPatterns.Children)
-            {
-                if (element is GraphEntryControl refactorGraphEntry && refactorGraphEntry.Enabled)
-                {
-                    refactorGraphEntry.Refactor();
-                }
-            }
-        }
-
+        
         private void EntryMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!Equals(e.Source, StackPatterns))

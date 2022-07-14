@@ -10,9 +10,9 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
 
-        public const string VARIABLE_DEFINITION_FILTER_PORT_NAME = "VariableDefinitionFilter";
-        public const string VARIABLE_TYPE_FILTER_PORT_NAME = "VariableTypeFilterRegex";
-        public const string VARIABLE_NAME_FILTER_PORT_NAME = "VariableNameFilterRegex";
+        public const string DECLARATION_OR_ASSIGNMENT_FILTER_PORT_NAME = "DeclarationOrAssignmentFilter";
+        public const string VARIABLE_TYPE_FILTER_PORT_NAME = "VariableTypeFilter";
+        public const string VARIABLE_NAME_FILTER_PORT_NAME = "VariableNameFilter";
 
         public const string VARIABLE_BLOCK_PORT_NAME = "VariableBlock";
         public const string VARIABLE_SCOPE_PORT_NAME = "VariableScope";
@@ -55,14 +55,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
 
-        [NodePropertyPort(VARIABLE_DEFINITION_FILTER_PORT_NAME, true, typeof(VariableDefinition), VariableDefinition.Assignment | VariableDefinition.Declaration, true)]
-        public VariableDefinition VariableDefinitionFilter;
+        [NodePropertyPort(DECLARATION_OR_ASSIGNMENT_FILTER_PORT_NAME, true, typeof(DeclarationOrAssignment), DeclarationOrAssignment.Assignment | DeclarationOrAssignment.Declaration, true)]
+        public DeclarationOrAssignment DeclarationOrAssignmentFilter;
 
         [NodePropertyPort(VARIABLE_TYPE_FILTER_PORT_NAME, true, typeof(string), "", true)]
-        public string VariableTypeFilterRegex;
+        public string VariableTypeFilter;
 
         [NodePropertyPort(VARIABLE_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
-        public string VariableNameFilterRegex;
+        public string VariableNameFilter;
 
         // Outputs
         [NodePropertyPort(VARIABLE_BLOCK_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
@@ -134,6 +134,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             var partitions = Partition.PartitionByRegexMatch(partition, VARIABLE_REGEX);
             foreach (var p in partitions)
             {
+                VariableBlock = p;
                 if (ExecutionState == ExecutionState.Failed)
                 {
                     return;
@@ -166,22 +167,22 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private bool ApplyFilter()
         {
-            VariableDefinitionFilter = GetPortValue(VARIABLE_DEFINITION_FILTER_PORT_NAME, VariableDefinitionFilter);
-            if (IsDeclaration && (VariableDefinitionFilter & VariableDefinition.Declaration) == 0)
+            DeclarationOrAssignmentFilter = GetPortValue(DECLARATION_OR_ASSIGNMENT_FILTER_PORT_NAME, DeclarationOrAssignmentFilter);
+            if (IsDeclaration && (DeclarationOrAssignmentFilter & DeclarationOrAssignment.Declaration) == 0)
             {
                 return false;
             }
-            if (IsAssignment && (VariableDefinitionFilter & VariableDefinition.Assignment) == 0)
+            if (IsAssignment && (DeclarationOrAssignmentFilter & DeclarationOrAssignment.Assignment) == 0)
             {
                 return false;
             }
-            VariableTypeFilterRegex = GetPortValue(VARIABLE_TYPE_FILTER_PORT_NAME, VariableTypeFilterRegex);
-            if (!Partition.IsMatch(VariableType, VariableTypeFilterRegex))
+            VariableTypeFilter = GetPortValue(VARIABLE_TYPE_FILTER_PORT_NAME, VariableTypeFilter);
+            if (!Partition.IsMatch(VariableType, VariableTypeFilter))
             {
                 return false;
             }
-            VariableNameFilterRegex = GetPortValue(VARIABLE_NAME_FILTER_PORT_NAME, VariableNameFilterRegex);
-            if (!Partition.IsMatch(VariableName, VariableNameFilterRegex))
+            VariableNameFilter = GetPortValue(VARIABLE_NAME_FILTER_PORT_NAME, VariableNameFilter);
+            if (!Partition.IsMatch(VariableName, VariableNameFilter))
             {
                 return false;
             }

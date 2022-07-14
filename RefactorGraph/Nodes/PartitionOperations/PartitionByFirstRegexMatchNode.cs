@@ -13,11 +13,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string NOT_FOUND_PORT_NAME = "NotFound";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
-        public const string PARTITION_IN_PORT_NAME = "PartitionIn";
-        public const string PARTITION_OUT_PORT_NAME = "PartitionOut";
+        public const string PARTITION_PORT_NAME = "Partition";
+        public const string MATCH_PORT_NAME = "Match";
 
-        [NodePropertyPort(PARTITION_IN_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
-        public Partition PartitionIn;
+        [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
+        public Partition Partition;
 
         [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
@@ -25,8 +25,8 @@ namespace RefactorGraph.Nodes.PartitionOperations
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
         public PcreOptions RegexOptions;
 
-        [NodePropertyPort(PARTITION_OUT_PORT_NAME, false, typeof(Partition), null, true, DisplayName = "Partition", Serialized = false)]
-        public Partition PartitionOut;
+        [NodePropertyPort(MATCH_PORT_NAME, false, typeof(Partition), null, true, Serialized = false)]
+        public Partition Match;
         #endregion
 
         #region Properties
@@ -40,7 +40,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
         protected override void OnPreExecute(Connector prevConnector)
         {
             base.OnPreExecute(prevConnector);
-            PartitionOut = null;
+            Match = null;
         }
 
         protected override void OnExecute(Connector connector)
@@ -48,15 +48,15 @@ namespace RefactorGraph.Nodes.PartitionOperations
             base.OnExecute(connector);
 
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
-            PartitionIn = GetPortValue<Partition>(PARTITION_IN_PORT_NAME);
+            Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (PartitionIn == null)
+            if (Partition == null)
             {
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            PartitionOut = Partition.PartitionByFirstRegexMatch(PartitionIn, Pattern, RegexOptions);
-            if (PartitionOut == null)
+            Match = Partition.PartitionByFirstRegexMatch(Partition, Pattern, RegexOptions);
+            if (Match == null)
             {
                 ExecutePort(NOT_FOUND_PORT_NAME);
             }

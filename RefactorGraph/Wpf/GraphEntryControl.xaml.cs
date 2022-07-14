@@ -20,8 +20,6 @@ namespace RefactorGraph
         #region Fields
         private FlowChartViewModel _flowChartViewModel;
         private string _graphName = "NewRefactorGraph";
-        private bool _opened;
-        private bool _enabled = true;
         #endregion
 
         #region Properties
@@ -53,7 +51,25 @@ namespace RefactorGraph
                 }
             }
         }
-        
+
+        public FlowChartViewModel FlowChartViewModel => _flowChartViewModel;
+        #endregion
+
+        #region Constructors
+        public GraphEntryControl()
+        {
+            InitializeComponent();
+            DataContext = this;
+            Loaded += Window_Loaded;
+            Unloaded += Window_Unloaded;
+        }
+        #endregion
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
+
+        #region Methods
         private void UpdateBorder()
         {
             if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
@@ -66,29 +82,6 @@ namespace RefactorGraph
             }
         }
 
-        public bool Enabled
-        {
-            get => _enabled;
-            set
-            {
-                HeaderLabel.Content = value ?
-                    "RefactorClick Graph Name:" :
-                    "[Disabled] RefactorClick Graph Name:";
-                _enabled = value;
-            }
-        }
-        public FlowChartViewModel FlowChartViewModel => _flowChartViewModel;
-        #endregion
-
-        #region Constructors
-        public GraphEntryControl()
-        {
-            InitializeComponent();
-            DataContext = this;
-            Loaded += Window_Loaded;
-            Unloaded += Window_Unloaded;
-        }
-
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
             Utils.flowChartChanged -= UpdateBorder;
@@ -99,13 +92,7 @@ namespace RefactorGraph
             Utils.flowChartChanged += UpdateBorder;
             UpdateBorder();
         }
-        #endregion
 
-        #region INotifyPropertyChanged Members
-        public event PropertyChangedEventHandler PropertyChanged;
-        #endregion
-
-        #region Methods
         private void RaisePropertyChanged(string propertyName)
         {
             OnPropertyChanged(propertyName);
@@ -233,11 +220,6 @@ namespace RefactorGraph
         public void Save()
         {
             Utils.Save(_flowChartViewModel.Model);
-        }
-
-        private void Toggle(object sender, RoutedEventArgs e)
-        {
-            Enabled = !Enabled;
         }
         #endregion
     }

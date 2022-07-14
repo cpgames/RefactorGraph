@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using NodeGraph;
+using NodeGraph.Commands;
 using NodeGraph.Model;
 
 namespace RefactorGraph.Nodes
@@ -23,7 +24,10 @@ namespace RefactorGraph.Nodes
         #endregion
 
         #region Constructors
-        protected RefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
+        protected RefactorNodeBase(Guid guid, FlowChart flowChart) : base(guid, flowChart)
+        {
+            HelpCommand = new RelayCommand(ShowHelp);
+        }
         #endregion
 
         #region Methods
@@ -64,7 +68,7 @@ namespace RefactorGraph.Nodes
         {
             NodeGraphManager.CreateNodeFlowPort(false, Guid.NewGuid(), this, false, name: name, displayName: name);
         }
-        
+
         protected override void OnPostExecute(Connector connector)
         {
             base.OnPostExecute(connector);
@@ -92,6 +96,13 @@ namespace RefactorGraph.Nodes
             }
             var connector = port.Connectors.FirstOrDefault();
             return connector?.Execute() ?? ExecutionState.Executed;
+        }
+
+        private void ShowHelp()
+        {
+            var refactorNodeAtt = GetType().GetAttribute<RefactorNodeAttribute>();
+            var nodeType = refactorNodeAtt.nodeType;
+            Utils.FlowChartWindow.ShowHelp(nodeType.ToString());
         }
         #endregion
     }

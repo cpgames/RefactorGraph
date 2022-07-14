@@ -27,6 +27,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public PcreOptions RegexOptions;
         #endregion
 
+        #region Properties
+        protected override bool HasDone => false;
+        #endregion
+
         #region Constructors
         public RegexMatchPresentInPartitionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion

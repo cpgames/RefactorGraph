@@ -42,11 +42,6 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                            ToolTip="Enable or disable refactor graph for batch refactor" Click="Toggle">
-                        <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Power.png"
-                               Margin="2,0,2,0" />
-                    </Button>
                     <Button Grid.Column="2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                             ToolTip="Save refactor file" Click="Save">
                         <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Save.png"

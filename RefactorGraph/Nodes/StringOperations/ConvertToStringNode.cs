@@ -5,7 +5,7 @@ using NodeGraph.Model;
 namespace RefactorGraph.Nodes.Other
 {
     [Node]
-    [RefactorNode(RefactorNodeGroup.Other, RefactorNodeType.ConvertToString)]
+    [RefactorNode(RefactorNodeGroup.StringOperations, RefactorNodeType.ConvertToString)]
     public class ConvertToStringNode : RefactorNodeBase
     {
         #region Fields

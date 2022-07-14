@@ -13,14 +13,14 @@ namespace RefactorGraph.Nodes.PartitionOperations
     public class RegexMatchPresentInPartitionCollectionNode : RefactorNodeBase
     {
         #region Fields
+        public const string PARTITION_COLLECTION_PORT_NAME = "PartitionCollection";
         public const string PATTERN_PORT_NAME = "Pattern";
         public const string REGEX_OPTIONS_PORT_NAME = "RegexOptions";
-        public const string SOURCE_PORT_NAME = "Partition";
         public const string TRUE_PORT_NAME = "True";
         public const string FALSE_PORT_NAME = "False";
-
-        [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(List<Partition>), null, false, Serialized = false)]
-        public List<Partition> Source;
+        
+        [NodePropertyPort(PARTITION_COLLECTION_PORT_NAME, true, typeof(List<Partition>), null, false, Serialized = false)]
+        public List<Partition> PartitionCollection;
 
         [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
@@ -43,11 +43,11 @@ namespace RefactorGraph.Nodes.PartitionOperations
             base.OnExecute(connector);
 
             Pattern = GetPortValue(PATTERN_PORT_NAME, Pattern);
-            Source = GetPortValue<List<Partition>>(SOURCE_PORT_NAME);
+            PartitionCollection = GetPortValue<List<Partition>>(PARTITION_COLLECTION_PORT_NAME);
             RegexOptions = GetPortValue(REGEX_OPTIONS_PORT_NAME, RegexOptions);
-            if (Source != null && !string.IsNullOrEmpty(Pattern))
+            if (PartitionCollection != null && !string.IsNullOrEmpty(Pattern))
             {
-                var result = Source.Any(x => PcreRegex.IsMatch(x.data, Pattern, RegexOptions));
+                var result = PartitionCollection.Any(x => PcreRegex.IsMatch(x.data, Pattern, RegexOptions));
                 ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
             }
         }

@@ -38,7 +38,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            Data = Partition.data;
+            Data = Partition.RasterizedData;
         }
         #endregion
     }

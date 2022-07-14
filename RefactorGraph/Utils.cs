@@ -4,8 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
 using System.Xml;
 using EnvDTE;
+using MdXaml;
 using Microsoft;
 using Microsoft.VisualStudio.Shell;
 using NodeGraph;
@@ -86,54 +90,34 @@ namespace RefactorGraph
 
         public static bool Save(FlowChart flowChart)
         {
-            var filePath = CreateGraphFilePath(flowChart.Name);
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.IndentChars = "\t";
-            settings.NewLineChars = "\n";
-            settings.NewLineHandling = NewLineHandling.Replace;
-            settings.NewLineOnAttributes = false;
-            using (var writer = XmlWriter.Create(filePath, settings))
+            try
             {
-                writer.WriteStartDocument();
+                var filePath = CreateGraphFilePath(flowChart.Name);
+                var settings = new XmlWriterSettings();
+                settings.Indent = true;
+                settings.IndentChars = "\t";
+                settings.NewLineChars = "\n";
+                settings.NewLineHandling = NewLineHandling.Replace;
+                settings.NewLineOnAttributes = false;
+                using (var writer = XmlWriter.Create(filePath, settings))
                 {
-                    writer.WriteStartElement("FlowChart");
-                    flowChart.WriteXml(writer);
-                    writer.WriteEndElement();
+                    writer.WriteStartDocument();
+                    {
+                        writer.WriteStartElement("FlowChart");
+                        flowChart.WriteXml(writer);
+                        writer.WriteEndElement();
+                    }
+                    writer.WriteEndDocument();
+
+                    writer.Flush();
+                    writer.Close();
                 }
-                writer.WriteEndDocument();
-
-                writer.Flush();
-                writer.Close();
             }
-            //try
-            //{
-            //    var filePath = CreateGraphFilePath(flowChart.Name);
-            //    var settings = new XmlWriterSettings();
-            //    settings.Indent = true;
-            //    settings.IndentChars = "\t";
-            //    settings.NewLineChars = "\n";
-            //    settings.NewLineHandling = NewLineHandling.Replace;
-            //    settings.NewLineOnAttributes = false;
-            //    using (var writer = XmlWriter.Create(filePath, settings))
-            //    {
-            //        writer.WriteStartDocument();
-            //        {
-            //            writer.WriteStartElement("FlowChart");
-            //            flowChart.WriteXml(writer);
-            //            writer.WriteEndElement();
-            //        }
-            //        writer.WriteEndDocument();
-
-            //        writer.Flush();
-            //        writer.Close();
-            //    }
-            //}
-            //catch (Exception e)
-            //{
-            //    MessageBox.Show(e.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return false;
-            //}
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "Save failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
             return true;
         }
 
@@ -173,41 +157,28 @@ namespace RefactorGraph
 
         public static bool Delete(string graphName)
         {
-            var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
-            if (flowChart != null)
+            try
             {
-                NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+                var filePath = CreateGraphFilePath(graphName);
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException("FlowGraph file not found.", filePath);
+                }
+
+                File.Delete(filePath);
+
+                var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
+                if (flowChart != null)
+                {
+                    NodeGraphManager.DestroyFlowChart(flowChart.Guid);
+                }
+                return true;
             }
-            var filePath = CreateGraphFilePath(graphName);
-            if (!File.Exists(filePath))
+            catch (Exception e)
             {
-                throw new FileNotFoundException("FlowGraph file not found.", filePath);
+                MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
             }
-
-            File.Delete(filePath);
-            return true;
-
-            //try
-            //{
-            //    var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
-            //    if (flowChart != null)
-            //    {
-            //        NodeGraphManager.DestroyFlowChart(flowChart.Guid);
-            //    }
-            //    var filePath = CreateGraphFilePath(graphName);
-            //    if (!File.Exists(filePath))
-            //    {
-            //        throw new FileNotFoundException("FlowGraph file not found.", filePath);
-            //    }
-
-            //    File.Delete(filePath);
-            //    return true;
-            //}
-            //catch (Exception e)
-            //{
-            //    MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
-            //    return false;
-            //}
         }
 
         public static bool ValidateGraph(FlowChart flowChart, out StartNode startNode)
@@ -455,8 +426,7 @@ namespace RefactorGraph
                 projectItems.Add(item);
             }
         }
-        
-        
+
         public static ProjectItem GetFiles(ProjectItem item, List<ProjectItem> projectItems)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
@@ -475,12 +445,54 @@ namespace RefactorGraph
 
             return item;
         }
-        
+
         public static bool StringMatchesRegex(string str, string pattern)
         {
             return
                 string.IsNullOrEmpty(pattern) ||
                 PcreRegex.IsMatch(str, pattern);
+        }
+
+        public static void SetMdStyle()
+        {
+            var paragraph = MarkdownStyle.GithubLike.Resources.Values
+                .OfType<Style>()
+                .FirstOrDefault(x => x.TargetType == typeof(Paragraph));
+            if (paragraph == null)
+            {
+                return;
+            }
+            var triggers = new[] { "Heading1", "Heading2", "Heading3", "Heading4" };
+            foreach (var triggerName in triggers)
+            {
+                var t = paragraph.Triggers
+                    .OfType<Trigger>()
+                    .FirstOrDefault(x => x.Value.ToString() == triggerName);
+                if (t == null)
+                {
+                    continue;
+                }
+                var s = t.Setters
+                    .OfType<Setter>()
+                    .FirstOrDefault(x => x.Property.Name == "Foreground");
+                if (s == null)
+                {
+                    continue;
+                }
+                s.Value = new SolidColorBrush(Colors.White);
+            }
+        }
+
+        public static ScrollViewer FindScrollViewer(this FlowDocumentScrollViewer flowDocumentScrollViewer)
+        {
+            if (VisualTreeHelper.GetChildrenCount(flowDocumentScrollViewer) == 0)
+            {
+                return null;
+            }
+            // Border is the first child of first child of a ScrolldocumentViewer
+            var firstChild = VisualTreeHelper.GetChild(flowDocumentScrollViewer, 0);
+            var border = VisualTreeHelper.GetChild(firstChild, 0) as Decorator;
+            return border?.Child as ScrollViewer;
         }
         #endregion
     }

@@ -62,6 +62,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #endregion
 
         #region Methods
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            
+            CreateOutputFlowPort(LOOP_CLAUSE_PORT_NAME);
+        }
+
         protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);

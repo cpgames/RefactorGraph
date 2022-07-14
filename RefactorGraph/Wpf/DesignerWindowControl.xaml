@@ -14,6 +14,8 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="25" />
+            <ColumnDefinition Name="HelpColumn" Width="400" MinWidth="200" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
         <StackPanel>
@@ -27,8 +29,38 @@
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Save.png"
                        Margin="2,0,2,0" />
             </Button>
+            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    ToolTip="Show Help" Click="OnShowHelp">
+                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Help.png"
+                       Margin="2,0,2,0" />
+            </Button>
         </StackPanel>
-        <ngv:FlowChartView Grid.Column="1"
+        <Grid Grid.Column="1" Margin="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="25" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid Name="HelpHeader">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+                <Label Name="HelpTitle" Content="Help" Foreground="White" HorizontalAlignment="Center" FontStyle="Normal" FontWeight="Bold" />
+                <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                        ToolTip="Save refactor file" Click="OnHideHelp">
+                    <Image Source="pack://application:,,,/RefactorGraph;component/Resources/x.png"
+                           Margin="2,0,2,0" />
+                </Button>
+            </Grid>
+            <Grid Grid.Row="1" Name="HelpPanel" />
+        </Grid>
+        <GridSplitter Grid.Column="2"
+                      Name="HelpSplitter"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch"
+                      ShowsPreview="True"
+                      Width="2" Background="#FF7B7B7B" />
+        <ngv:FlowChartView Grid.Column="3"
                            DataContext="{Binding Path=FlowChartViewModel, 
                               RelativeSource={RelativeSource AncestorType={x:Type local:DesignerWindowControl}}}" />
     </Grid>

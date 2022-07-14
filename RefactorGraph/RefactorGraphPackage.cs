@@ -19,6 +19,8 @@ namespace RefactorGraph
         #region Methods
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            Utils.SetMdStyle();
+            
             MainWindow.Initialize(this);
             DesignerWindow.Initialize(this);
             ToolbarWindow.Initialize(this);

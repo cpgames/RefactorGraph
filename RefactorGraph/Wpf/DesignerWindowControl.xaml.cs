@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using MdXaml;
 using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
@@ -42,6 +43,8 @@ namespace RefactorGraph
 
             Loaded += MainWindow_Loaded;
             Unloaded += MainWindow_Unloaded;
+
+            HideHelp();
         }
         #endregion
 
@@ -211,6 +214,45 @@ namespace RefactorGraph
             }
             Utils.Refactor(FlowChartViewModel.Model);
         }
+
+        public void ShowHelp(string page)
+        {
+            HelpPanel.Children.Clear();
+            var uri = new Uri($"https://raw.githubusercontent.com/wiki/cpgames/RefactorGraph/{page}.md", UriKind.Absolute);
+            var md = new MarkdownScrollViewer
+            {
+                Source = uri,
+                MarkdownStyle = MarkdownStyle.GithubLike,
+                MinWidth = 200,
+                ClickAction = ClickAction.OpenBrowser,
+                
+            };
+            HelpPanel.Children.Add(md);
+            HelpPanel.Visibility = Visibility.Visible;
+            HelpSplitter.Visibility = Visibility.Visible;
+            HelpColumn.Width = new GridLength(400);
+            HelpColumn.MinWidth = 200;
+            HelpTitle.Content = page;
+        }
+
+        public void HideHelp()
+        {
+            HelpPanel.Children.Clear();
+            HelpPanel.Visibility = Visibility.Hidden;
+            HelpSplitter.Visibility = Visibility.Hidden;
+            HelpColumn.Width = new GridLength(0);
+            HelpColumn.MinWidth = 0;
+        }
+
+        private void OnHideHelp(object sender, RoutedEventArgs e)
+        {
+            HideHelp();
+        }
+
+        private void OnShowHelp(object sender, RoutedEventArgs e)
+        {
+            ShowHelp("NodeGraph-Keybindings");
+        }
         #endregion
 
         #region Drag & Drop Events
@@ -276,6 +318,6 @@ namespace RefactorGraph
         private void NodeGraphManager_DragLeave(object sender, NodeGraphDragEventArgs args) { }
 
         private void NodeGraphManager_DragEnter(object sender, NodeGraphDragEventArgs args) { }
-        #endregion // Drag & Drop Events
+        #endregion
     }
 }

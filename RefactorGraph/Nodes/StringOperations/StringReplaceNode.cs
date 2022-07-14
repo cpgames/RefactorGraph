@@ -18,10 +18,10 @@ namespace RefactorGraph.Nodes.StringOperations
         [NodePropertyPort(SOURCE_PORT_NAME, true, typeof(string), "", true)]
         public string Source;
 
-        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "pattern", true)]
+        [NodePropertyPort(PATTERN_PORT_NAME, true, typeof(string), "Regex Pattern", true)]
         public string Pattern;
 
-        [NodePropertyPort(REPLACEMENT_PORT_NAME, true, typeof(string), "replacement", true)]
+        [NodePropertyPort(REPLACEMENT_PORT_NAME, true, typeof(string), "Replacement", true)]
         public string Replacement;
 
         [NodePropertyPort(REGEX_OPTIONS_PORT_NAME, true, typeof(PcreOptions), PcreOptions.MultiLine, true)]
