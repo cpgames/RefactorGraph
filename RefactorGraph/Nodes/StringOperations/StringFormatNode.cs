@@ -60,7 +60,7 @@ namespace RefactorGraph.Nodes.StringOperations
                 var otherPort = connectedPorts.Count > 0 ? connectedPorts[0] as NodePropertyPort : null;
                 if (otherPort != null)
                 {
-                    var value = otherPort.Value;
+                    var value = otherPort.Value ?? string.Empty;
                     if (value is IList list)
                     {
                         foreach (var listValue in list)
