@@ -37,7 +37,7 @@ After:
 
 ![Before](https://github.com/cpgames/RefactorGraph/blob/main/Examples/SortParameters/SortParameters2.png)
 
-First we need to extract function parameters, note PartitionByParameters node that breaks up parameter block into individual parameter partitions. Then we use PartitionByFirstRegexMatch to extract parameter name (which in our example is a second word, so using regex \w*\s*\K\w* would skip the first word + space).
+First we need to extract function parameters, note PartitionByParameters node that breaks up parameter block into individual parameter partitions. Then we use PartitionByFirstRegexMatch to extract parameter name (which in our example is a second word, so using regex `\w*\s*\K\w*` would skip the first word + space).
 Next we create PartitionSortingMap which maps parameter names to parenting parameter partion and will be used for sorting function.
 Finally using SortPartitions node that accepts (optional) sorting map.
 
