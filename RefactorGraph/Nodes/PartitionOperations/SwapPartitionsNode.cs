@@ -35,24 +35,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 return;
             }
 
-            var aPrev = A.prev;
-            var aNext = A.next;
-
-            A.prev = B.prev;
-            A.prev.next = A;
-            A.next = B.next;
-            if (A.next != null)
-            {
-                A.next.prev = A;
-            }
-
-            B.prev = aPrev;
-            B.prev.next = B;
-            B.next = aNext;
-            if (B.next != null)
-            {
-                B.next.prev = B;
-            }
+            Partition.Swap(A, B);
         }
         #endregion
     }

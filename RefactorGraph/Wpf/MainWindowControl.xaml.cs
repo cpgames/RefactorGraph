@@ -92,10 +92,7 @@ namespace RefactorGraph
                     entry.SetFile(fileName);
                 }
             }
-            if (Utils.refreshAction != null)
-            {
-                Utils.refreshAction();
-            }
+            Utils.refreshed?.Invoke();
         }
 
         private void ShowToolbar(object sender, RoutedEventArgs e)

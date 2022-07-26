@@ -10,6 +10,7 @@ namespace RefactorGraph.Nodes.Variables
     {
         #region Fields
         private T _value;
+        private T _defaultValue;
         #endregion
 
         #region Properties
@@ -56,10 +57,29 @@ namespace RefactorGraph.Nodes.Variables
             return Activator.CreateInstance<T>();
         }
 
+        protected virtual T CopyValue(T value)
+        {
+            return value;
+        }
+
+        public override void OnDeserialize()
+        {
+            base.OnDeserialize();
+            if (!SerializeValue)
+            {
+                _value = DefaultFactory();
+                _defaultValue = CopyValue(_value);
+            }
+            Utils.beginRefactor += OnBeginRefactor;
+        }
+
         public override void OnCreate()
         {
             var type = typeof(T);
+
             _value = DefaultFactory();
+            _defaultValue = CopyValue(_value);
+            Utils.beginRefactor += OnBeginRefactor;
 
             NodeGraphManager.CreateNodePropertyPort(
                 false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut,
@@ -68,6 +88,17 @@ namespace RefactorGraph.Nodes.Variables
                 false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty, true,
                 serializeValue: SerializeValue);
             base.OnCreate();
+        }
+
+        public override void OnPreDestroy()
+        {
+            base.OnPreDestroy();
+            Utils.beginRefactor -= OnBeginRefactor;
+        }
+
+        private void OnBeginRefactor()
+        {
+            _value = CopyValue(_defaultValue);
         }
         #endregion
     }

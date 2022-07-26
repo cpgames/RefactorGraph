@@ -37,12 +37,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private const string RETURN_TYPE_REGEX = @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)";
         private const string NAME_REGEX = @"(?:\b[\w.]+\b\s*)(<(?:[^<>]++|(?-1))*>)?";
         private const string PARAMS_BLOCK_REGEX = @"(\((?:[^()]++|(?-1))*\))";
-        private const string PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
-            "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
-            "(\\((?:[^()]++|(?-1))*\\))|" + // () brackets
-            "(\"(?:[^\"\"]++|(?-1))*\")|" + // quotes
-            "\\s*=>\\s*|" + // lambda
-            "({(?:[^{}]++|(?-1))*}))+"; // {} brackets
+        private const string PARAMS_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
         private const string BODY_BLOCK_REGEX = @"({(?:[^{}]++|(?-1))*})";
         private const string BODY_REGEX = @"(?<={)[\S\s]*(?=\s*})";
 

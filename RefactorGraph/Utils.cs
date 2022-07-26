@@ -25,8 +25,10 @@ namespace RefactorGraph
     {
         #region Fields
         private static DesignerWindowControl _flowChartWindow;
-        public static Action refreshAction;
+        public static Action refreshed;
         public static Action flowChartChanged;
+        public static Action beginRefactor;
+        public static Action endRefactor;
         #endregion
 
         #region Properties
@@ -295,7 +297,9 @@ namespace RefactorGraph
             }
             try
             {
+                beginRefactor?.Invoke();
                 startNode.Execute(null);
+                endRefactor?.Invoke();
             }
             catch (Exception e)
             {
