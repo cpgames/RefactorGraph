@@ -4,6 +4,7 @@
     {
         // CollectionOperations
         AppendToCollection,
+        AppendToSortingMap,
         ClearCollection,
         ForEach,
         GetCollectionSize,
@@ -50,6 +51,7 @@
         RegexMatchPresentInPartition,
         RemovePartition,
         SetPartitionData,
+        SortPartitions,
         SwapPartitions,
         // StringOperations
         ConvertToString,
@@ -67,6 +69,7 @@
         Int,
         PartitionCollection,
         Partition,
+        PartitionSortingMap,
         StringCollection,
         String,
     }

@@ -10,6 +10,7 @@ namespace RefactorGraph
         public Partition prev;
         public Partition next;
         public Partition inner;
+        public Partition parent;
         #endregion
 
         #region Properties
@@ -27,22 +28,32 @@ namespace RefactorGraph
                 return rData;
             }
         }
+
+        public bool IsRoot => prev == null;
         #endregion
 
         #region Methods
         public Partition GetRoot()
         {
-            var root = this;
-            while (root.prev != null)
+            var cur = this;
+            while (!cur.IsRoot)
             {
-                root = root.prev;
+                cur = cur.prev;
             }
-            return root;
+            return cur;
         }
 
         public void Remove()
         {
-            prev.next = next;
+            if (parent != null)
+            {
+                parent.inner = next;
+                parent = null;
+            }
+            if (prev != null)
+            {
+                prev.next = next;
+            }
             if (next != null)
             {
                 next.prev = prev;
@@ -53,8 +64,17 @@ namespace RefactorGraph
 
         public void Rasterize()
         {
-            data = RasterizedData;
-            inner = null;
+            if (inner != null)
+            {
+                data = RasterizedData;
+                var cur = inner;
+                while (cur != null)
+                {
+                    cur.parent = null;
+                    cur = cur.next;
+                }
+                inner = null;
+            }
         }
 
         public override string ToString()
@@ -83,7 +103,8 @@ namespace RefactorGraph
                     var pNoMatch = new Partition
                     {
                         data = partition.data.Substring(index, match.Index - index),
-                        prev = cur
+                        prev = cur,
+                        parent = partition
                     };
                     if (cur != null)
                     {
@@ -94,7 +115,8 @@ namespace RefactorGraph
                 var pMatch = new Partition
                 {
                     data = match.Value,
-                    prev = cur
+                    prev = cur,
+                    parent = partition
                 };
                 if (cur != null)
                 {
@@ -111,7 +133,8 @@ namespace RefactorGraph
                     var pNoMatch = new Partition
                     {
                         data = partition.data.Substring(index),
-                        prev = cur
+                        prev = cur,
+                        parent = partition
                     };
                     cur.next = pNoMatch;
                 }
@@ -145,7 +168,8 @@ namespace RefactorGraph
                     var pNoMatch = new Partition
                     {
                         data = partition.data.Substring(index, match.Index),
-                        prev = cur
+                        prev = cur,
+                        parent = partition
                     };
                     if (cur != null)
                     {
@@ -156,7 +180,8 @@ namespace RefactorGraph
                 var pMatch = new Partition
                 {
                     data = match.Value,
-                    prev = cur
+                    prev = cur,
+                    parent = partition
                 };
                 if (cur != null)
                 {
@@ -173,7 +198,8 @@ namespace RefactorGraph
                     var pNoMatch = new Partition
                     {
                         data = partition.data.Substring(index),
-                        prev = cur
+                        prev = cur,
+                        parent = partition
                     };
                     cur.next = pNoMatch;
                 }
@@ -201,14 +227,16 @@ namespace RefactorGraph
             {
                 var pNoMatch = new Partition
                 {
-                    data = partition.data.Substring(0, match.Index)
+                    data = partition.data.Substring(0, match.Index),
+                    parent = partition
                 };
                 cur = pNoMatch;
             }
             var pMatch = new Partition
             {
                 data = match.Value,
-                prev = cur
+                prev = cur,
+                parent = partition
             };
             if (cur != null)
             {
@@ -220,7 +248,8 @@ namespace RefactorGraph
                 var pNoMatch = new Partition
                 {
                     data = partition.data.Substring(match.Index + match.Length),
-                    prev = cur
+                    prev = cur,
+                    parent = partition
                 };
                 cur.next = pNoMatch;
             }
@@ -235,6 +264,59 @@ namespace RefactorGraph
                 string.IsNullOrEmpty(pattern) ||
                 (partition != null &&
                     PcreRegex.IsMatch(partition.data, pattern, regexOptions));
+        }
+
+        public static void Swap(Partition a, Partition b)
+        {
+            if (a == null || b == null)
+            {
+                return;
+            }
+
+            var aParent = a.parent;
+            var bParent = b.parent;
+
+            if (aParent != null)
+            {
+                if (a.IsRoot)
+                {
+                    aParent.inner = b;
+                }
+            }
+            if (bParent != null)
+            {
+                if (b.IsRoot)
+                {
+                    bParent.inner = a;
+                }
+            }
+            a.parent = bParent;
+            b.parent = aParent;
+
+            var aPrev = a.prev;
+            var aNext = a.next;
+            var bPrev = b.prev;
+            var bNext = b.next;
+            if (aPrev != null)
+            {
+                aPrev.next = b;
+            }
+            if (aNext != null)
+            {
+                aNext.prev = b;
+            }
+            if (bPrev != null)
+            {
+                bPrev.next = a;
+            }
+            if (bNext != null)
+            {
+                bNext.prev = a;
+            }
+            a.prev = bPrev;
+            a.next = bNext;
+            b.prev = aPrev;
+            b.next = aNext;
         }
         #endregion
     }

@@ -51,6 +51,7 @@
     <Compile Include="Data\DeclarationOrAssignment.cs" />
     <Compile Include="Data\FunctionModifier.cs" />
     <Compile Include="Data\Scope.cs" />
+    <Compile Include="Nodes\CollectionOperations\AppendToSortingMapNode.cs" />
     <Compile Include="Nodes\CollectionOperations\ClearCollectionNode.cs" />
     <Compile Include="Nodes\CollectionOperations\AppendToCollectionNode.cs" />
     <Compile Include="Nodes\DTE\EnumerateDocumentsInSolutionNode.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\SortPartitionsNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
     <Compile Include="Nodes\TypedRefactorNodeBase.cs" />
     <Compile Include="Nodes\CollectionOperations\GetLastElementNode.cs" />
@@ -101,6 +103,7 @@
     <Compile Include="Data\Partition.cs" />
     <Compile Include="Nodes\Variables\BoolCollectionNode.cs" />
     <Compile Include="Nodes\Variables\BoolNode.cs" />
+    <Compile Include="Nodes\Variables\PartitionSortingMapNode.cs" />
     <Compile Include="Nodes\Variables\StringCollectionNode.cs" />
     <Compile Include="Nodes\Variables\PartitionCollectionNode.cs" />
     <Compile Include="Nodes\Variables\IntCollectionNode.cs" />

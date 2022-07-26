@@ -11,5 +11,12 @@ namespace RefactorGraph.Nodes.Variables
         #region Constructors
         public BoolCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
+
+        #region Methods
+        protected override List<bool> CopyValue(List<bool> value)
+        {
+            return value == null ? null : new List<bool>(value);
+        }
+        #endregion
     }
 }

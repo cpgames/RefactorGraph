@@ -11,5 +11,12 @@ namespace RefactorGraph.Nodes.Variables
         #region Constructors
         public IntCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
+
+        #region Methods
+        protected override List<int> CopyValue(List<int> value)
+        {
+            return value == null ? null : new List<int>(value);
+        }
+        #endregion
     }
 }

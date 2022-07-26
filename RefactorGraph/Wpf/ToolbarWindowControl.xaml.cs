@@ -14,7 +14,7 @@ namespace RefactorGraph
         {
             InitializeComponent();
             PopulateNodes();
-            Utils.refreshAction += PopulateNodes;
+            Utils.refreshed += PopulateNodes;
             Unloaded += OnUnloaded;
 
             MyScrollView.ScrollChanged += MyScrollView_ScrollChanged;
@@ -29,7 +29,7 @@ namespace RefactorGraph
         #region Methods
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
-            Utils.refreshAction -= PopulateNodes;
+            Utils.refreshed -= PopulateNodes;
         }
 
         private void PopulateNodes()

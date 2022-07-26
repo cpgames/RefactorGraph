@@ -15,5 +15,12 @@ namespace RefactorGraph.Nodes.Variables
         #region Constructors
         public PartitionCollectionNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
+
+        #region Methods
+        protected override List<Partition> CopyValue(List<Partition> value)
+        {
+            return value == null ? null : new List<Partition>(value);
+        }
+        #endregion
     }
 }
