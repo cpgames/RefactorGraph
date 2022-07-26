@@ -20,3 +20,5 @@ Finally you don't need to manually "put the document back together", as simply t
 Multi-document refactor is now supported! Use DTE nodes to enumerate projects and files in the project.
 
 To get started, watch the Introduction video: https://www.youtube.com/watch?v=uCBUt6PwqXU
+
+Also see examples (more added soon): https://github.com/cpgames/RefactorGraph/tree/main/Examples
