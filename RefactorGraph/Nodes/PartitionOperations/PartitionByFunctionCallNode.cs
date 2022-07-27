@@ -97,6 +97,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private void PartitionFunctionCall(Partition partition)
         {
             var name_params = Partition.PartitionByRegexMatch(partition, NAME_PARAMS);
+            FunctionCall = partition;
             FunctionName = name_params[0];
             Parameters = name_params[1];
 

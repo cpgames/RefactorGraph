@@ -11,11 +11,12 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public const string PARTITION_PORT_NAME = "Partition";
         public const string TRIM_PORT_NAME = "SmartTrim";
 
-        public const string PREFIX_EMPTY_REGEX = @"[^\S\n]*[\n]?\Z";
-        public const string PREFIX_ASSIGNMENT_REGEX = @"[^\S\n]*[\n]?\w[\w.\[\]\s]*\s*=\s*\Z";
+        public const string PREFIX_EMPTY_REGEX = @"^\s*\Z";
+        public const string PREFIX_ASSIGNMENT_REGEX = @"^\s*\w[\w.\[\]\s]*\s*=\s*\Z";
         public const string PREFIX_OP_REGEX = @"\s*(?:\|\||&&|[,+\-*\/&\|\^])\s*\Z";
-        public const string SUFFIX_OP_REGEX = @"\s*(?:\|\||&&|[,+\-*\/&\|\^])";
+        public const string SUFFIX_OP_REGEX = @"\s*(?:\|\||&&|[,+\-*\/&\|\^])\s*";
         public const string SUFFIX_SEMICOLON_REGEX = @"\s*;";
+        public const string SUFFIX_EMPTY_REGEX = @"\s*(?=^)";
 
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, true, Serialized = false)]
         public Partition Partition;
@@ -40,34 +41,35 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            RemoveEmptyLines();
+            if (SmartTrim)
+            {
+                RemoveEmptyLines();
+            }
             Partition.Remove();
         }
 
-        private void RemovePrefix(out bool removedOp)
+        private void RemovePrefix(out bool removedOp, out bool removedWhiteSpace)
         {
             removedOp = false;
+            removedWhiteSpace = false;
             var op = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_OP_REGEX);
             if (op != null)
             {
                 op.Remove();
+                Partition.prev.Rasterize();
                 removedOp = true;
-                return;
             }
-            var assignment = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_ASSIGNMENT_REGEX);
-            if (assignment != null)
+           
+            var whitespace = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_EMPTY_REGEX);
+            if (whitespace != null)
             {
-                assignment.Remove();
-                return;
-            }
-            var regular = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_EMPTY_REGEX);
-            if (regular != null)
-            {
-                regular.Remove();
+                whitespace.Remove();
+                Partition.prev.Rasterize();
+                removedWhiteSpace = true;
             }
         }
 
-        private void RemoveSuffix(bool removedOp)
+        private void RemoveSuffix(bool removedOp, bool removedWhitespace)
         {
             if (!removedOp)
             {
@@ -75,23 +77,44 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 if (op != null)
                 {
                     op.Remove();
+                    Partition.next.Rasterize();
                     return;
                 }
             }
-            var suffix = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_SEMICOLON_REGEX);
-            suffix?.Remove();
+            var assignment = Partition.PartitionByFirstRegexMatch(Partition.prev, PREFIX_ASSIGNMENT_REGEX);
+            if (assignment != null)
+            {
+                var suffix = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_SEMICOLON_REGEX);
+                if (suffix != null)
+                {
+                    assignment.Remove();
+                    suffix.Remove();
+                    Partition.prev.Rasterize();
+                    Partition.next.Rasterize();
+                }
+            }
+            if (!removedWhitespace)
+            {
+                var whitespace = Partition.PartitionByFirstRegexMatch(Partition.next, SUFFIX_EMPTY_REGEX);
+                if (whitespace != null)
+                {
+                    whitespace.Remove();
+                    Partition.next.Rasterize();
+                }
+            }
         }
 
         private void RemoveEmptyLines()
         {
             var removedOp = false;
+            var removedWhitespace = false;
             if (Partition.prev != null)
             {
-                RemovePrefix(out removedOp);
+                RemovePrefix(out removedOp, out removedWhitespace);
             }
             if (Partition.next != null)
             {
-                RemoveSuffix(removedOp);
+                RemoveSuffix(removedOp, removedWhitespace);
             }
         }
         #endregion
