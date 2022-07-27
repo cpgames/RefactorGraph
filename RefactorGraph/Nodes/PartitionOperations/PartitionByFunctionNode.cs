@@ -61,6 +61,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(PARAMETER_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ParameterFilter;
+
         [NodePropertyPort(FUNCTION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition Function;
 
@@ -134,6 +135,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         {
             var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
             var scope_modifier_returnType_name_params = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS);
+            Function = partition;
             Scope = scope_modifier_returnType_name_params[0];
             Modifier = scope_modifier_returnType_name_params[1];
             ReturnType = scope_modifier_returnType_name_params[2];

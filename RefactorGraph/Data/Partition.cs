@@ -45,7 +45,7 @@ namespace RefactorGraph
 
         public void Remove()
         {
-            if (parent != null)
+            if (parent != null && IsRoot)
             {
                 parent.inner = next;
                 parent = null;
@@ -88,6 +88,7 @@ namespace RefactorGraph
             {
                 return null;
             }
+            partition.Rasterize();
             var partitions = new List<Partition>();
             var matches = PcreRegex.Matches(partition.data, pattern, regexOptions);
             Partition cur = null;
@@ -152,6 +153,7 @@ namespace RefactorGraph
             {
                 return  null;
             }
+            partition.Rasterize();
             var partitions = new List<Partition>();
             Partition cur = null;
             var index = 0;
@@ -217,6 +219,7 @@ namespace RefactorGraph
             {
                 return null;
             }
+            partition.Rasterize();
             var match = PcreRegex.Match(partition.data, pattern, regexOptions);
             if (!match.Success || match.Length == 0)
             {

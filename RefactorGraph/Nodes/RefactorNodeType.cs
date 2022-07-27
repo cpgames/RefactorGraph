@@ -46,7 +46,6 @@
         PartitionByRegexMatch,
         PartitionByVariable,
         PartitionIsValid,
-        RasterizePartition,
         RegexMatchPresentInPartitionCollection,
         RegexMatchPresentInPartition,
         RemovePartition,
