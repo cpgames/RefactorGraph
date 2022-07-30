@@ -27,8 +27,11 @@
         Subtract,
         // Other
         Bus,
+        GetFilePartition,
+        GetReferenceArg,
         Print,
         Reference,
+        ReturnExecutionState,
         Start,
         // PartitionOperations
         FindFirstPartitionInCollection,

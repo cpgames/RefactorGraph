@@ -17,7 +17,6 @@ using NodeGraph.Model;
 using PCRE;
 using RefactorGraph.Nodes;
 using RefactorGraph.Nodes.Other;
-using RefactorGraph.Nodes.PartitionOperations;
 
 namespace RefactorGraph
 {
@@ -95,12 +94,14 @@ namespace RefactorGraph
             try
             {
                 var filePath = CreateGraphFilePath(flowChart.Name);
-                var settings = new XmlWriterSettings();
-                settings.Indent = true;
-                settings.IndentChars = "\t";
-                settings.NewLineChars = "\n";
-                settings.NewLineHandling = NewLineHandling.Replace;
-                settings.NewLineOnAttributes = false;
+                var settings = new XmlWriterSettings
+                {
+                    Indent = true,
+                    IndentChars = "\t",
+                    NewLineChars = "\n",
+                    NewLineHandling = NewLineHandling.Replace,
+                    NewLineOnAttributes = false
+                };
                 using (var writer = XmlWriter.Create(filePath, settings))
                 {
                     writer.WriteStartDocument();
@@ -255,11 +256,6 @@ namespace RefactorGraph
                 nodes.Add(nodeTypeGroup.Key, nodeList);
                 foreach (var nodeType in nodeTypeGroup.OrderBy(x => x.GetAttribute<RefactorNodeAttribute>().ToString()))
                 {
-                    if (nodeType == typeof(ReferenceNode))
-                    {
-                        continue;
-                    }
-
                     var att = nodeType.GetAttribute<RefactorNodeAttribute>();
                     var nodeEntry = new NodeEntryModel
                     {
@@ -297,7 +293,10 @@ namespace RefactorGraph
             }
             try
             {
-                beginRefactor?.Invoke();
+                if (beginRefactor != null)
+                {
+                    beginRefactor();
+                }
                 startNode.Execute(null);
                 endRefactor?.Invoke();
             }

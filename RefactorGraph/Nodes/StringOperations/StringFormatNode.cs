@@ -13,7 +13,6 @@ namespace RefactorGraph.Nodes.StringOperations
     {
         #region Fields
         public const string FORMAT_PORT_NAME = "Format";
-        public const string ARGS_PORT_NAME = "Args";
         public const string RESULT_PORT_NAME = "Result";
 
         [NodePropertyPort(FORMAT_PORT_NAME, true, typeof(string), "", true)]

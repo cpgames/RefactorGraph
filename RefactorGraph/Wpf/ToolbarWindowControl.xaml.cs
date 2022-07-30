@@ -52,10 +52,6 @@ namespace RefactorGraph
                 //expander.Content = stackPanel;
                 foreach (var nodeEntry in nodeGroup.Value.OrderBy(x => x.nodeName))
                 {
-                    if (nodeEntry.nodeType == RefactorNodeType.Reference)
-                    {
-                        continue;
-                    }
                     var nodeEntryControl = new ToolbarNodeEntryControl
                     {
                         NodeEntry = nodeEntry

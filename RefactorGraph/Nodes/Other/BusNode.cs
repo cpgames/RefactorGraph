@@ -9,6 +9,13 @@ namespace RefactorGraph.Nodes.Other
     [RefactorNode(RefactorNodeGroup.Other, RefactorNodeType.Bus)]
     public class BusNode : DynamicNodeBase
     {
+        #region Fields
+        public const string PROCEED_PORT_NAME = "ProceedOnFailure";
+
+        [NodePropertyPort(PROCEED_PORT_NAME, true, typeof(bool), false, true)]
+        public bool ProceedOnFailure;
+        #endregion
+
         #region Properties
         protected override bool HasDone => false;
         protected override IList DynamicPorts => OutputFlowPorts;
@@ -34,20 +41,27 @@ namespace RefactorGraph.Nodes.Other
             NodeGraphManager.CreateNodeFlowPort(false, guid, this, false, null, name, name);
         }
 
+        protected override void OnExecute(Connector connector)
+        {
+            base.OnExecute(connector);
+            ProceedOnFailure = GetPortValue(PROCEED_PORT_NAME, ProceedOnFailure);
+        }
+
         protected override void OnPostExecute(Connector connector)
         {
-            base.OnPostExecute(connector);
             foreach (var outputPort in OutputFlowPorts)
             {
                 foreach (var flowConnector in outputPort.Connectors)
                 {
-                    ExecutionState = flowConnector.Execute();
-                    if (ExecutionState == ExecutionState.Failed)
+                    var executionState = flowConnector.Execute();
+                    if (!ProceedOnFailure && executionState == ExecutionState.Failed)
                     {
+                        ExecutionState = executionState;
                         return;
                     }
                 }
             }
+            base.OnPostExecute(connector);
         }
         #endregion
     }

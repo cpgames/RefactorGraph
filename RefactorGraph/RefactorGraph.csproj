@@ -68,6 +68,9 @@
     <Compile Include="Nodes\DynamiacNode.cs" />
     <Compile Include="Nodes\DynamicNodeView.cs" />
     <Compile Include="Nodes\DynamicNodeViewModel.cs" />
+    <Compile Include="Nodes\Other\GetFilePartitionNode.cs" />
+    <Compile Include="Nodes\Other\ReturnExecutionStateNode.cs" />
+    <Compile Include="Nodes\Other\GetReferenceArgNode.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByParametersNode.cs" />
@@ -164,7 +167,7 @@
     <Resource Include="Resources\RefactorAdv.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Remove.png">
+    <Resource Include="Resources\Minus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\load.png">
@@ -311,7 +314,7 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Add.png">
+    <Resource Include="Resources\Plus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

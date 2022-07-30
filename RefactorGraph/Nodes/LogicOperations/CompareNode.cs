@@ -75,7 +75,7 @@ namespace RefactorGraph.Nodes.LogicOperations
                     result = CompareBools((bool)defaultA, (bool)defaultB);
                     break;
             }
-            ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
+            ExecutionState = ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
 
         private bool CompareStrings(string defaultA, string defaultB)
@@ -123,7 +123,12 @@ namespace RefactorGraph.Nodes.LogicOperations
         {
             var a = GetPortValue<Partition>(A_PORT_NAME);
             var b = GetPortValue<Partition>(B_PORT_NAME);
-            var r = string.Compare(a.data, b.data, StringComparison.Ordinal);
+            if (a == null || b == null)
+            {
+                ExecutionState = ExecutionState.Failed;
+                return false;
+            }
+            var r = string.Compare(a.RasterizedData, b.RasterizedData, StringComparison.Ordinal);
             switch (Algorithm)
             {
                 case CompareAlgorithm.Equals:

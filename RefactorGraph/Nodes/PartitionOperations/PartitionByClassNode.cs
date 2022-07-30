@@ -113,6 +113,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         {
             var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
             var scope_modifier_category_name = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_CATEGORY_NAME);
+            Class = partition;
             Scope = scope_modifier_category_name[0];
             Modifier = scope_modifier_category_name[1];
             TypeCategory = scope_modifier_category_name[2];

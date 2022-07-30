@@ -53,7 +53,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             Partition = GetPortValue<Partition>(PARTITION_PORT_NAME);
             if (Partition == null)
             {
-                ExecutionState = ExecutionState.Skipped;
+                ExecutionState = ExecutionState.Failed;
                 return;
             }
             PartitionParameters(Partition);
