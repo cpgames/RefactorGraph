@@ -27,7 +27,7 @@ namespace RefactorGraph.Nodes
             Grid.SetColumn(buttonGrid, 1);
 
             var addImage = new Image();
-            addImage.Source = new BitmapImage(new Uri("pack://application:,,,/RefactorGraph;component/Resources/Add.png", UriKind.RelativeOrAbsolute));
+            addImage.Source = new BitmapImage(new Uri("pack://application:,,,/RefactorGraph;component/Resources/Plus.png", UriKind.RelativeOrAbsolute));
             var addPortButton = new Button
             {
                 Content = addImage,
@@ -37,7 +37,7 @@ namespace RefactorGraph.Nodes
             buttonGrid.Children.Add(addPortButton);
 
             var removeImage = new Image();
-            removeImage.Source = new BitmapImage(new Uri("pack://application:,,,/RefactorGraph;component/Resources/Remove.png", UriKind.RelativeOrAbsolute));
+            removeImage.Source = new BitmapImage(new Uri("pack://application:,,,/RefactorGraph;component/Resources/Minus.png", UriKind.RelativeOrAbsolute));
             var removePortButton = new Button
             {
                 Content = removeImage,

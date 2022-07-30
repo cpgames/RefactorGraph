@@ -71,11 +71,15 @@ namespace RefactorGraph.Nodes
 
         protected override void OnPostExecute(Connector connector)
         {
-            base.OnPostExecute(connector);
             if (HasDone)
             {
                 ExecutionState = ExecutePort(DONE_PORT_NAME);
             }
+            if (ExecutionState == ExecutionState.Executing)
+            {
+                ExecutionState = ExecutionState.Executed;
+            }
+            base.OnPostExecute(connector);
         }
 
         protected TValue GetPortValue<TValue>(string portName, TValue defaultValue = default)
@@ -95,7 +99,7 @@ namespace RefactorGraph.Nodes
                 return ExecutionState.Failed;
             }
             var connector = port.Connectors.FirstOrDefault();
-            return connector?.Execute() ?? ExecutionState.Executed;
+            return connector?.Execute() ?? ExecutionState.Executing;
         }
 
         private void ShowHelp()

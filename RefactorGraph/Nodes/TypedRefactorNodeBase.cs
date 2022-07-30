@@ -63,7 +63,7 @@ namespace RefactorGraph.Nodes
             }
         }
 
-        protected void AddElementPort(string portName, bool input, int index = -1)
+        protected void AddElementPort(string portName, bool input, int index = -1, bool hasEditor = true)
         {
             RemoveOldPort(portName);
             Type elementType;
@@ -91,7 +91,7 @@ namespace RefactorGraph.Nodes
                 default: throw new ArgumentOutOfRangeException();
             }
             NodeGraphManager.CreateNodePropertyPort(false, Guid.NewGuid(), this, input, elementType,
-                defaultValue, portName, true, displayName: $"{portName}\n[{ElementType}]", index: index, serializeValue: serializeValue);
+                defaultValue, portName, hasEditor, displayName: $"{portName}\n[{ElementType}]", index: index, serializeValue: serializeValue);
         }
 
         protected void AddCollectionPort(string portName, bool input, int index = -1)

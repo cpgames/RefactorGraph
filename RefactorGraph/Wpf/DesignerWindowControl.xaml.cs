@@ -295,7 +295,7 @@ namespace RefactorGraph
             {
                 var nodeType = typeof(ReferenceNode);
                 var node = CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y);
-                node.Header = graphEntry.GraphName;
+                (node as ReferenceNode).GraphName = graphEntry.GraphName;
             }
         }
 

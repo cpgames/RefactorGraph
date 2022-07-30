@@ -70,27 +70,29 @@ namespace RefactorGraph
         #endregion
 
         #region Methods
-        private void UpdateBorder()
+        private void UpdateEditing()
         {
             if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
             {
                 Border.BorderBrush = new SolidColorBrush(Colors.Orange);
+                Details.Visibility = Visibility.Visible;
             }
             else
             {
                 Border.BorderBrush = new SolidColorBrush(Colors.White);
+                Details.Visibility = Visibility.Collapsed;
             }
         }
 
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
-            Utils.flowChartChanged -= UpdateBorder;
+            Utils.flowChartChanged -= UpdateEditing;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Utils.flowChartChanged += UpdateBorder;
-            UpdateBorder();
+            Utils.flowChartChanged += UpdateEditing;
+            UpdateEditing();
         }
 
         private void RaisePropertyChanged(string propertyName)
@@ -182,12 +184,12 @@ namespace RefactorGraph
             }
         }
 
-        private void Save(object sender, RoutedEventArgs e)
+        private void SaveClicked(object sender, RoutedEventArgs e)
         {
             Save();
         }
 
-        private void Edit(object sender, RoutedEventArgs e)
+        private void EditClicked(object sender, RoutedEventArgs e)
         {
             OpenGraphWindowAsync().Wait();
         }
