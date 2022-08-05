@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -9,6 +10,7 @@ using NodeGraph;
 using NodeGraph.Model;
 using NodeGraph.ViewModel;
 using RefactorGraph.Nodes.Other;
+using RefactorGraph.Nodes.PartitionOperations;
 using MessageBox = System.Windows.Forms.MessageBox;
 using Panel = System.Windows.Controls.Panel;
 using UserControl = System.Windows.Controls.UserControl;
@@ -20,6 +22,7 @@ namespace RefactorGraph
         #region Fields
         private FlowChartViewModel _flowChartViewModel;
         private string _graphName = "NewRefactorGraph";
+        private string _folderPath;
         #endregion
 
         #region Properties
@@ -28,29 +31,20 @@ namespace RefactorGraph
             get => _graphName;
             set
             {
-                if (_graphName != value)
+                if (_graphName != value && !string.IsNullOrEmpty(value))
                 {
-                    if (NodeGraphManager.FlowCharts.Values.Any(x => x.Name == value))
+                    if (!Utils.RenameFile(GraphGuid, value))
                     {
-                        MessageBox.Show($"Graph <{value}> already exists", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
-                    foreach (var file in Utils.GetGraphFiles())
-                    {
-                        if (file == _graphName)
-                        {
-                            if (!Utils.RenameFile(_graphName, value))
-                            {
-                                return;
-                            }
-                            _flowChartViewModel.Model.Name = value;
-                            Utils.Save(_flowChartViewModel.Model);
-                        }
-                    }
+                    _flowChartViewModel.Model.Name = value;
                     _graphName = value;
                     RaisePropertyChanged("GraphName");
                 }
             }
         }
+
+        public Guid GraphGuid => _flowChartViewModel.Model.Guid;
 
         public FlowChartViewModel FlowChartViewModel => _flowChartViewModel;
         #endregion
@@ -70,20 +64,6 @@ namespace RefactorGraph
         #endregion
 
         #region Methods
-        private void UpdateEditing()
-        {
-            if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
-            {
-                Border.BorderBrush = new SolidColorBrush(Colors.Orange);
-                Details.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                Border.BorderBrush = new SolidColorBrush(Colors.White);
-                Details.Visibility = Visibility.Collapsed;
-            }
-        }
-
         private void Window_Unloaded(object sender, RoutedEventArgs e)
         {
             Utils.flowChartChanged -= UpdateEditing;
@@ -93,6 +73,31 @@ namespace RefactorGraph
         {
             Utils.flowChartChanged += UpdateEditing;
             UpdateEditing();
+        }
+
+        private void UpdateEditing()
+        {
+            if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
+            {
+                EntryBackground.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#303030"));
+            }
+            else
+            {
+                EntryBackground.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#1e1e1e"));
+            }
+        }
+
+        public void Remove()
+        {
+            Utils.RemoveFlowChart(GraphGuid);
+            foreach (var referenceNode in FlowChartViewModel.Model.Nodes.OfType<ReferenceNode>())
+            {
+                if (referenceNode.referencedFlowChart != null)
+                {
+                    Utils.RemoveFlowChart(referenceNode.referencedFlowChart.Guid);
+                }
+            }
+            ((Panel)Parent).Children.Remove(this);
         }
 
         private void RaisePropertyChanged(string propertyName)
@@ -105,42 +110,42 @@ namespace RefactorGraph
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void SetFile(string fileName)
+        public void SetFile(string filePath)
         {
             try
             {
-                Utils.Load(fileName, out var flowChart);
+                Utils.Load(filePath, out var flowChart);
                 _flowChartViewModel = flowChart.ViewModel;
-                _graphName = fileName;
+                _graphName = Path.GetFileNameWithoutExtension(filePath);
+                _folderPath = Path.GetDirectoryName(filePath);
                 RaisePropertyChanged("GraphName");
             }
             catch (Exception e)
             {
-                var result = MessageBox.Show($"{e.Message}\n\nDelete graph?", $"Failed to load {fileName}", MessageBoxButtons.YesNo, MessageBoxIcon.Error);
-                if (result == DialogResult.Yes)
-                {
-                    Utils.Delete(fileName);
-                }
+                MessageBox.Show(e.Message, $"Failed to load {filePath}",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ((Panel)Parent).Children.Remove(this);
             }
         }
 
-        public void CreateNewGraph()
+        public void CreateNewGraph(string folder)
         {
+            _folderPath = folder;
             var flowChart = NodeGraphManager.CreateFlowChart(false, Guid.NewGuid(), typeof(FlowChart));
 
             _flowChartViewModel = flowChart.ViewModel;
             var name = "NewRefactorGraph";
             var index = 0;
-            var files = Utils.GetGraphFiles().ToList();
+            var files = Utils.GetGraphFiles(folder).ToList();
             string graphName;
             do
             {
                 graphName = $"{name}{index}";
                 index++;
             } while (files.Any(x => x == graphName));
-            GraphName = graphName;
-            flowChart.Name = GraphName;
+            _graphName = graphName;
+            flowChart.Name = _graphName;
+            RaisePropertyChanged("GraphName");
             BuildDefaultGraph();
             Save();
             OpenGraphWindowAsync().Wait();
@@ -174,7 +179,7 @@ namespace RefactorGraph
         private void Delete(object sender, RoutedEventArgs routedEventArgs)
         {
             var result = MessageBox.Show($"Delete {GraphName}?", "Delete RefactorClick Graph", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-            if (result == DialogResult.Yes && Utils.Delete(GraphName))
+            if (result == DialogResult.Yes && Utils.Delete(GraphGuid))
             {
                 if (Utils.FlowChartWindow != null && Utils.FlowChartWindow.FlowChartViewModel == _flowChartViewModel)
                 {
@@ -221,7 +226,24 @@ namespace RefactorGraph
 
         public void Save()
         {
-            Utils.Save(_flowChartViewModel.Model);
+            var filePath = Path.Combine(_folderPath, GraphName + ".rgraph");
+            Utils.Save(_flowChartViewModel.Model, filePath);
+        }
+
+        private void ExpandClicked(object sender, RoutedEventArgs e)
+        {
+            Details.Visibility = Visibility.Visible;
+            ExpandButton.Visibility = Visibility.Collapsed;
+            CollapseButton.Visibility = Visibility.Visible;
+            BtnRun.Visibility = Visibility.Collapsed;
+        }
+
+        private void CollapseClicked(object sender, RoutedEventArgs e)
+        {
+            Details.Visibility = Visibility.Collapsed;
+            ExpandButton.Visibility = Visibility.Visible;
+            CollapseButton.Visibility = Visibility.Collapsed;
+            BtnRun.Visibility = Visibility.Visible;
         }
         #endregion
     }

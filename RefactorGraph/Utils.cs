@@ -23,6 +23,9 @@ namespace RefactorGraph
     public static class Utils
     {
         #region Fields
+        private static readonly List<string> _includeFolderPaths = new List<string>();
+        private static readonly Dictionary<Guid, string> _guidToPathMap = new Dictionary<Guid, string>();
+
         private static DesignerWindowControl _flowChartWindow;
         public static Action refreshed;
         public static Action flowChartChanged;
@@ -43,7 +46,51 @@ namespace RefactorGraph
         #endregion
 
         #region Methods
-        public static string GetOrCreateDir()
+        public static IEnumerable<string> GetIncludedFolderPaths()
+        {
+            return _includeFolderPaths;
+        }
+        
+        public static bool AddIncludeFolder(string folderPath)
+        {
+            var absFolderPath = Path.GetFullPath(folderPath);
+            if (!Directory.Exists(absFolderPath))
+            {
+                return false;
+            }
+            if (_includeFolderPaths.Contains(absFolderPath))
+            {
+                return false;
+            }
+            _includeFolderPaths.Add(absFolderPath);
+            return true;
+        }
+
+        public static bool RemoveIncludeFolder(string folderPath)
+        {
+            if (!_includeFolderPaths.Contains(folderPath))
+            {
+                return false;
+            }
+            _includeFolderPaths.Remove(folderPath);
+            return true;
+        }
+
+        public static bool GetGraphPath(Guid guid, out string path)
+        {
+            return _guidToPathMap.TryGetValue(guid, out path);
+        }
+
+        public static void RemoveFlowChart(Guid guid)
+        {
+            if (_guidToPathMap.ContainsKey(guid))
+            {
+                _guidToPathMap.Remove(guid);
+                NodeGraphManager.DestroyFlowChart(guid);
+            }
+        }
+
+        public static string GetOrCreateDefaultDir()
         {
             var dir = Directory.GetCurrentDirectory();
             var dirSubs = Directory.GetDirectories(dir, "RefactorGraphs");
@@ -58,42 +105,42 @@ namespace RefactorGraph
             }
             return dirInfo.FullName;
         }
-
-        public static IEnumerable<string> GetGraphFiles()
+        
+        public static IEnumerable<string> GetGraphFiles(string folderPath)
         {
-            var dir = GetOrCreateDir();
-            var files = Directory.GetFiles(dir, "*.rgraph");
-            return files.Select(Path.GetFileNameWithoutExtension);
+            return Directory.GetFiles(folderPath, "*.rgraph");
         }
 
-        public static string CreateGraphFilePath(string graphName)
+        public static string CreateGraphFilePath(string graphName, string folderPath)
         {
             graphName = $"{graphName}.rgraph";
-            var dir = GetOrCreateDir();
-            return Path.Combine(dir, graphName);
+            return Path.Combine(folderPath, graphName);
         }
 
-        public static bool RenameFile(string oldGraphName, string newGraphName)
+        public static bool RenameFile(Guid graphGuid, string newGraphName)
         {
             try
             {
-                var oldFilePath = CreateGraphFilePath(oldGraphName);
-                var newFilePath = CreateGraphFilePath(newGraphName);
+                var oldFilePath = _guidToPathMap[graphGuid];
+                var newFilePath = CreateGraphFilePath(newGraphName, Path.GetDirectoryName(oldFilePath));
+                if (_guidToPathMap.Values.Contains(newFilePath))
+                {
+                    throw new Exception(@"File {newFilePath} already exists.");
+                }
                 File.Move(oldFilePath, newFilePath);
-                return true;
             }
             catch (Exception e)
             {
                 MessageBox.Show(e.Message, "Rename failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
             }
+            return true;
         }
 
-        public static bool Save(FlowChart flowChart)
+        public static bool Save(FlowChart flowChart, string filePath)
         {
             try
             {
-                var filePath = CreateGraphFilePath(flowChart.Name);
                 var settings = new XmlWriterSettings
                 {
                     Indent = true,
@@ -111,10 +158,10 @@ namespace RefactorGraph
                         writer.WriteEndElement();
                     }
                     writer.WriteEndDocument();
-
                     writer.Flush();
                     writer.Close();
                 }
+                _guidToPathMap[flowChart.Guid] = filePath;
             }
             catch (Exception e)
             {
@@ -124,57 +171,77 @@ namespace RefactorGraph
             return true;
         }
 
-        public static void Load(string graphName, out FlowChart flowChart)
-        {
-            var filePath = CreateGraphFilePath(graphName);
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException($"FlowGraph <{graphName}> not found.", filePath);
-            }
-
-            using (var reader = XmlReader.Create(filePath))
-            {
-                while (reader.Read())
-                {
-                    if (reader.NodeType == XmlNodeType.Element)
-                    {
-                        if (reader.Name == "FlowChart")
-                        {
-                            var guid = Guid.Parse(reader.GetAttribute("Guid") ?? throw new InvalidOperationException());
-                            var type = Type.GetType(reader.GetAttribute("Type") ?? throw new InvalidOperationException());
-
-                            flowChart = NodeGraphManager.FindFlowChart(guid);
-                            if (flowChart == null)
-                            {
-                                flowChart = NodeGraphManager.CreateFlowChart(true, guid, type);
-                                flowChart.ReadXml(reader);
-                                flowChart.OnDeserialize();
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
-            throw new Exception("Failed to find FlowChart element.");
-        }
-
-        public static bool Delete(string graphName)
+        public static void Load(string filePath, out FlowChart flowChart)
         {
             try
             {
-                var filePath = CreateGraphFilePath(graphName);
+                flowChart = null;
+                var kvp = _guidToPathMap.FirstOrDefault(x => x.Value == filePath);
+                if (kvp.Key != default)
+                {
+                    flowChart = NodeGraphManager.FindFlowChart(kvp.Key);
+                    return;
+                }
+                if (!File.Exists(filePath))
+                {
+                    throw new FileNotFoundException($"File <{filePath}> not found.", filePath);
+                }
+
+                using (var reader = XmlReader.Create(filePath))
+                {
+                    while (reader.Read())
+                    {
+                        if (reader.NodeType == XmlNodeType.Element)
+                        {
+                            if (reader.Name == "FlowChart")
+                            {
+                                var guid = Guid.Parse(reader.GetAttribute("Guid") ?? throw new InvalidOperationException());
+                                if (_guidToPathMap.ContainsKey(guid))
+                                {
+                                    throw new Exception($"FlowChart with this guid already exists.");
+                                }
+                                var type = Type.GetType(reader.GetAttribute("Type") ?? throw new InvalidOperationException());
+
+                                flowChart = NodeGraphManager.FindFlowChart(guid);
+                                if (flowChart == null)
+                                {
+                                    flowChart = NodeGraphManager.CreateFlowChart(true, guid, type);
+                                    flowChart.ReadXml(reader);
+                                    flowChart.OnDeserialize();
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                if (flowChart == null)
+                {
+                    throw new Exception("FlowChart failed to parse XML.");
+                }
+                _guidToPathMap[flowChart.Guid] = filePath;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+
+        public static bool Delete(Guid guid)
+        {
+            try
+            {
+                if (!_guidToPathMap.TryGetValue(guid, out var filePath))
+                {
+                    return false;
+                }
+                _guidToPathMap.Remove(guid);
                 if (!File.Exists(filePath))
                 {
                     throw new FileNotFoundException("FlowGraph file not found.", filePath);
                 }
-
                 File.Delete(filePath);
-
-                var flowChart = NodeGraphManager.FlowCharts.Values.FirstOrDefault(x => x.Name == graphName);
-                if (flowChart != null)
-                {
-                    NodeGraphManager.DestroyFlowChart(flowChart.Guid);
-                }
+                NodeGraphManager.DestroyFlowChart(guid);
                 return true;
             }
             catch (Exception e)

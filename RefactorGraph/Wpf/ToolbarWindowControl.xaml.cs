@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -16,13 +15,6 @@ namespace RefactorGraph
             PopulateNodes();
             Utils.refreshed += PopulateNodes;
             Unloaded += OnUnloaded;
-
-            MyScrollView.ScrollChanged += MyScrollView_ScrollChanged;
-        }
-
-        private void MyScrollView_ScrollChanged(object sender, ScrollChangedEventArgs e)
-        {
-            //throw new System.NotImplementedException();
         }
         #endregion
 
@@ -44,12 +36,11 @@ namespace RefactorGraph
                     Content = group,
                     Foreground = new SolidColorBrush(Colors.White),
                     Background = NodeColors.brushes[group],
-                    Width = Double.NaN
+                    Width = double.NaN
                 };
 
                 Nodes.Children.Add(groupTitle);
                 var stackPanel = new StackPanel();
-                //expander.Content = stackPanel;
                 foreach (var nodeEntry in nodeGroup.Value.OrderBy(x => x.nodeName))
                 {
                     var nodeEntryControl = new ToolbarNodeEntryControl
@@ -58,7 +49,6 @@ namespace RefactorGraph
                     };
                     stackPanel.Children.Add(nodeEntryControl);
                 }
-                //Nodes.Children.Add(expander);
                 Nodes.Children.Add(stackPanel);
             }
         }

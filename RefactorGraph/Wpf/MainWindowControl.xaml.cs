@@ -1,15 +1,10 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
-using System.Windows.Input;
-using NodeGraph;
-using DataObject = System.Windows.DataObject;
-using DragDropEffects = System.Windows.DragDropEffects;
-using DragEventArgs = System.Windows.DragEventArgs;
+using RefactorGraph.Wpf;
 using MessageBox = System.Windows.Forms.MessageBox;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using TextBox = System.Windows.Controls.TextBox;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace RefactorGraph
@@ -17,11 +12,7 @@ namespace RefactorGraph
     public partial class MainWindowControl : UserControl
     {
         #region Fields
-        private static bool _loaded = false;
-        private bool _isDown;
-        private bool _isDragging;
-        private Point _startPoint;
-        private UIElement _realDragSource;
+        private static bool _loaded;
         #endregion
 
         #region Constructors
@@ -29,164 +20,93 @@ namespace RefactorGraph
         {
             InitializeComponent();
             Loaded += OnLoaded;
+            Utils.AddIncludeFolder("RefactorGraphs");
         }
         #endregion
 
         #region Methods
+        public void SaveAll()
+        {
+            foreach (var folderEntry in FolderEntries.Children.OfType<FolderEntryControl>())
+            {
+                folderEntry.SaveAll();
+            }
+        }
+
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             if (!_loaded)
             {
-                RefreshInternal();
+                Refresh();
                 _loaded = true;
             }
         }
 
-        private void CreateRefactorGraph(object sender, RoutedEventArgs e)
+        private void RefreshClicked(object sender, RoutedEventArgs e)
         {
-            var entry = new GraphEntryControl();
-            StackPatterns.Children.Add(entry);
-            entry.CreateNewGraph();
-        }
-        
-        private void Refresh(object sender, RoutedEventArgs e)
-        {
-            var result = MessageBox.Show("Refreshing will delete any unsaved graphs. Are you sure?", "Refresh", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            var result = MessageBox.Show("Refreshing will delete all unsaved graphs.\nSave all changes?",
+                "Refresh Everything", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes)
             {
-                DesignerWindow.HideAsync().Wait();
-                RefreshInternal();
+                SaveAll();
+                Refresh();
+            }
+            else if (result == DialogResult.No)
+            {
+                Refresh();
             }
         }
 
-        private void RefreshInternal()
+        private void Refresh()
         {
-            foreach (UIElement element in StackPatterns.Children)
+            while (FolderEntries.Children.OfType<FolderEntryControl>().Any())
             {
-                if (element is GraphEntryControl refactorGraphEntry && refactorGraphEntry.FlowChartViewModel != null)
-                {
-                    NodeGraphManager.DestroyFlowChart(refactorGraphEntry.FlowChartViewModel.Model.Guid);
-                }
+                FolderEntries.Children.OfType<FolderEntryControl>().First().Remove();
             }
-
-            StackPatterns.Children.Clear();
-            var files = Utils.GetGraphFiles();
-            foreach (var fileName in files)
+            var folders = Utils.GetIncludedFolderPaths();
+            foreach (var folder in folders)
             {
-                var entryExists = false;
-                foreach (UIElement element in StackPatterns.Children)
-                {
-                    if (element is GraphEntryControl refactorGraphEntry)
-                    {
-                        if (refactorGraphEntry.GraphName == fileName)
-                        {
-                            entryExists = true;
-                            break;
-                        }
-                    }
-                }
-                if (!entryExists)
-                {
-                    var entry = new GraphEntryControl();
-                    StackPatterns.Children.Add(entry);
-                    entry.SetFile(fileName);
-                }
+                var entry = new FolderEntryControl();
+                FolderEntries.Children.Add(entry);
+                entry.SetFolder(folder);
             }
             Utils.refreshed?.Invoke();
         }
 
-        private void ShowToolbar(object sender, RoutedEventArgs e)
+        private void ShowToolbarClicked(object sender, RoutedEventArgs e)
         {
             ToolbarWindow.ShowAsync().Wait();
         }
-        
-        private void EntryMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+
+        private void HelpClicked(object sender, RoutedEventArgs e)
         {
-            if (!Equals(e.Source, StackPatterns))
-            {
-                _isDown = true;
-                _startPoint = e.GetPosition(StackPatterns);
-            }
+            Process.Start("https://github.com/cpgames/RefactorGraph/wiki");
         }
 
-        private void EntryMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void AddFolderClicked(object sender, RoutedEventArgs e)
         {
-            _isDown = false;
-            _isDragging = false;
-            _realDragSource?.ReleaseMouseCapture();
-        }
-
-        private void EntryMouseMove(object sender, MouseEventArgs e)
-        {
-            if (_isDown)
+            var folderBrowserDialog = new FolderBrowserDialog();
+            folderBrowserDialog.SelectedPath = Directory.GetCurrentDirectory();
+            var result = folderBrowserDialog.ShowDialog();
+            if (result == DialogResult.OK)
             {
-                if (_isDragging == false &&
-                    (Math.Abs(e.GetPosition(StackPatterns).X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                        Math.Abs(e.GetPosition(StackPatterns).Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance))
+                var folderPath = folderBrowserDialog.SelectedPath;
+                if (!Utils.GetGraphFiles(folderPath).Any())
                 {
-                    if (e.OriginalSource is TextBox)
+                    var resultNoFiles = MessageBox.Show($"No graph files found in {folderPath}\n\nAdd folder anyway?", "Add folder",
+                        MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    if (resultNoFiles == DialogResult.No)
                     {
                         return;
                     }
-                    _isDragging = true;
-                    _realDragSource = e.Source as UIElement;
-                    _realDragSource.CaptureMouse();
-                    DragDrop.DoDragDrop(_realDragSource, new DataObject("GraphEntry", e.Source, true), DragDropEffects.Move);
                 }
-            }
-        }
-
-        private void EntryDragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent("GraphEntry"))
-            {
-                e.Effects = DragDropEffects.Move;
-            }
-        }
-
-        private void EntryDrop(object sender, DragEventArgs e)
-        {
-            var data = e.Data.GetData("GraphEntry");
-            if (data != null)
-            {
-                var y = e.GetPosition(StackPatterns).Y;
-                var start = 0.0;
-                var index = 0;
-                foreach (UIElement element in StackPatterns.Children)
+                if (Utils.AddIncludeFolder(folderPath))
                 {
-                    start += element.RenderSize.Height;
-                    if (start > y)
-                    {
-                        break;
-                    }
-                    index++;
+                    var folderEntry = new FolderEntryControl();
+                    FolderEntries.Children.Add(folderEntry);
+                    folderEntry.SetFolder(folderPath);
                 }
-                StackPatterns.Children.Remove(_realDragSource);
-                StackPatterns.Children.Insert(index, _realDragSource);
             }
-        }
-
-        protected override void OnDragEnter(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDragEnter(e);
-        }
-
-        protected override void OnDragOver(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDragOver(e);
-        }
-
-        protected override void OnDrop(DragEventArgs e)
-        {
-            e.Handled = e.Data.GetDataPresent("GraphEntry");
-            base.OnDrop(e);
-        }
-
-        private void Help(object sender, RoutedEventArgs e)
-        {
-            Process.Start("https://github.com/cpgames/RefactorGraph/wiki");
         }
         #endregion
     }
