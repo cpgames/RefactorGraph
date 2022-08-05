@@ -24,34 +24,29 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <Button Grid.Column="1" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    ToolTip="Reload refactor graphs" Click="Refresh">
-                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Refresh.png"
-                       Margin="2,0,2,0" />
-            </Button>
             <Button Grid.Column="2" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    ToolTip="Create new refactor graph" Click="CreateRefactorGraph">
-                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Plus.png"
+                    ToolTip="Add folder" Click="AddFolderClicked">
+                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/AddFolder.png"
                        Margin="2,0,2,0" />
             </Button>
             <Button Grid.Column="3" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    ToolTip="Show toolbar" Click="ShowToolbar">
+                    ToolTip="Reload refactor graphs" Click="RefreshClicked">
+                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Refresh.png"
+                       Margin="2,0,2,0" />
+            </Button>
+            <Button Grid.Column="4" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    ToolTip="Show toolbar" Click="ShowToolbarClicked">
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Tool.png"
                        Margin="2,0,2,0" />
             </Button>
             <Button Grid.Column="6" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                    ToolTip="Show help" Click="Help">
+                    ToolTip="Show help" Click="HelpClicked">
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Help.png"
-                                                                             Margin="2,0,2,0" />
+                       Margin="2,0,2,0" />
             </Button>
         </Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.Row="1">
-            <StackPanel Orientation="Vertical" Name="StackPatterns"
-                        PreviewMouseLeftButtonDown="EntryMouseLeftButtonDown" 
-                        PreviewMouseLeftButtonUp="EntryMouseLeftButtonUp"
-                        PreviewMouseMove="EntryMouseMove"
-                        DragEnter="EntryDragEnter" 
-                        Drop="EntryDrop" />
+            <StackPanel Orientation="Vertical" Name="FolderEntries" Background="Black" />
         </ScrollViewer>
     </Grid>
 

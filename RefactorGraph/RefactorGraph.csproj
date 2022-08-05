@@ -126,6 +126,9 @@
     <Compile Include="Nodes\PartitionOperations\PartitionByRegexMatchNode.cs" />
     <Compile Include="Nodes\RefactorNodeBase.cs" />
     <Compile Include="Nodes\RefactorNodeType.cs" />
+    <Compile Include="Wpf\FolderEntryControl.xaml.cs">
+      <DependentUpon>FolderEntryControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Wpf\ToolbarNodeEntryControl.xaml.cs">
       <DependentUpon>ToolbarNodeEntryControl.xaml</DependentUpon>
     </Compile>
@@ -164,9 +167,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\RefactorAdv.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Resource>
     <Resource Include="Resources\Minus.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -198,6 +198,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\New.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\AddFolder.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Content Include="Resources\Preview.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -271,6 +277,10 @@
     <Page Include="Generic.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Wpf\FolderEntryControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Wpf\ToolbarNodeEntryControl.xaml">
       <SubType>Designer</SubType>

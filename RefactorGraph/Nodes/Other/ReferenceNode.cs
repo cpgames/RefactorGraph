@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using NodeGraph;
 using NodeGraph.Model;
@@ -11,12 +12,17 @@ namespace RefactorGraph.Nodes.PartitionOperations
     {
         #region Fields
         public const string ARG_PORT_NAME = "Arg";
-        public const string GRAPH_PORT_NAME = "GraphName";
+        public const string GRAPH_PATH_PORT_NAME = "GraphPath";
+        public const string RELATIVE_TO_OWNER_PORT_NAME = "RelativeToOwner";
+        
 
-        [NodePropertyPort(GRAPH_PORT_NAME, true, typeof(string), "", true)]
-        public string GraphName;
+        [NodePropertyPort(GRAPH_PATH_PORT_NAME, true, typeof(string), "", true)]
+        public string GraphPath;
 
-        private FlowChart _referencedFlowChart;
+        [NodePropertyPort(RELATIVE_TO_OWNER_PORT_NAME, true, typeof(bool), true, true)]
+        public bool RelativeToOwner;
+
+        public FlowChart referencedFlowChart;
         #endregion
 
         #region Constructors
@@ -27,10 +33,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public override void OnCreate()
         {
             base.OnCreate();
-            var graphNamePort = InputPropertyPorts.First(x => x.Name == GRAPH_PORT_NAME);
+            var graphNamePort = InputPropertyPorts.First(x => x.Name == GRAPH_PATH_PORT_NAME);
             graphNamePort.PropertyChanged += (sender,  args) =>
             {
-                Header = string.IsNullOrEmpty(GraphName) ? "Reference" : GraphName;
+                Header = string.IsNullOrEmpty(GraphPath) ? "Reference" : Path.GetFileName(GraphPath);
             };
         }
 
@@ -42,12 +48,35 @@ namespace RefactorGraph.Nodes.PartitionOperations
         protected override void OnExecute(Connector connector)
         {
             base.OnExecute(connector);
-            GraphName = GetPortValue(GRAPH_PORT_NAME, GraphName);
-            if (_referencedFlowChart == null || _referencedFlowChart.Name != GraphName)
+            GraphPath = GetPortValue(GRAPH_PATH_PORT_NAME, GraphPath);
+            RelativeToOwner = GetPortValue(RELATIVE_TO_OWNER_PORT_NAME, RelativeToOwner);
+
+            string filePath;
+            if (RelativeToOwner)
+            {
+                if (!Utils.GetGraphPath(Owner.Guid, out var ownerFilePath))
+                {
+                    throw new Exception("No graph found.");
+                }
+                var folderPath = Path.GetDirectoryName(ownerFilePath);
+                filePath = Path.Combine(folderPath, GraphPath);
+            }
+            else
+            {
+                filePath = Path.GetFullPath(GraphPath);
+            }
+            if (!filePath.EndsWith(".rgraph"))
+            {
+                filePath += ".rgraph";
+            }
+            
+            if (referencedFlowChart == null || 
+                !Utils.GetGraphPath(referencedFlowChart.Guid, out var currentFilePath) ||
+                currentFilePath != filePath)
             {
                 try
                 {
-                    Utils.Load(GraphName, out _referencedFlowChart);
+                    Utils.Load(filePath, out referencedFlowChart);
                 }
                 catch (Exception e)
                 {
@@ -56,7 +85,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                     return;
                 }
             }
-            if (!Utils.ValidateGraph(_referencedFlowChart, out var startNode))
+            if (!Utils.ValidateGraph(referencedFlowChart, out var startNode))
             {
                 ExecutionState = ExecutionState.Failed;
                 return;
@@ -67,7 +96,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 InputPropertyPorts.First(x => x.Name == "Arg").Value;
             if (arg != null)
             {
-                var nodes = NodeGraphManager.FindNode(_referencedFlowChart, "Get Reference Arg");
+                var nodes = NodeGraphManager.FindNode(referencedFlowChart, "Get Reference Arg");
                 foreach (var node in nodes.OfType<GetReferenceArgNode>())
                 {
                     node.value = arg;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
@@ -200,9 +201,9 @@ namespace RefactorGraph
 
         private void Save(object sender, RoutedEventArgs e)
         {
-            if (FlowChartViewModel != null)
+            if (FlowChartViewModel != null && Utils.GetGraphPath(FlowChartViewModel.Model.Guid, out var filePath))
             {
-                Utils.Save(FlowChartViewModel.Model);
+                Utils.Save(FlowChartViewModel.Model, filePath);
             }
         }
 
@@ -224,8 +225,7 @@ namespace RefactorGraph
                 Source = uri,
                 MarkdownStyle = MarkdownStyle.GithubLike,
                 MinWidth = 200,
-                ClickAction = ClickAction.OpenBrowser,
-                
+                ClickAction = ClickAction.OpenBrowser
             };
             HelpPanel.Children.Add(md);
             HelpPanel.Visibility = Visibility.Visible;
@@ -291,11 +291,25 @@ namespace RefactorGraph
                 }
                 CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y);
             }
-            if (args.DragEventArgs.Data.GetData("GraphEntry") is GraphEntryControl graphEntry)
+            if (args.DragEventArgs.Data.GetData("GraphEntry") is GraphEntryControl graphEntry &&
+                Utils.GetGraphPath(FlowChartViewModel.Model.Guid, out var ownerFilePath) &&
+                Utils.GetGraphPath(graphEntry.GraphGuid, out var refFilePath))
             {
+                var ownerFolderPath = Path.GetDirectoryName(ownerFilePath);
+                var refFolderPath = Path.GetDirectoryName(refFilePath);
+               
                 var nodeType = typeof(ReferenceNode);
-                var node = CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y);
-                (node as ReferenceNode).GraphName = graphEntry.GraphName;
+                var node = CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y) as ReferenceNode;
+                if (ownerFolderPath == refFolderPath)
+                {
+                    node.GraphPath = Path.GetFileName(refFilePath);
+                    node.RelativeToOwner = true;
+                }
+                else
+                {
+                    node.GraphPath = refFilePath;
+                    node.RelativeToOwner = false;
+                }
             }
         }
 

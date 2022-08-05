@@ -1,1 +1,0 @@
-To use examples, copy .rgraph files to \<YourProject\>/RefactorGraphs folder, then click "Reload refactor graphs", then open corresponding example .cs file in Visual Studio.
