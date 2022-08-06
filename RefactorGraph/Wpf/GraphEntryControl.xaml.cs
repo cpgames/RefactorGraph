@@ -245,6 +245,14 @@ namespace RefactorGraph
             CollapseButton.Visibility = Visibility.Collapsed;
             BtnRun.Visibility = Visibility.Visible;
         }
+
+        private void OpenClicked(object sender, RoutedEventArgs e)
+        {
+            if (Utils.GetGraphPath(GraphGuid, out var filePath))
+            {
+                Utils.OpenInExplorer(filePath);
+            }
+        }
         #endregion
     }
 }

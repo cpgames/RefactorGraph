@@ -30,7 +30,6 @@ namespace RefactorGraph.Wpf
         {
             InitializeComponent();
         }
-        
         #endregion
 
         #region Methods
@@ -97,8 +96,8 @@ namespace RefactorGraph.Wpf
 
         private void RefreshClicked(object sender, RoutedEventArgs e)
         {
-            var result = MessageBox.Show("Refreshing will delete all unsaved changes to graphs in this folder.\nSave all changes??",
-                $"Refresh {FolderName.Content}", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            var result = MessageBox.Show("Refreshing will delete all unsaved changes to graphs in this folder.\nSave all changes?",
+                $"Refresh {FolderName.Content}", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
             if (result == DialogResult.Yes)
             {
                 SaveAll();
@@ -126,7 +125,6 @@ namespace RefactorGraph.Wpf
                 Utils.RemoveIncludeFolder(_folder);
             }
         }
-        #endregion
 
         private void GraphEntryMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -150,7 +148,7 @@ namespace RefactorGraph.Wpf
             if (_isDown && !_isDragging)
             {
                 if (Math.Abs(e.GetPosition(GraphEntries).X - _startPoint.X) > SystemParameters.MinimumHorizontalDragDistance ||
-                        Math.Abs(e.GetPosition(GraphEntries).Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
+                    Math.Abs(e.GetPosition(GraphEntries).Y - _startPoint.Y) > SystemParameters.MinimumVerticalDragDistance)
                 {
                     _isDragging = true;
                     _realDragSource = e.Source as UIElement;
@@ -167,5 +165,11 @@ namespace RefactorGraph.Wpf
                 e.Effects = DragDropEffects.Move;
             }
         }
+
+        private void OpenClicked(object sender, RoutedEventArgs e)
+        {
+            Utils.OpenInExplorer(_folder);
+        }
+        #endregion
     }
 }

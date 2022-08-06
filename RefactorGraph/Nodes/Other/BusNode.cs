@@ -53,10 +53,9 @@ namespace RefactorGraph.Nodes.Other
             {
                 foreach (var flowConnector in outputPort.Connectors)
                 {
-                    var executionState = flowConnector.Execute();
-                    if (!ProceedOnFailure && executionState == ExecutionState.Failed)
+                    ExecutionState = flowConnector.Execute();
+                    if (!ProceedOnFailure && ExecutionState == ExecutionState.Failed)
                     {
-                        ExecutionState = executionState;
                         return;
                     }
                 }
