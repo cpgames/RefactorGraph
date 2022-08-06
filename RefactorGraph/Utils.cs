@@ -17,6 +17,7 @@ using NodeGraph.Model;
 using PCRE;
 using RefactorGraph.Nodes;
 using RefactorGraph.Nodes.Other;
+using Process = System.Diagnostics.Process;
 
 namespace RefactorGraph
 {
@@ -50,7 +51,7 @@ namespace RefactorGraph
         {
             return _includeFolderPaths;
         }
-        
+
         public static bool AddIncludeFolder(string folderPath)
         {
             var absFolderPath = Path.GetFullPath(folderPath);
@@ -105,7 +106,7 @@ namespace RefactorGraph
             }
             return dirInfo.FullName;
         }
-        
+
         public static IEnumerable<string> GetGraphFiles(string folderPath)
         {
             return Directory.GetFiles(folderPath, "*.rgraph");
@@ -127,6 +128,7 @@ namespace RefactorGraph
                 {
                     throw new Exception(@"File {newFilePath} already exists.");
                 }
+                _guidToPathMap[graphGuid] = newFilePath;
                 File.Move(oldFilePath, newFilePath);
             }
             catch (Exception e)
@@ -198,7 +200,7 @@ namespace RefactorGraph
                                 var guid = Guid.Parse(reader.GetAttribute("Guid") ?? throw new InvalidOperationException());
                                 if (_guidToPathMap.ContainsKey(guid))
                                 {
-                                    throw new Exception($"FlowChart with this guid already exists.");
+                                    throw new Exception("FlowChart with this guid already exists.");
                                 }
                                 var type = Type.GetType(reader.GetAttribute("Type") ?? throw new InvalidOperationException());
 
@@ -248,6 +250,14 @@ namespace RefactorGraph
             {
                 MessageBox.Show(e.Message, "Delete failed", MessageBoxButton.OK, MessageBoxImage.Error);
                 return false;
+            }
+        }
+
+        public static void OpenInExplorer(string path)
+        {
+            if (Directory.Exists(path) || File.Exists(path))
+            {
+                Process.Start("explorer.exe", $"/select,\"{path}\"");
             }
         }
 

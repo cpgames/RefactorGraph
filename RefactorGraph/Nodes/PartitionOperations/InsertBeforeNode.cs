@@ -21,7 +21,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
         [NodePropertyPort(NEW_PARTITION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition NewPartition;
         #endregion
-        
 
         #region Constructors
         public InsertBeforeNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
@@ -49,9 +48,17 @@ namespace RefactorGraph.Nodes.PartitionOperations
             {
                 data = Data,
                 prev = Partition.prev,
-                next = Partition
+                next = Partition,
+                parent = Partition.parent
             };
-            Partition.prev.next = NewPartition;
+            if (Partition.prev != null)
+            {
+                Partition.prev.next = NewPartition;
+            }
+            else if (Partition.parent != null)
+            {
+                Partition.parent.inner = NewPartition;
+            }
             Partition.prev = NewPartition;
         }
         #endregion

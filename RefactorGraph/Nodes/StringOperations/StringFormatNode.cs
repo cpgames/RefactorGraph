@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NodeGraph;
 using NodeGraph.Model;
 
@@ -50,6 +51,7 @@ namespace RefactorGraph.Nodes.StringOperations
             base.OnExecute(connector);
 
             Format = GetPortValue(FORMAT_PORT_NAME, Format);
+            var format = Regex.Unescape(Format);
             var argPorts = InputPropertyPorts
                 .Where(x => x.Name.Contains("Args"));
             var args = new List<object>();
@@ -76,7 +78,7 @@ namespace RefactorGraph.Nodes.StringOperations
             var strArgs = args.ToArray();
             try
             {
-                Result = string.Format(Format, strArgs);
+                Result = string.Format(format, strArgs);
             }
             catch (Exception e)
             {

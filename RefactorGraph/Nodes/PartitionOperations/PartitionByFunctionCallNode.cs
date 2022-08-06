@@ -103,10 +103,9 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
             if (ApplyFilter())
             {
-                var executionState = ExecutePort(LOOP_PORT_NAME);
-                if (executionState == ExecutionState.Failed)
+                ExecutionState = ExecutePort(LOOP_PORT_NAME);
+                if (ExecutionState == ExecutionState.Failed)
                 {
-                    ExecutionState = ExecutionState.Failed;
                     return;
                 }
             }

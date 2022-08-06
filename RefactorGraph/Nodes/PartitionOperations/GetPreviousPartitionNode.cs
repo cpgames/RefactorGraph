@@ -42,8 +42,13 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            PreviousPartition = Partition.prev;
-            if (Partition == null)
+            var current = Partition;
+            while (current.prev == null && current.parent != null)
+            {
+                current = current.parent;
+            }
+            PreviousPartition = current.prev;
+            if (PreviousPartition == null)
             {
                 ExecutionState = ExecutionState.Skipped;
             }

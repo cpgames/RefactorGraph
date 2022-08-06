@@ -17,6 +17,7 @@
                 <ColumnDefinition Width="25" />
                 <ColumnDefinition Width="25" />
                 <ColumnDefinition Width="25" />
+                <ColumnDefinition Width="25" />
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     ToolTip="ExpandClicked" Click="ExpandClicked" Name="ExpandButton" Visibility="Collapsed">
@@ -35,11 +36,16 @@
                        Margin="2,0,2,0" />
             </Button>
             <Button Grid.Column="3" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                    ToolTip="Open folder in Explorer" Click="OpenClicked">
+                <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Open.png"
+                       Margin="2,0,2,0" />
+            </Button>
+            <Button Grid.Column="4" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     ToolTip="Reload refactor graphs" Click="RefreshClicked">
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/Refresh.png"
                        Margin="2,0,2,0" />
             </Button>
-            <Button Grid.Column="4" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+            <Button Grid.Column="5" Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
                     ToolTip="RemoveClicked Folder" Click="RemoveClicked">
                 <Image Source="pack://application:,,,/RefactorGraph;component/Resources/x.png"
                        Margin="2,0,2,0" />
