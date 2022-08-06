@@ -1,10 +1,9 @@
 
 # Refactor Graph
 ### Node-based code refactoring tool for Visual Studio.
+[**[Download Latest Version]**](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1)
 
 ![image](https://user-images.githubusercontent.com/49317353/183232277-e833e090-f7bc-4646-b60e-3f5676d7aede.png)
-
-[Latest version](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1).
 
 Note: This is a work in progress, and much of parsing functionality is still missing. Also there may be stability issues that may cause Visual Studio to crash, so make sure to save your work when using this extension. If you experience any issues, please report them [here](https://github.com/cpgames/RefactorGraph/issues).
 
@@ -19,4 +18,4 @@ Then any partition can be modified on individually or partitioned further into s
 
 To get started, see [wiki](https://github.com/cpgames/RefactorGraph/wiki).
 
-Intro video (a bit outdated): https://youtu.be/uCBUt6PwqXU
+[Intro video](https://youtu.be/uCBUt6PwqXU) (it's a bit outdated, but still describes the concept). 
