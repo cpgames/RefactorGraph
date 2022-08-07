@@ -99,7 +99,7 @@ namespace RefactorGraph.Nodes
                 return ExecutionState.Failed;
             }
             var connector = port.Connectors.FirstOrDefault();
-            return connector?.Execute() ?? ExecutionState.Executing;
+            return connector?.Execute() ?? ExecutionState.Executed;
         }
 
         private void ShowHelp()
