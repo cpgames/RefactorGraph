@@ -1,10 +1,16 @@
 
 # Refactor Graph
-Refactor Graph is a node-based code refactoring tool for Visual Studio.
+Refactor Graph is a node-based code refactoring tool for Visual Studio 2022.  
 
-[**[Download Latest Version]**](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1)
-
+## Sample Graph:
 ![image](https://user-images.githubusercontent.com/49317353/183280565-9f4a11d5-d585-4d0f-b6e4-319620da01d7.png)
+
+## Installation:
+Manually [**[Download Latest Version]**](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1) and run the .vsix file  
+or  
+In your Visual Studio go to Extensions -> Manage Extensions -> Select "Online" tab and type "RefactorGraph" in the search field.  
+![image](https://user-images.githubusercontent.com/49317353/183313529-efb7196b-cf73-4fa4-92e4-6791cfa0c028.png)   
+You will need to restart Visual Studio to finish the installation.
 
 Note: This is a work in progress, and much of parsing functionality is still missing. Also there may be stability issues that may cause Visual Studio to crash, so make sure to save your work when using this extension. If you experience any issues, please report them [here](https://github.com/cpgames/RefactorGraph/issues).
 
