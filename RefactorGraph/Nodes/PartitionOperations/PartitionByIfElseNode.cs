@@ -65,7 +65,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public override void OnCreate()
         {
             base.OnCreate();
-            
+
             CreateOutputFlowPort(LOOP_CLAUSE_PORT_NAME);
         }
 
@@ -87,6 +87,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
             var partitions = Partition.PartitionByRegexMatch(partition, IF_ELSE_REGEX);
             foreach (var p in partitions)
             {
+                if (ExecutionState == ExecutionState.Failed)
+                {
+                    return;
+                }
                 IfElse = p;
                 var executionState = ExecutePort(LOOP_PORT_NAME);
                 if (executionState == ExecutionState.Failed)
@@ -124,7 +128,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
             foreach (var p in pBodies)
             {
-                PartitionIfElses(p);
+                if (p != null)
+                {
+                    PartitionIfElses(p);
+                }
             }
         }
 
