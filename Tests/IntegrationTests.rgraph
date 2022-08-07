@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <FlowChart Guid="174e3bac-59ba-49bb-b9d2-50168de063c8" Type="NodeGraph.Model.FlowChart, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Name="IntegrationTests" IsReference="False">
 	<Nodes>
-		<Node Guid="9597bb54-53ef-4ec2-ac24-05c711abbcfa" Type="RefactorGraph.Nodes.Other.StartNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Start" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="200" Y="200" ZIndex="24">
+		<Node Guid="9597bb54-53ef-4ec2-ac24-05c711abbcfa" Type="RefactorGraph.Nodes.Other.StartNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Start" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="200" Y="200" ZIndex="33">
 			<InputFlowPorts />
 			<OutputFlowPorts>
 				<FlowPort Guid="3f5735f5-1583-494e-9494-14a97fcabb55" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="9597bb54-53ef-4ec2-ac24-05c711abbcfa" IsInput="False" Name="Done" DisplayName="Done" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
@@ -9,7 +9,7 @@
 			<InputPropertyPorts />
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="747df6f1-c647-44e4-99fc-ba0432a8064e" Type="RefactorGraph.Nodes.Other.BusNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="RefactorGraph.Nodes.DynamicNodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Bus" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="364" Y="133" ZIndex="98">
+		<Node Guid="747df6f1-c647-44e4-99fc-ba0432a8064e" Type="RefactorGraph.Nodes.Other.BusNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="RefactorGraph.Nodes.DynamicNodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Bus" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="364" Y="133" ZIndex="124">
 			<InputFlowPorts>
 				<FlowPort Guid="5cd86257-0c91-4a54-82f2-0f1e83e8d718" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -20,6 +20,7 @@
 				<FlowPort Guid="29c6fe1f-ab7d-43c6-afcc-44ec9c9a8ddd" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="False" Name="3" DisplayName="3" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 				<FlowPort Guid="f854aeaf-d700-46de-83f8-873d04ff6c55" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="False" Name="4" DisplayName="4" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 				<FlowPort Guid="eaeb32e1-0462-4de9-a5ee-030cbaafca32" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="False" Name="5" DisplayName="5" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
+				<FlowPort Guid="5339d3f3-38ee-48f8-8c2c-2e56b85884fd" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="False" Name="6" DisplayName="6" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</OutputFlowPorts>
 			<InputPropertyPorts>
 				<PropertyPort Guid="44c003b7-1e6f-4ca4-8a2c-348e30de292a" Type="NodeGraph.Model.NodePropertyPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodePropertyPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="747df6f1-c647-44e4-99fc-ba0432a8064e" IsInput="True" Name="ProceedOnFailure" DisplayName="ProceedOnFailure" AllowMultipleInput="False" AllowMultipleOutput="True" IsPortEnabled="True" IsEnabled="True" ValueType="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" HasEditor="True" SerializeValue="True" RealValueType="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
@@ -28,7 +29,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="54b671fc-661c-4cdd-ac77-c21e7ff28e74" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="674.999999999996" Y="-164.545454545454" ZIndex="110">
+		<Node Guid="54b671fc-661c-4cdd-ac77-c21e7ff28e74" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="638.602941176467" Y="80.9272345301763" ZIndex="134">
 			<InputFlowPorts>
 				<FlowPort Guid="86967552-717d-454a-aabc-682cd71988ce" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="54b671fc-661c-4cdd-ac77-c21e7ff28e74" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -51,7 +52,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="ddb04293-3b40-4192-a8e7-47750f00833b" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="670.33333333333" Y="-15.878787878788" ZIndex="107">
+		<Node Guid="ddb04293-3b40-4192-a8e7-47750f00833b" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="885.48039215686" Y="83.7850776674306" ZIndex="133">
 			<InputFlowPorts>
 				<FlowPort Guid="12909afc-add8-464c-ae61-cd59eff16b25" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="ddb04293-3b40-4192-a8e7-47750f00833b" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -74,7 +75,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="07e98a04-c4ee-4331-a817-c23e702af120" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="671.33333333333" Y="140.121212121212" ZIndex="112">
+		<Node Guid="07e98a04-c4ee-4331-a817-c23e702af120" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="1138.17156862745" Y="87.5791953144894" ZIndex="132">
 			<InputFlowPorts>
 				<FlowPort Guid="71d465da-60cc-4162-809f-1a1b2e8a7544" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="07e98a04-c4ee-4331-a817-c23e702af120" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -97,7 +98,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="094486f2-4604-4d16-86fa-ab0711fa047f" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="673.33333333333" Y="293.121212121212" ZIndex="114">
+		<Node Guid="094486f2-4604-4d16-86fa-ab0711fa047f" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="1386.20098039215" Y="92.1968423733124" ZIndex="131">
 			<InputFlowPorts>
 				<FlowPort Guid="af013c67-1a24-41dd-b667-e620667d2c31" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="094486f2-4604-4d16-86fa-ab0711fa047f" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -120,7 +121,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="83470528-f0e9-4fc0-a5b8-ffec0bf6ad65" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="674.33333333333" Y="448.121212121212" ZIndex="117">
+		<Node Guid="83470528-f0e9-4fc0-a5b8-ffec0bf6ad65" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="TestWrapper" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="1180.14215686274" Y="254.255665902723" ZIndex="128">
 			<InputFlowPorts>
 				<FlowPort Guid="3f89c5e8-22ea-4e5c-b915-799aa56540e8" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="83470528-f0e9-4fc0-a5b8-ffec0bf6ad65" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -143,7 +144,7 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
-		<Node Guid="f63942e4-dfd3-445c-98f1-89bbd0e9460d" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Reference" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="671.225905673275" Y="615.997721576671" ZIndex="126">
+		<Node Guid="f63942e4-dfd3-445c-98f1-89bbd0e9460d" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Reference" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="907.40237626151" Y="249.852763593478" ZIndex="129">
 			<InputFlowPorts>
 				<FlowPort Guid="fe73c8e1-5c1d-4e9e-bc0a-f5da352872b2" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="f63942e4-dfd3-445c-98f1-89bbd0e9460d" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
 			</InputFlowPorts>
@@ -166,6 +167,29 @@
 			</InputPropertyPorts>
 			<OutputPropertyPorts />
 		</Node>
+		<Node Guid="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" Type="RefactorGraph.Nodes.PartitionOperations.ReferenceNode, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeViewModel" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" Header="Reference" HeaderBackgroundColor="#FF8B008B" HeaderFontColor="#FFFFFFFF" AllowEditingHeader="False" AllowCircularConnection="True" X="633.35579899976" Y="245.412518853696" ZIndex="130">
+			<InputFlowPorts>
+				<FlowPort Guid="a53a768c-7a35-4180-bee6-fe03f1d7280f" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="True" Name="Start" DisplayName="Start" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
+			</InputFlowPorts>
+			<OutputFlowPorts>
+				<FlowPort Guid="72242704-abca-4068-a985-89b6c72d1fe2" Type="NodeGraph.Model.NodeFlowPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodeFlowPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="False" Name="Done" DisplayName="Done" AllowMultipleInput="True" AllowMultipleOutput="False" IsPortEnabled="True" IsEnabled="True" />
+			</OutputFlowPorts>
+			<InputPropertyPorts>
+				<PropertyPort Guid="d580a597-61f2-4842-bcee-83a9bfa5394f" Type="NodeGraph.Model.NodePropertyPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodePropertyPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="True" Name="ElementType" DisplayName="ElementType" AllowMultipleInput="False" AllowMultipleOutput="True" IsPortEnabled="True" IsEnabled="True" ValueType="RefactorGraph.Nodes.CollectionType, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null" HasEditor="True" SerializeValue="True" RealValueType="RefactorGraph.Nodes.CollectionType, RefactorGraph, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+					<CollectionType>String</CollectionType>
+				</PropertyPort>
+				<PropertyPort Guid="adc2ac3d-7d54-4540-9be8-d3c81d0229d3" Type="NodeGraph.Model.NodePropertyPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodePropertyPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="True" Name="GraphPath" DisplayName="GraphPath" AllowMultipleInput="False" AllowMultipleOutput="True" IsPortEnabled="True" IsEnabled="True" ValueType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" HasEditor="True" SerializeValue="True" RealValueType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+					<string>TestWrapper.rgraph</string>
+				</PropertyPort>
+				<PropertyPort Guid="c89da816-d439-4f05-8ac7-67961bc5a485" Type="NodeGraph.Model.NodePropertyPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodePropertyPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="True" Name="RelativeToOwner" DisplayName="RelativeToOwner" AllowMultipleInput="False" AllowMultipleOutput="True" IsPortEnabled="True" IsEnabled="True" ValueType="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" HasEditor="True" SerializeValue="True" RealValueType="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+					<boolean>true</boolean>
+				</PropertyPort>
+				<PropertyPort Guid="2cf77a7b-49b0-4a64-92eb-e4771dfd863b" Type="NodeGraph.Model.NodePropertyPort, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.NodePropertyPortViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="a6a8aee8-cda2-4a0e-a34d-5fe86a0e530e" IsInput="True" Name="Arg" DisplayName="Arg&#xA;[String]" AllowMultipleInput="False" AllowMultipleOutput="True" IsPortEnabled="True" IsEnabled="True" ValueType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" HasEditor="True" SerializeValue="True" RealValueType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+					<string>TestPartitionByReturn</string>
+				</PropertyPort>
+			</InputPropertyPorts>
+			<OutputPropertyPorts />
+		</Node>
 	</Nodes>
 	<Connectors>
 		<Connector Guid="7b8924c3-ceb6-48f4-81e4-22023063ba73" Type="NodeGraph.Model.Connector, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.ConnectorViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" StartPort="3f5735f5-1583-494e-9494-14a97fcabb55" EndPort="5cd86257-0c91-4a54-82f2-0f1e83e8d718" />
@@ -175,5 +199,6 @@
 		<Connector Guid="277063b7-513f-48f9-81f3-197ff7bc9fcf" Type="NodeGraph.Model.Connector, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.ConnectorViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" StartPort="29c6fe1f-ab7d-43c6-afcc-44ec9c9a8ddd" EndPort="af013c67-1a24-41dd-b667-e620667d2c31" />
 		<Connector Guid="852a8c5b-893c-4b27-be86-6c2343b4c51c" Type="NodeGraph.Model.Connector, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.ConnectorViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" StartPort="f854aeaf-d700-46de-83f8-873d04ff6c55" EndPort="3f89c5e8-22ea-4e5c-b915-799aa56540e8" />
 		<Connector Guid="80b839b2-2240-4f22-acf5-803b765b442a" Type="NodeGraph.Model.Connector, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.ConnectorViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" StartPort="eaeb32e1-0462-4de9-a5ee-030cbaafca32" EndPort="fe73c8e1-5c1d-4e9e-bc0a-f5da352872b2" />
+		<Connector Guid="cd12f631-f0b7-43cb-821f-ad039650a976" Type="NodeGraph.Model.Connector, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" ViewModelType="NodeGraph.ViewModel.ConnectorViewModel, NodeGraph, Version=0.2.0.0, Culture=neutral, PublicKeyToken=null" Owner="174e3bac-59ba-49bb-b9d2-50168de063c8" StartPort="5339d3f3-38ee-48f8-8c2c-2e56b85884fd" EndPort="a53a768c-7a35-4180-bee6-fe03f1d7280f" />
 	</Connectors>
 </FlowChart>

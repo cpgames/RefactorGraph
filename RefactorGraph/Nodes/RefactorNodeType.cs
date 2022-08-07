@@ -35,6 +35,7 @@
         Start,
         // PartitionOperations
         FindFirstPartitionInCollection,
+        GetLeadingSpacing,
         GetNextPartition,
         GetPartitionData,
         GetPreviousPartition,
@@ -47,6 +48,7 @@
         PartitionByIfElse,
         PartitionByParameters,
         PartitionByRegexMatch,
+        PartitionByReturn,
         PartitionByVariable,
         PartitionIsValid,
         RegexMatchPresentInPartitionCollection,

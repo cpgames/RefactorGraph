@@ -72,11 +72,13 @@
     <Compile Include="Nodes\Other\ReturnExecutionStateNode.cs" />
     <Compile Include="Nodes\Other\GetReferenceArgNode.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\GetLeadingSpacingNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByParametersNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetNextPartitionNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByReturnNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByVariableNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionIsValidNode.cs" />
     <Compile Include="Nodes\PartitionOperations\InsertAfterNode.cs" />

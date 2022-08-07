@@ -43,6 +43,16 @@ namespace RefactorGraph
             return cur;
         }
 
+        public Partition GetPrev()
+        {
+            var cur = this;
+            while (cur.prev == null && cur.parent != null)
+            {
+                cur = cur.parent;
+            }
+            return cur.prev;
+        }
+
         public void Remove()
         {
             if (parent != null && IsRoot)
