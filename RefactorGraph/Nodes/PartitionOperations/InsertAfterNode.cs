@@ -22,9 +22,6 @@ namespace RefactorGraph.Nodes.PartitionOperations
         public Partition NewPartition;
         #endregion
 
-        #region Properties
-        #endregion
-
         #region Constructors
         public InsertAfterNode(Guid guid, FlowChart flowChart) : base(guid, flowChart) { }
         #endregion
