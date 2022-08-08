@@ -13,6 +13,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string DECLARATION_OR_ASSIGNMENT_FILTER_PORT_NAME = "DeclarationOrAssignmentFilter";
         public const string VARIABLE_TYPE_FILTER_PORT_NAME = "VariableTypeFilter";
         public const string VARIABLE_NAME_FILTER_PORT_NAME = "VariableNameFilter";
+        public const string VARIABLE_VALUE_FILTER_PORT_NAME = "VariableValueFilter";
 
         public const string VARIABLE_BLOCK_PORT_NAME = "VariableBlock";
         public const string VARIABLE_SCOPE_PORT_NAME = "VariableScope";
@@ -63,6 +64,9 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(VARIABLE_NAME_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string VariableNameFilter;
+
+        [NodePropertyPort(VARIABLE_VALUE_FILTER_PORT_NAME, true, typeof(string), "", true)]
+        public string VariableValueFilter;
 
         // Outputs
         [NodePropertyPort(VARIABLE_BLOCK_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
@@ -183,6 +187,15 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
             VariableNameFilter = GetPortValue(VARIABLE_NAME_FILTER_PORT_NAME, VariableNameFilter);
             if (!Partition.IsMatch(VariableName, VariableNameFilter))
+            {
+                return false;
+            }
+            VariableValueFilter = GetPortValue(VARIABLE_VALUE_FILTER_PORT_NAME, VariableValueFilter);
+            if (string.IsNullOrEmpty(VariableValueFilter))
+            {
+                return true;
+            }
+            if (!IsAssignment || !Partition.IsMatch(VariableValue, VariableValueFilter))
             {
                 return false;
             }
