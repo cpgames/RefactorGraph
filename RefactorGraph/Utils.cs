@@ -93,7 +93,7 @@ namespace RefactorGraph
         
         public static string GetOrCreateDefaultDir()
         {
-            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var dir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             var dirSubs = Directory.GetDirectories(dir, "RefactorGraphs");
             DirectoryInfo dirInfo;
             if (dirSubs.Length == 0)

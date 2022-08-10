@@ -11,7 +11,7 @@ namespace RefactorGraph
         public const string Name = "RefactorGraph";
         public const string Description = @"Node-based code refactoring tool for C#.";
         public const string Language = "en-US";
-        public const string Version = "1.26";
+        public const string Version = "1.26.1";
         public const string Author = "ChillPillGames";
         public const string Tags = "Refactoring, Editor, Graph";
     }
