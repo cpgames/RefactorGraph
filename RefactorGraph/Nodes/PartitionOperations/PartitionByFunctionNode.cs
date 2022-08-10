@@ -10,6 +10,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
 
+        public const string FUNCTION_KIND_FILTER_PORT_NAME = "FunctionKindFilter";
         public const string SCOPE_FILTER_PORT_NAME = "ScopeFilter";
         public const string MODIFIER_FILTER_PORT_NAME = "ModifierFilter";
         public const string RETURN_TYPE_FILTER_PORT_NAME = "ReturnTypeFilter";
@@ -34,7 +35,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private const string DEF_REGEX = @"[\s\S]+?(?=\s*{)";
         private const string SCOPE_REGEX = @"(?:public|private|protected|internal)";
         private const string MODIFIER_REGEX = @"(?:abstract|static|override)";
-        private const string RETURN_TYPE_REGEX = @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)";
+        private const string RETURN_TYPE_REGEX = @"\A\s*\K(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)(?!\s*\()";
         private const string NAME_REGEX = @"(?:\b[\w.]+\b\s*)(<(?:[^<>]++|(?-1))*>)?";
         private const string PARAMS_BLOCK_REGEX = @"(\((?:[^()]++|(?-1))*\))";
         private const string PARAMS_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
@@ -47,7 +48,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
 
-        [NodePropertyPort(SCOPE_FILTER_PORT_NAME, true, typeof(Scope), RefactorGraph.Scope.Protected | RefactorGraph.Scope.Private | RefactorGraph.Scope.Internal | RefactorGraph.Scope.Public, true)]
+        [NodePropertyPort(FUNCTION_KIND_FILTER_PORT_NAME, true, typeof(FunctionKind), FunctionKind.Constructor | FunctionKind.Regular, true)]
+        public FunctionKind FunctionKindFilter;
+
+        [NodePropertyPort(SCOPE_FILTER_PORT_NAME, true, typeof(Scope), RefactorGraph.Scope.Protected | RefactorGraph.Scope.Private | RefactorGraph.Scope.Internal | RefactorGraph.Scope.Public | RefactorGraph.Scope.Scopeless, true)]
         public Scope ScopeFilter;
 
         [NodePropertyPort(MODIFIER_FILTER_PORT_NAME, true, typeof(FunctionModifier), FunctionModifier.Static | FunctionModifier.Abstract | FunctionModifier.Virtual | FunctionModifier.None, true)]
@@ -127,38 +131,54 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 {
                     return;
                 }
-                PartitionFunction(p);
-            }
-        }
-
-        private void PartitionFunction(Partition partition)
-        {
-            var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
-            var scope_modifier_returnType_name_params = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS);
-            Function = partition;
-            Scope = scope_modifier_returnType_name_params[0];
-            Modifier = scope_modifier_returnType_name_params[1];
-            ReturnType = scope_modifier_returnType_name_params[2];
-            FunctionName = scope_modifier_returnType_name_params[3];
-            Parameters = Partition.PartitionByFirstRegexMatch(scope_modifier_returnType_name_params[4], PARAMS_REGEX);
-            FunctionBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
-            if (ApplyFilter())
-            {
-                var executionState = ExecutePort(LOOP_PORT_NAME);
-                if (executionState == ExecutionState.Failed)
+                var def_body = Partition.PartitionByRegexMatch(p, DEF_BODY);
+                var scope_modifier_returnType_name_params = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_RETURN_TYPE_NAME_PARAMS);
+                Function = p;
+                Scope = scope_modifier_returnType_name_params[0];
+                Modifier = scope_modifier_returnType_name_params[1];
+                ReturnType = scope_modifier_returnType_name_params[2];
+                FunctionName = scope_modifier_returnType_name_params[3];
+                Parameters = Partition.PartitionByFirstRegexMatch(scope_modifier_returnType_name_params[4], PARAMS_REGEX);
+                FunctionBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
+                var executionState = ExecutionState.Executing;
+                if (ApplyFilter())
                 {
-                    ExecutionState = ExecutionState.Failed;
-                    return;
+                    executionState = ExecutePort(LOOP_PORT_NAME);
+                    if (executionState == ExecutionState.Failed)
+                    {
+                        ExecutionState = ExecutionState.Failed;
+                        return;
+                    }
                 }
-            }
-            if (ExecutionState != ExecutionState.Skipped)
-            {
-                PartitionFunctions(FunctionBody);
+                if (executionState == ExecutionState.Skipped)
+                {
+                    break;
+                }
+                if (FunctionBody != null)
+                {
+                    PartitionFunctions(FunctionBody);
+                }
             }
         }
 
         private bool ApplyFilter()
         {
+            var functionKindFilter = GetPortValue(FUNCTION_KIND_FILTER_PORT_NAME, FunctionKindFilter);
+            if ((functionKindFilter & FunctionKind.Constructor) == 0)
+            {
+                if (ReturnType == null)
+                {
+                    return false;
+                }
+            }
+            if ((functionKindFilter & FunctionKind.Regular) == 0)
+            {
+                if (ReturnType != null)
+                {
+                    return false;
+                }
+            }
+
             ScopeFilter = GetPortValue(SCOPE_FILTER_PORT_NAME, ScopeFilter);
             var scopeEnum = RefactorGraph.Scope.Scopeless;
             if (Scope != null)

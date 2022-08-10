@@ -105,37 +105,35 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 {
                     return;
                 }
-                PartitionClass(p);
-            }
-        }
-
-        private void PartitionClass(Partition partition)
-        {
-            var def_body = Partition.PartitionByRegexMatch(partition, DEF_BODY);
-            var scope_modifier_category_name = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_CATEGORY_NAME);
-            Class = partition;
-            Scope = scope_modifier_category_name[0];
-            Modifier = scope_modifier_category_name[1];
-            TypeCategory = scope_modifier_category_name[2];
-            ClassName = scope_modifier_category_name[3];
-            ClassBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
-
-            if (ApplyFilter())
-            {
-                var executionState = ExecutePort(LOOP_PORT_NAME);
-                if (executionState == ExecutionState.Failed)
+                var def_body = Partition.PartitionByRegexMatch(p, DEF_BODY);
+                var scope_modifier_category_name = Partition.PartitionByRegexMatch(def_body[0], SCOPE_MODIFIER_CATEGORY_NAME);
+                Class = p;
+                Scope = scope_modifier_category_name[0];
+                Modifier = scope_modifier_category_name[1];
+                TypeCategory = scope_modifier_category_name[2];
+                ClassName = scope_modifier_category_name[3];
+                ClassBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
+                var executionState = ExecutionState.Executing;
+                if (ApplyFilter())
                 {
-                    ExecutionState = ExecutionState.Failed;
-                    return;
+                    executionState = ExecutePort(LOOP_PORT_NAME);
+                    if (executionState == ExecutionState.Failed)
+                    {
+                        ExecutionState = ExecutionState.Failed;
+                        return;
+                    }
+                }
+                if (executionState == ExecutionState.Skipped)
+                {
+                    break;
+                }
+                if (ClassBody != null)
+                {
+                    PartitionClasses(ClassBody);
                 }
             }
-
-            if (ExecutionState != ExecutionState.Skipped)
-            {
-                PartitionClasses(ClassBody);
-            }
         }
-
+        
         private bool ApplyFilter()
         {
             ScopeFilter = GetPortValue(SCOPE_FILTER_PORT_NAME, ScopeFilter);

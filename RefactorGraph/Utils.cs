@@ -90,10 +90,10 @@ namespace RefactorGraph
                 NodeGraphManager.DestroyFlowChart(guid);
             }
         }
-
+        
         public static string GetOrCreateDefaultDir()
         {
-            var dir = Directory.GetCurrentDirectory();
+            var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             var dirSubs = Directory.GetDirectories(dir, "RefactorGraphs");
             DirectoryInfo dirInfo;
             if (dirSubs.Length == 0)

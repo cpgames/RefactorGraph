@@ -9,7 +9,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
     {
         #region Fields
         public const string PARTITION_PORT_NAME = "Partition";
-        
+
         public const string RETURN_VALUE_FILTER_PORT_NAME = "ReturnValueFilter";
 
         public const string RETURN_BLOCK_PORT_NAME = "ReturnBlock";
@@ -26,14 +26,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
         // Inputs
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
-        
+
         [NodePropertyPort(RETURN_VALUE_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ReturnValueFilter;
-        
+
         // Outputs
         [NodePropertyPort(RETURN_BLOCK_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition ReturnBlock;
-        
+
         [NodePropertyPort(RETURN_VALUE_PORT_NAME, false, typeof(Partition), null, true, Serialized = false)]
         public Partition ReturnValue;
         #endregion
@@ -70,28 +70,24 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private void PartitionReturns(Partition partition)
         {
             var partitions = Partition.PartitionByRegexMatch(partition, RETURN_REGEX);
+            var executionState = ExecutionState;
             foreach (var p in partitions)
             {
                 ReturnBlock = p;
-                if (ExecutionState == ExecutionState.Failed)
+                if (executionState == ExecutionState.Failed || executionState == ExecutionState.Skipped)
                 {
                     return;
                 }
-                PartitionVariableAssignment(p);
-            }
-        }
+                ReturnValue = Partition.PartitionByFirstRegexMatch(ReturnBlock, RETURN_VALUE_REGEX);
 
-        private void PartitionVariableAssignment(Partition partition)
-        {
-            ReturnValue = Partition.PartitionByFirstRegexMatch(partition, RETURN_VALUE_REGEX);
-
-            if (ApplyFilter())
-            {
-                var executionState = ExecutePort(LOOP_PORT_NAME);
-                if (executionState == ExecutionState.Failed)
+                if (ApplyFilter())
                 {
-                    ExecutionState = ExecutionState.Failed;
+                    executionState = ExecutePort(LOOP_PORT_NAME);
                 }
+            }
+            if (executionState == ExecutionState.Failed)
+            {
+                ExecutionState = ExecutionState.Failed;
             }
         }
 

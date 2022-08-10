@@ -46,6 +46,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Data\FunctionKind.cs" />
     <Compile Include="Data\TypeCategory.cs" />
     <Compile Include="Data\ClassModifier.cs" />
     <Compile Include="Data\DeclarationOrAssignment.cs" />
