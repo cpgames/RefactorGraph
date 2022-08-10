@@ -302,7 +302,7 @@ namespace RefactorGraph
                 var node = CreateNode(nodeType, args.ModelSpaceMouseLocation.X, args.ModelSpaceMouseLocation.Y) as ReferenceNode;
                 if (ownerFolderPath == refFolderPath)
                 {
-                    node.GraphPath = Path.GetFileName(refFilePath);
+                    node.GraphPath = Path.GetFileNameWithoutExtension(refFilePath);
                     node.RelativeToOwner = true;
                 }
                 else
@@ -310,6 +310,8 @@ namespace RefactorGraph
                     node.GraphPath = refFilePath;
                     node.RelativeToOwner = false;
                 }
+                var graphNamePort = node.InputPropertyPorts.First(x => x.Name == ReferenceNode.GRAPH_PATH_PORT_NAME);
+                graphNamePort.RaisePropertyChanged("Value");
             }
         }
 

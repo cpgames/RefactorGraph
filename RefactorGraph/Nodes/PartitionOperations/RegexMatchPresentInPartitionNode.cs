@@ -49,7 +49,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
                 return;
             }
             var result = Partition.IsMatch(Partition, Pattern, RegexOptions);
-            ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
+            ExecutionState = ExecutePort(result ? TRUE_PORT_NAME : FALSE_PORT_NAME);
         }
         #endregion
     }

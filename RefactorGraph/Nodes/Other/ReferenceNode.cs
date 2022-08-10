@@ -36,7 +36,7 @@ namespace RefactorGraph.Nodes.PartitionOperations
             var graphNamePort = InputPropertyPorts.First(x => x.Name == GRAPH_PATH_PORT_NAME);
             graphNamePort.PropertyChanged += (sender,  args) =>
             {
-                Header = string.IsNullOrEmpty(GraphPath) ? "Reference" : Path.GetFileName(GraphPath);
+                Header = string.IsNullOrEmpty(GraphPath) ? "Reference" : Path.GetFileNameWithoutExtension(GraphPath);
             };
         }
 

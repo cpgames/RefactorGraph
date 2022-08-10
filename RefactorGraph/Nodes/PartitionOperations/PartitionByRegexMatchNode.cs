@@ -69,6 +69,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
                     ExecutionState = ExecutionState.Failed;
                     return;
                 }
+                if (executionState == ExecutionState.Skipped)
+                {
+                    break;
+                }
             }
         }
         #endregion

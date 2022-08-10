@@ -85,20 +85,20 @@ namespace RefactorGraph.Nodes.FunctionOperations
         private void PartitionIfElses(Partition partition)
         {
             var partitions = Partition.PartitionByRegexMatch(partition, IF_ELSE_REGEX);
+            var executionState = ExecutionState;
             foreach (var p in partitions)
             {
-                if (ExecutionState == ExecutionState.Failed)
-                {
-                    return;
-                }
                 IfElse = p;
-                var executionState = ExecutePort(LOOP_PORT_NAME);
-                if (executionState == ExecutionState.Failed)
+                executionState = ExecutePort(LOOP_PORT_NAME);
+                if (executionState == ExecutionState.Failed || executionState == ExecutionState.Skipped)
                 {
-                    ExecutionState = ExecutionState.Failed;
-                    return;
+                    break;
                 }
                 PartitionClauses(p);
+            }
+            if (executionState == ExecutionState.Failed)
+            {
+                ExecutionState = executionState;
             }
         }
 
@@ -112,23 +112,24 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 Clause = p;
                 ClauseCondition = Partition.PartitionByFirstRegexMatch(type_condition_body[1], CONDITION_REGEX);
                 ClauseBody = Partition.PartitionByFirstRegexMatch(type_condition_body[2], BODY_REGEX);
+                var executionState = ExecutionState.Executing;
                 if (ApplyFilter())
                 {
-                    var executionState = ExecutePort(LOOP_CLAUSE_PORT_NAME);
+                    executionState = ExecutePort(LOOP_CLAUSE_PORT_NAME);
                     if (executionState == ExecutionState.Failed)
                     {
                         ExecutionState = ExecutionState.Failed;
                         return;
                     }
                 }
-                if (ExecutionState != ExecutionState.Skipped)
+                if (executionState != ExecutionState.Skipped && ClauseBody != null)
                 {
                     pBodies.Add(ClauseBody);
                 }
             }
-            foreach (var p in pBodies)
+            if (ExecutionState != ExecutionState.Failed)
             {
-                if (p != null)
+                foreach (var p in pBodies)
                 {
                     PartitionIfElses(p);
                 }

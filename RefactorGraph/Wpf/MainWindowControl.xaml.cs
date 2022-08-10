@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -20,7 +21,6 @@ namespace RefactorGraph
         {
             InitializeComponent();
             Loaded += OnLoaded;
-            Utils.AddIncludeFolder("RefactorGraphs");
         }
         #endregion
 
@@ -37,8 +37,16 @@ namespace RefactorGraph
         {
             if (!_loaded)
             {
-                Refresh();
-                _loaded = true;
+                try
+                {
+                    Utils.AddIncludeFolder(Utils.GetOrCreateDefaultDir());
+                    Refresh();
+                    _loaded = true;
+                }
+                catch (Exception exception)
+                {
+                    MessageBox.Show(exception.Message, "Error loading Refactor Graph extension", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 

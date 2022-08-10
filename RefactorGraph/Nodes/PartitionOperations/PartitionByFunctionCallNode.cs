@@ -89,33 +89,32 @@ namespace RefactorGraph.Nodes.FunctionOperations
                     {
                         return;
                     }
-                    PartitionFunctionCall(p);
+                    var name_params = Partition.PartitionByRegexMatch(p, NAME_PARAMS);
+                    FunctionCall = p;
+                    FunctionName = name_params[0];
+                    Parameters = name_params[1];
+                    var executionState = ExecutionState.Executing;
+                    if (ApplyFilter())
+                    {
+                        executionState = ExecutePort(LOOP_PORT_NAME);
+                        if (executionState == ExecutionState.Failed)
+                        {
+                            ExecutionState = ExecutionState.Failed;
+                            return;
+                        }
+                    }
+                    if (executionState == ExecutionState.Skipped)
+                    {
+                        break;
+                    }
+                    if (Parameters != null)
+                    {
+                        PartitionFunctionCalls(Parameters);
+                    }
                 }
             }
         }
-
-        private void PartitionFunctionCall(Partition partition)
-        {
-            var name_params = Partition.PartitionByRegexMatch(partition, NAME_PARAMS);
-            FunctionCall = partition;
-            FunctionName = name_params[0];
-            Parameters = name_params[1];
-
-            if (ApplyFilter())
-            {
-                ExecutionState = ExecutePort(LOOP_PORT_NAME);
-                if (ExecutionState == ExecutionState.Failed)
-                {
-                    return;
-                }
-            }
-
-            if (ExecutionState != ExecutionState.Skipped)
-            {
-                PartitionFunctionCalls(Parameters);
-            }
-        }
-
+        
         private bool ApplyFilter()
         {
             FunctionNameFilter = GetPortValue(FUNCTION_NAME_FILTER_PORT_NAME, FunctionNameFilter);
