@@ -170,6 +170,11 @@ namespace RefactorGraph.Wpf
         {
             Utils.OpenInExplorer(_folder);
         }
+
+        private void SaveAllClicked(object sender, RoutedEventArgs e)
+        {
+            SaveAll();
+        }
         #endregion
     }
 }
