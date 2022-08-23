@@ -73,6 +73,7 @@
     <Compile Include="Nodes\Other\ReturnExecutionStateNode.cs" />
     <Compile Include="Nodes\Other\GetReferenceArgNode.cs" />
     <Compile Include="Nodes\Other\PrintNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\GetPureNameNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetLeadingSpacingNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByParametersNode.cs" />
