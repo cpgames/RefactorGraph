@@ -39,6 +39,7 @@
         GetNextPartition,
         GetPartitionData,
         GetPreviousPartition,
+        GetPureName,
         InsertAfter,
         InsertBefore,
         PartitionByClass,

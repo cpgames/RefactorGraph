@@ -33,17 +33,15 @@ namespace RefactorGraph.Nodes
         #region Methods
         public override void OnCreate()
         {
-            base.OnCreate();
-
             var refactorNodeAtt = GetType().GetAttribute<RefactorNodeAttribute>();
             var nodeType = refactorNodeAtt.nodeType;
             var matches = Regex.Matches(nodeType.ToString(), "[A-Z][a-z]*");
             var header = matches.Cast<Match>().Aggregate(string.Empty, (current, match) => current + match.Value + " ");
             Header = header.Trim();
-            HeaderBackgroundColor = NodeColors.brushes[refactorNodeAtt.nodeGroup];
             HeaderFontColor = Brushes.White;
             AllowEditingHeader = AllowEditingHeaderOverride;
             AllowCircularConnection = true;
+            HeaderBackgroundColor = NodeColors.brushes[refactorNodeAtt.nodeGroup];
 
             if (HasInput)
             {
@@ -57,6 +55,8 @@ namespace RefactorGraph.Nodes
             {
                 CreateOutputFlowPort(LOOP_PORT_NAME);
             }
+
+            base.OnCreate();
         }
 
         protected void CreateInputFlowPort(string name)
@@ -85,9 +85,13 @@ namespace RefactorGraph.Nodes
         protected TValue GetPortValue<TValue>(string portName, TValue defaultValue = default)
         {
             var port = NodeGraphManager.FindNodePropertyPort(this, portName);
+            if (port == null)
+            {
+                return defaultValue;
+            }
             NodeGraphManager.FindConnectedPorts(port, out var connectedPorts);
             var otherPort = connectedPorts.Count > 0 ? connectedPorts[0] as NodePropertyPort : null;
-            return otherPort != null ? (TValue)otherPort.Value : defaultValue;
+            return otherPort != null ? (TValue)otherPort.Value : (TValue)port.Value;
         }
 
         protected ExecutionState ExecutePort(string portName)

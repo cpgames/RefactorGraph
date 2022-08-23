@@ -116,6 +116,11 @@ namespace RefactorGraph
                 }
             }
         }
+
+        private void SaveAllClicked(object sender, RoutedEventArgs e)
+        {
+            SaveAll();
+        }
         #endregion
     }
 }

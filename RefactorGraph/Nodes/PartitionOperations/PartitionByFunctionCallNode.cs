@@ -12,6 +12,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         public const string FUNCTION_NAME_FILTER_PORT_NAME = "FunctionNameFilter";
         public const string PARAMETER_FILTER_PORT_NAME = "ParameterFilter";
+        public const string RECURSIVE_PORT_NAME = "Recursive";
 
         public const string FUNCTION_CALL_PORT_NAME = "FunctionCall";
         public const string FUNCTION_NAME_PORT_NAME = "FunctionName";
@@ -24,7 +25,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             @"(?!\s*[{:\w])"; // exclude non function call statements
         private const string NAME_REGEX = @"[^\(]+[^\s\(](?=\s*\()";
         private const string PARAMS_BLOCK_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
-        
+
         private static readonly string[] NAME_PARAMS = { NAME_REGEX, PARAMS_BLOCK_REGEX };
 
         // Inputs
@@ -36,6 +37,9 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         [NodePropertyPort(PARAMETER_FILTER_PORT_NAME, true, typeof(string), "", true)]
         public string ParameterFilter;
+
+        [NodePropertyPort(RECURSIVE_PORT_NAME, true, typeof(bool), true, true)]
+        public bool Recursive;
 
         // Outputs
         [NodePropertyPort(FUNCTION_CALL_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
@@ -75,6 +79,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
+            Recursive = GetPortValue(RECURSIVE_PORT_NAME, Recursive);
             PartitionFunctionCalls(Partition);
         }
 
@@ -107,14 +112,14 @@ namespace RefactorGraph.Nodes.FunctionOperations
                     {
                         break;
                     }
-                    if (Parameters != null)
+                    if (Parameters != null && Recursive)
                     {
                         PartitionFunctionCalls(Parameters);
                     }
                 }
             }
         }
-        
+
         private bool ApplyFilter()
         {
             FunctionNameFilter = GetPortValue(FUNCTION_NAME_FILTER_PORT_NAME, FunctionNameFilter);

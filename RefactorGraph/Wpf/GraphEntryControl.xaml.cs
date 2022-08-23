@@ -142,7 +142,7 @@ namespace RefactorGraph
             {
                 graphName = $"{name}{index}";
                 index++;
-            } while (files.Any(x => x == graphName));
+            } while (files.Any(x => Path.GetFileNameWithoutExtension(x) == graphName));
             _graphName = graphName;
             flowChart.Name = _graphName;
             RaisePropertyChanged("GraphName");

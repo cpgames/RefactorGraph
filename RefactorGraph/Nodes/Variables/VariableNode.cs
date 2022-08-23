@@ -9,8 +9,10 @@ namespace RefactorGraph.Nodes.Variables
     public abstract class VariableNode<T> : RefactorNodeBase
     {
         #region Fields
+        public const string RESET_PORT_NAME = "ResetEveryRun";
         private T _value;
         private T _defaultValue;
+        private bool _resetEveryRun;
         #endregion
 
         #region Properties
@@ -82,11 +84,14 @@ namespace RefactorGraph.Nodes.Variables
             Utils.beginRefactor += OnBeginRefactor;
 
             NodeGraphManager.CreateNodePropertyPort(
-                false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut,
+                false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty,
                 serializeValue: SerializeValue);
             NodeGraphManager.CreateNodePropertyPort(
-                false, Guid.NewGuid(), this, true, type, _value, "Value", HasEditor, null, string.Empty, true,
+                false, Guid.NewGuid(), this, true, typeof(bool), _resetEveryRun, RESET_PORT_NAME, true, null, "ResetEveryRun");
+            NodeGraphManager.CreateNodePropertyPort(
+                false, Guid.NewGuid(), this, false, type, _value, "Value", false, ViewModelTypeOverride, DisplayNameOut,
                 serializeValue: SerializeValue);
+
             base.OnCreate();
         }
 
@@ -98,7 +103,11 @@ namespace RefactorGraph.Nodes.Variables
 
         private void OnBeginRefactor()
         {
-            _value = CopyValue(_defaultValue);
+            _resetEveryRun = GetPortValue(RESET_PORT_NAME, _resetEveryRun);
+            if (_resetEveryRun)
+            {
+                _value = CopyValue(_defaultValue);
+            }
         }
         #endregion
     }
