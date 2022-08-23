@@ -1,24 +1,29 @@
 
 # Refactor Graph
+Refactor Graph is a node-based code refactoring tool for Visual Studio 2022.  
 
-![image](https://user-images.githubusercontent.com/49317353/175891778-9c9d7a1b-8472-4485-b62c-5b14873fc685.png)
+## Sample Graph:
+![image](https://user-images.githubusercontent.com/49317353/186081863-f8510e5b-145e-4f20-818c-4cdd5f53abdc.png)
 
-Node-based code refactoring tool for Visual Studio.
+## Installation:
+Manually [**[Download Latest Version]**](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1) and run the .vsix file  
+or  
+In your Visual Studio go to Extensions -> Manage Extensions -> Select "Online" tab and type "RefactorGraph" in the search field.  
+![image](https://user-images.githubusercontent.com/49317353/183313529-efb7196b-cf73-4fa4-92e4-6791cfa0c028.png)   
+You will need to restart Visual Studio to finish the installation.
 
-Install latest version here: https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1
-
-WARNING: This is a work in progress, and much of parsing functionality is still missing. Also there are stability issues that may cause Visual Studio to crash, so make sure to SAVE YOUR WORK when using this extension. If you experience any issues, please report them here: https://github.com/cpgames/RefactorGraph/issues 
-Also repo is missing some submodules, I will update it later.
+Note: This is a work in progress, and much of parsing functionality is still missing. Also there may be stability issues that may cause Visual Studio to crash, so make sure to save your work when using this extension. If you experience any issues, please report them [here](https://github.com/cpgames/RefactorGraph/issues).
 
 ## Concept:  
+The document gets partitioned into chunks (partitions) using regex. Partitions are connected via doubly linked list.
+Then any partition can be modified on individually or partitioned further into sub-partitions with a parent-child relationship. This makes it easy to perform editing, swapping, inserting, and removing parts of the documment as each partition works as a *reference*.
 
-The document gets partitioned into pieces (using regex or indexing, or some other rule), partitions are connected via doubly linked list.
-Then each partition is worked on individually (or partitioned further into sub-partitions). Which makes it easy to perform edits, and also things like swapping/inserting/removing.
-Finally you don't need to manually "put the document back together", as simply traversing the linked list gives the final result.
 ![RefactorGraph1](https://user-images.githubusercontent.com/49317353/175238323-a6287e3a-1afe-4d93-87ee-de55f2479cbb.png)
 
-Multi-document refactor is now supported! Use DTE nodes to enumerate projects and files in the project.
+## Getting Started:
+To get started, see [wiki](https://github.com/cpgames/RefactorGraph/wiki).  
+Also take a look at sample [Tests](https://github.com/cpgames/RefactorGraph/tree/main/Tests) for premade examples ([how to run tests](https://github.com/cpgames/RefactorGraph/wiki/Running-Tests)).  
+[Intro video](https://youtu.be/uCBUt6PwqXU) (it's a bit outdated, but still describes the concept). 
 
-To get started, watch the Introduction video: https://www.youtube.com/watch?v=uCBUt6PwqXU
-
-Also see examples (more added soon): https://github.com/cpgames/RefactorGraph/tree/main/Examples
+## License:
+Refactor Graph is licensed under the MIT license.
