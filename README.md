@@ -3,7 +3,7 @@
 Refactor Graph is a node-based code refactoring tool for Visual Studio 2022.  
 
 ## Sample Graph:
-![image](https://user-images.githubusercontent.com/49317353/183280565-9f4a11d5-d585-4d0f-b6e4-319620da01d7.png)
+![image](https://user-images.githubusercontent.com/49317353/186081863-f8510e5b-145e-4f20-818c-4cdd5f53abdc.png)
 
 ## Installation:
 Manually [**[Download Latest Version]**](https://marketplace.visualstudio.com/manage/publishers/chillpillgames?src=ChillPillGames.RefactorGraph1) and run the .vsix file  
