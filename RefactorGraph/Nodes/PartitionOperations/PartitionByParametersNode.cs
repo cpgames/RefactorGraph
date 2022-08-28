@@ -12,12 +12,13 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string PARAMETER_FILTER_PORT_NAME = "ParameterFilter";
         public const string PARAMETER_PORT_NAME = "Parameter";
 
-        private const string PARAMS_REGEX = "(?:\\b[\\w\\s.]+\\b|" + // words
+        private const string PARAMS_BLOCK_REGEX = "(?:[^,<>,\\[\\]()\"{}]|" + // words
             "(<(?:[^<>]++|(?-1))*>)|" + // <> brackets
             "(\\((?:[^()]++|(?-1))*\\))|" + // () brackets
             "(\"(?:[^\"\"]++|(?-1))*\")|" + // quotes
             "\\s*=>\\s*|" + // lambda
             "({(?:[^{}]++|(?-1))*}))+"; // {} brackets
+        private const string PARAMS_REGEX = @"\b[\s\S]+\b";
 
         // Inputs
         [NodePropertyPort(PARTITION_PORT_NAME, true, typeof(Partition), null, false, Serialized = false)]
@@ -61,12 +62,12 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private void PartitionParameters(Partition partition)
         {
-            var partitions = Partition.PartitionByRegexMatch(partition, PARAMS_REGEX);
+            var partitions = Partition.PartitionByRegexMatch(partition, PARAMS_BLOCK_REGEX);
             if (partitions != null)
             {
                 foreach (var p in partitions)
                 {
-                    Parameter = p;
+                    Parameter = Partition.PartitionByFirstRegexMatch(p, PARAMS_REGEX);
                     var executionState = ExecutionState.Executing;
                     if (ApplyFilter())
                     {
