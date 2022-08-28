@@ -27,15 +27,15 @@ namespace RefactorGraph.Nodes.FunctionOperations
 
         private const string FUNCTION_REGEX = @"(?:public\s*|private\s*|protected\s*|internal\s*)?" + // scope
             @"(?:abstract\s*|static\s*|override\s*)?" + // modifier
-            @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)\s*" + // return type
+            @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?[?]?)\s*" + // return type
             @"(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?\s*" + // function name
             @"(\((?:[^()]++|(?-1))*\)))" + // function parameters
             @"[\s\w:,]*" + // where clause
-            @"({(?:[^{}]++|(?-1))*})"; // function body
-        private const string DEF_REGEX = @"[\s\S]+?(?=\s*{)";
+            @"({(?:[^{}]++|(?-1))*}|;)"; // function body
+        private const string DEF_REGEX = @"[\s\S]+?(?=\s*[{;])";
         private const string SCOPE_REGEX = @"(?:public|private|protected|internal)";
         private const string MODIFIER_REGEX = @"(?:abstract|static|override)";
-        private const string RETURN_TYPE_REGEX = @"\A\s*\K(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?)(?!\s*\()";
+        private const string RETURN_TYPE_REGEX = @"\A\s*\K(?:\b[\w.]+\b(<(?:[^<>]++|(?-1))*>)?[?]?)(?!\s*\()";
         private const string NAME_REGEX = @"(?:\b[\w.]+\b\s*)(<(?:[^<>]++|(?-1))*>)?";
         private const string PARAMS_BLOCK_REGEX = @"(\((?:[^()]++|(?-1))*\))";
         private const string PARAMS_REGEX = @"\(\s*\K[\s\S]*[^\s](?=\s*\))";
@@ -139,9 +139,17 @@ namespace RefactorGraph.Nodes.FunctionOperations
                 ReturnType = scope_modifier_returnType_name_params[2];
                 FunctionName = scope_modifier_returnType_name_params[3];
                 Parameters = Partition.PartitionByFirstRegexMatch(scope_modifier_returnType_name_params[4], PARAMS_REGEX);
-                FunctionBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
+                var isAbstract = def_body[1] == null;
+                if (!isAbstract)
+                {
+                    FunctionBody = Partition.PartitionByFirstRegexMatch(def_body[1], BODY_REGEX);
+                }
+                else
+                {
+                    FunctionBody = null;
+                }
                 var executionState = ExecutionState.Executing;
-                if (ApplyFilter())
+                if (ApplyFilter(isAbstract))
                 {
                     executionState = ExecutePort(LOOP_PORT_NAME);
                     if (executionState == ExecutionState.Failed)
@@ -161,7 +169,7 @@ namespace RefactorGraph.Nodes.FunctionOperations
             }
         }
 
-        private bool ApplyFilter()
+        private bool ApplyFilter(bool isAbstract)
         {
             var functionKindFilter = GetPortValue(FUNCTION_KIND_FILTER_PORT_NAME, FunctionKindFilter);
             if ((functionKindFilter & FunctionKind.Constructor) == 0)
@@ -220,6 +228,10 @@ namespace RefactorGraph.Nodes.FunctionOperations
                         modifierEnum = FunctionModifier.Abstract;
                         break;
                 }
+            }
+            if (isAbstract)
+            {
+                modifierEnum = FunctionModifier.Abstract;
             }
             if ((modifierEnum & ModifierFilter) == 0)
             {
