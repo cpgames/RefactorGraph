@@ -25,18 +25,19 @@ namespace RefactorGraph.Nodes.FunctionOperations
         public const string IS_DECLARATION_PORT_NAME = "IsDeclaration";
         public const string IS_ASSIGNMENT_PORT_NAME = "IsAssignment";
 
+        private const string DECLARATION_REGEX = @"^\s*\K\w[\w.\s<>\[\]\??]+\s*";
         private const string VARIABLE_REGEX =
             "^\\s*#.*(*SKIP)(*F)|" + // skip regions
             "\\s*using\\s*(*SKIP)(*F)|" + // skip usings
             "\\s*return\\s*(*SKIP)(*F)|" + // skip returns
-            "^\\s*\\K\\w[\\w.\\s]+\\s*=\\s*(\\((?:[^()]++|(?-1))*\\))\\s*=>\\s*({(?:[^{}]++|(?-1))*});|" + // assignment with lambda and/or declaration
-            "^\\s*\\K\\w[\\w.\\s]+\\s*=\\s*[\\w\"][\\s\\S]*?;|" + // standard assignment and/or declaration and 
-            "^\\s*\\K\\w[\\w.\\s<>\\[\\]]+\\s*;"; // variable declaration only
+            DECLARATION_REGEX + "=\\s*(\\((?:[^()]++|(?-1))*\\))\\s*=>\\s*({(?:[^{}]++|(?-1))*});|" + // assignment with lambda and/or declaration
+            DECLARATION_REGEX + "=\\s*[\\w\"][\\s\\S]*?;|" + // standard assignment and/or declaration and 
+            DECLARATION_REGEX + ";"; // variable declaration only
 
         private const string VARIABLE_SCOPE_REGEX = @"\b(?:public|private|protected|internal)\b";
         private const string VARIABLE_MODIFIER_REGEX = @"\b(?:static|const)\b";
         private const string VARIABLE_READONLY_REGEX = @"\b(?:readonly)\b";
-        private const string VARIABLE_TYPE_REGEX = @"\w+(?=\s+\w+)";
+        private const string VARIABLE_TYPE_REGEX = @"\w+\??(?=\s+\w+)";
         private const string VARIABLE_NAME_REGEX = @"[\w.]+(?=\s*[=;])";
         private const string EQUALITY_REGEX = @"\s*=\s*";
         private const string VARIABLE_VALUE_REGEX = @"\s*\K[\s\S]+(?=;)";

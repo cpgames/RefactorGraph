@@ -90,7 +90,7 @@ namespace RefactorGraph
                 NodeGraphManager.DestroyFlowChart(guid);
             }
         }
-        
+
         public static string GetOrCreateDefaultDir()
         {
             var dir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
@@ -402,6 +402,31 @@ namespace RefactorGraph
                 return true;
             }
             return false;
+        }
+
+        public static Partition GetSelectionPartition(TextDocument document)
+        {
+            var selectionPartition = new Partition
+            {
+                data = document.Selection.Text
+            };
+            return selectionPartition;
+        }
+
+        public static bool SetSelectionPartition(TextDocument document, Partition partition)
+        {
+            var originalText = document.Selection.Text;
+            if (originalText != partition.data)
+            {
+                document.Selection.Insert(partition.data);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsSelectionEmpty(TextDocument document)
+        {
+            return document.Selection.IsEmpty;
         }
 
         public static Project GetActiveProject()

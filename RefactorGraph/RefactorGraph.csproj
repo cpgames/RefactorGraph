@@ -46,6 +46,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Data\PropertyModifier.cs" />
+    <Compile Include="Data\NullableModifier.cs" />
     <Compile Include="Data\FunctionKind.cs" />
     <Compile Include="Data\TypeCategory.cs" />
     <Compile Include="Data\ClassModifier.cs" />
@@ -76,6 +78,7 @@
     <Compile Include="Nodes\PartitionOperations\GetPureNameNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetLeadingSpacingNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByFirstRegexMatchNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\PartitionByPropertyNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByParametersNode.cs" />
     <Compile Include="Nodes\PartitionOperations\PartitionByIfElseNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPreviousPartitionNode.cs" />
@@ -92,6 +95,7 @@
     <Compile Include="Nodes\PartitionOperations\RegexMatchPresentInPartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\RemovePartitionNode.cs" />
     <Compile Include="Nodes\PartitionOperations\GetPartitionDataNode.cs" />
+    <Compile Include="Nodes\PartitionOperations\ChangeNullabilityNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SortPartitionsNode.cs" />
     <Compile Include="Nodes\PartitionOperations\SwapPartitionsNode.cs" />
     <Compile Include="Nodes\TypedRefactorNodeBase.cs" />
