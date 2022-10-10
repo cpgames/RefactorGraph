@@ -34,6 +34,7 @@
         ReturnExecutionState,
         Start,
         // PartitionOperations
+        ChangeNullability,
         FindFirstPartitionInCollection,
         GetLeadingSpacing,
         GetNextPartition,
@@ -48,6 +49,7 @@
         PartitionByFunction,
         PartitionByIfElse,
         PartitionByParameters,
+        PartitionByProperty,
         PartitionByRegexMatch,
         PartitionByReturn,
         PartitionByVariable,

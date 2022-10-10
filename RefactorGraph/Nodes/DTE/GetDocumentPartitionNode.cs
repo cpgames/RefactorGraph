@@ -11,12 +11,16 @@ namespace RefactorGraph.Nodes.Other
         #region Fields
         public const string DOCUMENT_PORT_NAME = "Document";
         public const string PARTITION_PORT_NAME = "Partition";
+        public const string SELECTION_PORT_NAME = "Selection";
 
         [NodePropertyPort(DOCUMENT_PORT_NAME, true, typeof(TextDocument), null, false, Serialized = false)]
         public TextDocument Document;
 
         [NodePropertyPort(PARTITION_PORT_NAME, false, typeof(Partition), null, false, Serialized = false)]
         public Partition Partition;
+
+        [NodePropertyPort(SELECTION_PORT_NAME, false, typeof(bool), false, true)]
+        public bool Selection;
         #endregion
 
         #region Constructors
@@ -34,7 +38,10 @@ namespace RefactorGraph.Nodes.Other
                 ExecutionState = ExecutionState.Failed;
                 return;
             }
-            Partition = Utils.GetDocumentPartition(Document);
+            Selection = GetPortValue(SELECTION_PORT_NAME, Selection);
+            Partition = Selection && !Utils.IsSelectionEmpty(Document) ?
+                Utils.GetSelectionPartition(Document) :
+                Utils.GetDocumentPartition(Document);
         }
 
         protected override void OnPostExecute(Connector connector)
@@ -43,9 +50,18 @@ namespace RefactorGraph.Nodes.Other
             if (ExecutionState == ExecutionState.Executed)
             {
                 Partition.Rasterize();
-                ExecutionState = Utils.SetDocumentPartition(Document, Partition) ?
-                    ExecutionState.Executed :
-                    ExecutionState.Skipped;
+                if (Selection && !Utils.IsSelectionEmpty(Document))
+                {
+                    ExecutionState = Utils.SetSelectionPartition(Document, Partition) ?
+                        ExecutionState.Executed :
+                        ExecutionState.Skipped;
+                }
+                else
+                {
+                    ExecutionState = Utils.SetDocumentPartition(Document, Partition) ?
+                        ExecutionState.Executed :
+                        ExecutionState.Skipped;
+                }
             }
         }
         #endregion

@@ -59,6 +59,10 @@ namespace RefactorGraph.Nodes.PartitionOperations
                     throw new Exception("No graph found.");
                 }
                 var folderPath = Path.GetDirectoryName(ownerFilePath);
+                if (folderPath == null)
+                {
+                    throw new Exception("No folder found.");
+                }
                 filePath = Path.Combine(folderPath, GraphPath);
             }
             else
